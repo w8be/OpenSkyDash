@@ -1,6 +1,6 @@
 <template>
   <v-app theme="dark">
-    <v-main class="d-flex align-center justify-center bg-black">
+    <v-main class="d-flex align-center justify-center bg-grey-darken-5 rounded-lg">
       <v-card width="300" class="mx-auto border-sm" elevation="24">
 
         <v-tabs v-model="activeTab" bg-color="#1a1a1a" color="grey-darken-1" grow density="compact">
