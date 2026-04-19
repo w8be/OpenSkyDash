@@ -95,20 +95,21 @@
 
             <v-expansion-panels v-model="panel" variant="accordion" class="mt-4 custom-panels">
                 <v-expansion-panel class="bg-transparent" value="strikes">
-                    <v-expansion-panel-title class="pa-0 text-capitalize text-caption font-weight-bold white--text">
+                    <v-expansion-panel-title
+                        class="pa-0 ma-0 text-capitalize text-caption font-weight-bold text-brown-lighten-4">
                         Recent Strikes
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
                         <div v-for="(strike, index) in recentStrikes" :key="index" class="py-1">
                             <v-row no-gutters align="center" class="text-caption">
                                 <v-col cols="4" class="text-left text-grey-lighten-1">{{ formatTime(strike.time)
-                                }}</v-col>
+                                    }}</v-col>
                                 <v-col cols="5" class="text-center font-weight-bold text-orange-darken-1">{{ strike.dist
-                                }}{{
+                                    }}{{
                                         state.config.unit }}</v-col>
                                 <v-col cols="3" class="text-right font-weight-bold white--text">{{
                                     getDir(strike.bearing)
-                                }}</v-col>
+                                    }}</v-col>
                             </v-row>
                             <v-divider v-if="index < recentStrikes.length - 1"
                                 class="mt-1 border-bottom-dim"></v-divider>
@@ -381,6 +382,7 @@
 </template>
 
 <script>
+import { globalState } from '../../state.js';
 export default {
     name: 'LightningCard',
     data() {
@@ -747,9 +749,16 @@ export default {
 
         updateFrequency() {
             const oneMinuteAgo = Date.now() - 60000;
-            // Filter the history for anything that happened in the last 60 seconds
             const recentStrikes = this.state.history.filter(s => s.time > oneMinuteAgo);
-            this.state.currentStorm.frequency = recentStrikes.length;
+
+            const freq = recentStrikes.length;
+
+            // Update local card UI
+            this.state.currentStorm.frequency = freq;
+            // Update Global state
+            if (window.G_STATE) {
+                window.G_STATE.lightning.frequency = freq;
+            }
         },
 
         playThunder() {
@@ -777,6 +786,10 @@ export default {
                     trend: 'Stationary',
                     frequency: 0
                 };
+
+                if (window.G_STATE) {
+                    window.G_STATE.lightning.frequency = 0;
+                }
             }
 
             this.send({
@@ -875,7 +888,7 @@ export default {
 
             const val = unit === 'Mi' ? d : (d * 1.60934);
             return Math.round(val);
-        }
+        },
     }
 };
 </script>
