@@ -7,7 +7,7 @@
       <v-spacer></v-spacer>
       <div class="pa-4 text-h6">{{ currentTime }}</div>
     </v-app-bar>
-    <v-main class="d-flex align-start justify-center bg-grey-darken-5 rounded-lg mt-6">
+    <v-main class="d-flex align-start justify-center bg-grey-darken-5 rounded-lg mt-4">
       <v-card width="300" class="mx-auto border-sm" elevation="24">
 
         <v-tabs v-model="activeTab" bg-color="#1a1a1a" color="grey-darken-1" grow density="compact">
