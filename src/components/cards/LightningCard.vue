@@ -1,7 +1,5 @@
 <template>
     <!--  <pre>Local: {{ localConfig.sampleSize }}</pre> -->
-    <!--  <v-card v-if="state?.currentStorm" class="mx-auto lightning-card bg-grey-darken-4"
-    style="max-width: 300px; min-width:300px">  -->
     <v-sheet value="lightning" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
 
@@ -103,13 +101,13 @@
                         <div v-for="(strike, index) in recentStrikes" :key="index" class="py-1">
                             <v-row no-gutters align="center" class="text-caption">
                                 <v-col cols="4" class="text-left text-grey-lighten-1">{{ formatTime(strike.time)
-                                    }}</v-col>
+                                }}</v-col>
                                 <v-col cols="5" class="text-center font-weight-bold text-orange-darken-1">{{ strike.dist
-                                    }}{{
+                                }}{{
                                         state.config.unit }}</v-col>
                                 <v-col cols="3" class="text-right font-weight-bold white--text">{{
                                     getDir(strike.bearing)
-                                    }}</v-col>
+                                }}</v-col>
                             </v-row>
                             <v-divider v-if="index < recentStrikes.length - 1"
                                 class="mt-1 border-bottom-dim"></v-divider>
