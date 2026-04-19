@@ -57,7 +57,8 @@ export default {
     return {
       activeTab: 'lightning',
       // Look at the window object directly
-      shared: window.G_STATE || globalState
+      shared: window.G_STATE || globalState,
+      currentTime: ''
     };
   },
   mounted() {

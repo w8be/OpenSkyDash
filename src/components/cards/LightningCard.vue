@@ -6,7 +6,7 @@
         <div class="d-flex justify-space-between align-center header-bg px-3 py-2"
             style="position: relative; z-index: 10;">
             <div class="d-flex align-center">
-                <v-icon icon="mdi-flash" color="amber" size="large" class="mr-1"
+                <v-icon icon="mdi-flash" color="amber" size="large"
                     :class="{ 'pulsing-icon': (state?.currentStorm?.frequency > 0) }">
                 </v-icon>
                 <div class="d-flex flex-column align-start">
@@ -17,8 +17,8 @@
             </div>
 
             <div class="d-flex justify-space-between align-center">
-                <v-chip size="x-small" :color="freqColor" variant="flat" class="font-weight-bold d-flex justify-center"
-                    style="font-weight: bold; min-width: 65px;">
+                <v-chip size="x-small" :color="freqColor" variant="flat"
+                    class="font-weight-bold d-flex justify-center mr-1" style="font-weight: bold; min-width: 65px;">
                     {{ state?.currentStorm?.frequency || 0 }}/min
 
                     <template v-slot:append>
