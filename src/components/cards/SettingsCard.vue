@@ -24,7 +24,7 @@
                         <v-window v-model="stg.ui.activeTab" style="width: 300px" ;>
                             <v-window-item value="general" style="height: 60vh; overflow-y: auto;">
                                 <div class="text-subtitle-2 mb-4 text-secondary d-flex align-center">
-                                    <v-icon color="#54b6b2" class="mr-2">mdi-ruler</v-icon>
+                                    <v-icon color="#d9d2e9" class="mr-2">mdi-ruler</v-icon>
                                     <span>Measurement Units</span>
                                 </div>
 
