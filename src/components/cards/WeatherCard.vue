@@ -63,7 +63,9 @@
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-water-thermometer" color="blue-lighten-3"
                             size="large"></v-icon></span>
-                    <span class="val"><strong>{{ Math.round(weather.current.dewPoint) }}°</strong></span>
+                    <span class="val"><strong>{{ Math.round(weather.current.dewPoint) }}° {{ stg.weather.tempUnit ===
+                        'fahrenheit' ? 'F' : 'C'
+                            }}</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
@@ -79,12 +81,12 @@
                 <div class="metric-cell border-t border-r border-white-op">
                     <span class="label"><v-icon icon="mdi-eye" color="blue-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.visibility }} {{ stg.weather.distanceUnit
-                    }}</strong></span>
+                            }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" color="blue-lighten-3"
                             size="large"></v-icon></span>
-                    <span class="val"><strong>{{ weather.current.uv }}</strong></span>
+                    <span class="val"><strong>{{ weather.current.uv }} UV</strong></span>
                 </div>
             </div>
 
