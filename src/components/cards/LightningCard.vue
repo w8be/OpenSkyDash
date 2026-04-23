@@ -1,13 +1,13 @@
 <template>
-    <!--  <pre>Local: {{ localConfig.sampleSize }}</pre> -->
+    <!-- <pre>currentStorm.distance: {{ stg.lightning.currentStorm.distance }}</pre> -->
     <v-sheet value="lightning" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
 
         <div class="d-flex justify-space-between align-center header-bg px-3 py-2"
-            style="position: relative; z-index: 10;">
+            style="position: relative; z-index: 10; ">
             <div class="d-flex align-center">
                 <v-icon icon="mdi-flash" color="amber" size="large"
-                    :class="{ 'pulsing-icon': (state?.currentStorm?.frequency > 0) }">
+                    :class="{ 'pulsing-icon': (stg?.lightning.currentStorm.frequency > 0) }">
                 </v-icon>
                 <div class="d-flex flex-column align-start">
                     <span class="text-subtitle-1 font-weight-bold text-brown-lighten-4"
@@ -19,13 +19,13 @@
             <div class="d-flex justify-space-between align-center">
                 <v-chip size="x-small" :color="freqColor" variant="flat"
                     class="font-weight-bold d-flex justify-center mr-1" style="font-weight: bold; min-width: 65px;">
-                    {{ state?.currentStorm?.frequency || 0 }}/min
+                    {{ stg?.lightning.currentStorm.frequency || 0 }}/min
 
                     <template v-slot:append>
                         <v-btn v-tooltip:top="'Chase Mode'" icon="mdi-radar" variant="text" size="x-small"
                             class="ml-2 ma-0" density="compact"
-                            :color="localConfig.isSnapped ? 'cyan-accent-2' : 'grey-lighten-1'"
-                            :class="{ 'ml-2 ma-0, pulse-animation': localConfig.isSnapped }"
+                            :color="stg?.lightning.isSnapped ? 'cyan-accent-2' : 'grey-lighten-1'"
+                            :class="{ 'ml-2 ma-0, pulse-animation': stg?.lightning.isSnapped }"
                             @click="setThresholdFromCurrent"></v-btn>
                     </template>
                 </v-chip>
@@ -33,31 +33,28 @@
                 <div class="d-flex align-center">
                     <v-btn v-tooltip:top="'Mute'" icon variant="plain" size="small" @click="toggleMute" class="ma-0"
                         width="28">
-                        <v-icon :icon="state?.config?.isMuted ? 'mdi-volume-off' : 'mdi-volume-high'"
-                            :color="state?.config?.isMuted ? 'red' : 'green'" size="small">
+                        <v-icon :icon="stg?.lightning.isMuted ? 'mdi-volume-off' : 'mdi-volume-high'"
+                            :color="stg?.lightning.isMuted ? 'red' : 'green'" size="small">
                         </v-icon>
                     </v-btn>
                     <v-btn v-tooltip:top="'Clear Buffer'" icon variant="plain" size="small" @click="resetBuffer"
                         class="ma-0" width="28">
                         <v-icon icon="mdi-trash-can-outline"
-                            :color="(state?.history?.length > 0) ? 'blue' : 'grey-darken-1'" size="small">
+                            :color="(stg?.lightning.history?.length > 0) ? 'blue' : 'grey-darken-1'" size="small">
                         </v-icon>
                     </v-btn>
-                    <v-btn v-tooltip:top="'Settings'" icon variant="plain" size="small" @click.stop="openSettings"
-                        class="ma-0" width="28">
-                        <v-icon icon="mdi-cog" color="grey-lighten-1" size="small"></v-icon>
-                    </v-btn>
                 </div>
+
             </div>
         </div>
 
-        <template v-if="state?.config">
-            <div v-if="state.currentStorm.distance > 0 && state.currentStorm.distance <= state.config.alertThreshold"
+        <template v-if="stg?.lightning">
+            <div v-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <= stg.lightning.alertThreshold"
                 class="danger-banner text-center py-1 font-weight-bold text-white" style="background-color: #d32f2f;">
                 <v-icon icon="mdi-alert-octagon" size="x-small" class="mr-1"></v-icon>
                 TAKE ACTION: Immediate Danger
             </div>
-            <div v-else-if="state.currentStorm.distance > 0 && state.currentStorm.distance <= state.config.searchRadius"
+            <div v-else-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <= stg.lightning.searchRadius"
                 class="text-center py-1 font-weight-bold text-white" style="background-color: #c46300;">
                 <v-icon icon="mdi-eye-check" size="x-small" class="mr-1"></v-icon>
                 CAUTION: Strikes In Area
@@ -68,21 +65,21 @@
             </div>
         </template>
 
-        <v-card-text v-if="state?.history && state.history.length > 0" class="pa-4">
+        <v-card-text v-if="stg?.lightning.history && stg.lightning.history.length > 0" class="pa-4">
             <div class="d-flex justify-space-between align-end mb-4">
                 <div class="d-flex align-baseline">
                     <div class="display-value text-brown-lighten-4">{{ convertedDistance }}</div>
-                    <div class="unit-text ml-1">{{ state.config?.unit }}</div>
+                    <div class="unit-text ml-1">{{ stg.lightning?.unit }}</div>
                 </div>
                 <div class="text-right d-flex flex-column align-center" style="min-width: 100px;">
                     <v-icon icon="mdi-navigation"
-                        :style="{ transform: `rotate(${state.currentStorm?.bearing || 0}deg)`, transition: 'transform 0.5s' }"
+                        :style="{ transform: `rotate(${stg.lightning.currentStorm?.bearing || 0}deg)`, transition: 'transform 0.5s' }"
                         size="34" color="brown-lighten-4"></v-icon>
                     <div :class="['trend-text font-weight-black mt-1 text-capitalize', trendColor]">
-                        {{ state.currentStorm?.trend }}
+                        {{ stg.lightning.currentStorm?.trend }}
                     </div>
                     <div class="unit-text ml-1" style="font-size: 1.0rem;">
-                        {{ getDir(state.currentStorm?.bearing) }}
+                        {{ getDir(stg.lightning.currentStorm?.bearing) }}
                     </div>
                 </div>
             </div>
@@ -91,7 +88,7 @@
                 line-width="3" height="50" fill padding="4">
             </v-sparkline>
 
-            <v-expansion-panels v-model="panel" variant="accordion" class="mt-4 custom-panels">
+            <v-expansion-panels v-model="panel" variant="accordion" class="custom-panels">
                 <v-expansion-panel class="bg-transparent" value="strikes">
                     <v-expansion-panel-title
                         class="pa-0 ma-0 text-capitalize text-caption font-weight-bold text-brown-lighten-4">
@@ -101,13 +98,12 @@
                         <div v-for="(strike, index) in recentStrikes" :key="index" class="py-1">
                             <v-row no-gutters align="center" class="text-caption">
                                 <v-col cols="4" class="text-left text-grey-lighten-1">{{ formatTime(strike.time)
-                                }}</v-col>
+                                    }}</v-col>
                                 <v-col cols="5" class="text-center font-weight-bold text-orange-darken-1">{{ strike.dist
-                                }}{{
-                                        state.config.unit }}</v-col>
+                                    }}{{ stg.lightning.unit }}</v-col>
                                 <v-col cols="3" class="text-right font-weight-bold white--text">{{
                                     getDir(strike.bearing)
-                                }}</v-col>
+                                    }}</v-col>
                             </v-row>
                             <v-divider v-if="index < recentStrikes.length - 1"
                                 class="mt-1 border-bottom-dim"></v-divider>
@@ -124,322 +120,51 @@
 
         <div class="px-5 py-1 footer-bg border-top-dim rounded-b-lg">
             <div class="d-flex justify-space-between align-center text-caption font-weight-bold">
-                <span class="text-orange" style="font-size: 0.7rem;">Area: {{ state?.config?.searchRadius }}{{
-                    state?.config?.unit }}</span>
-                <div :class="[(state?.history.length > 0) ? 'text-green-accent-2' : 'text-grey-darken-1',
+                <span class="text-orange" style="font-size: 0.7rem;">Area: {{ stg?.lightning.searchRadius }}{{
+                    stg?.lightning.unit }}</span>
+                <div :class="[(stg?.lightning.history.length > 0) ? 'text-green-accent-2' : 'text-grey-darken-1',
                     'd-flex align-center align-center justify-center mr-3']" style="font-size: 0.65rem;">
                     <v-icon icon="mdi-pulse" size="10" class="pulse-icon"></v-icon>
                     {{ lastUpdated }}
                 </div>
-                <span class="text-orange" style="font-size: 0.7rem;">Alert: {{ state?.config?.alertThreshold }}{{
-                    state?.config?.unit }}</span>
+                <span class="text-orange" style="font-size: 0.7rem;">Alert: {{ stg?.lightning.alertThreshold }}{{
+                    stg?.lightning.unit }}</span>
             </div>
         </div>
 
-        <v-dialog v-model="showModal" max-width="450" :key="showModal" eager>
-            <v-card rounded="xl" class="pa-2">
-                <v-layout style="display: block;">
-
-                    <v-tabs v-model="activeTab" align-tabs="center">
-                        <v-tab color="#54b6b2" value="general">
-                            <v-icon start icon="mdi-cog"></v-icon> General
-                        </v-tab>
-                        <v-tab color="orange-darken-2" value="tuning">
-                            <v-icon start icon="mdi-tune"></v-icon> Tuning
-                        </v-tab>
-                        <v-tab color="info" value="features">
-                            <v-icon start icon="mdi-feature-search"></v-icon> Features
-                        </v-tab>
-                    </v-tabs>
-
-                    <v-divider></v-divider>
-
-                    <v-card-text>
-                        <v-window v-model="activeTab">
-                            <v-window-item value="general" style="height: 50vh; overflow-y: auto;">
-                                <div class="text-subtitle-2 mb-2 text-secondary"><v-icon color="#d9d2e9"
-                                        size="large">mdi-ruler</v-icon>
-                                    Unit</div>
-                                <v-btn-toggle v-model="localConfig.unit" mandatory color="orange-darken-2" class="mb-6">
-                                    <v-btn value="Mi">Mi</v-btn>
-                                    <v-btn value="Km">Km</v-btn>
-                                </v-btn-toggle>
-
-                                <div class="text-subtitle-2 mb-2 text-secondary"><v-icon size="large"
-                                        color="#c8bba3">mdi-home-map-marker</v-icon>
-                                    Location
-                                </div>
-                                <v-row density="comfortable" class="mb-2">
-                                    <v-col class="text-info" cols="6"><v-text-field
-                                            v-model.number="localConfig.homeLocation.lat" label="Lat" density="compact"
-                                            variant="outlined"></v-text-field></v-col>
-                                    <v-col class="text-info" cols="6"><v-text-field
-                                            v-model.number="localConfig.homeLocation.lon" label="Lon" density="compact"
-                                            variant="outlined"></v-text-field></v-col>
-                                </v-row>
-
-                                <div class="text-subtitle-2 mb-2 text-secondary"><v-icon size="large"
-                                        color="#b06e69">mdi-clock-outline</v-icon>
-                                    Reset
-                                    Time
-                                    ({{ localConfig.resetTime }})</div>
-                                <v-btn-toggle v-model="localConfig.resetTime" mandatory color="blue" class="mb-6">
-                                    <v-btn :value="5">5</v-btn>
-                                    <v-btn :value="10">10</v-btn>
-                                    <v-btn :value="30">30</v-btn>
-                                    <v-btn :value="60">60</v-btn>
-                                </v-btn-toggle>
-
-                                <v-row density="comfortable">
-                                    <v-col cols="6">
-                                        <div class="text-subtitle-2 mb-1 text-secondary"><v-icon color="#4285F4"
-                                                size="large">mdi-earth</v-icon>
-                                            Area
-                                        </div>
-                                        <v-text-field class="text-info" v-model.number="localConfig.searchRadius"
-                                            density="compact" variant="outlined"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="6">
-                                        <div class="text-subtitle-2 mb-1 text-secondary"><v-icon size="small"
-                                                color="orange">mdi-lightning-bolt</v-icon> Alert</div>
-                                        <v-text-field class="text-info" v-model.number="localConfig.alertThreshold"
-                                            density="compact" variant="outlined"></v-text-field>
-                                    </v-col>
-                                </v-row>
-                            </v-window-item>
-
-                            <v-window-item value="tuning" style="height: 50vh; overflow-y: auto;">
-                                <div class="text-overline text-orange mb-1">Trend</div>
-                                <v-select v-model="localConfig.algorithm"
-                                    :items="['Closest Strike (Fastest)', 'Average (Smoother)', 'Percentile (Balanced)']"
-                                    variant="outlined" density="compact"></v-select>
-
-                                <div class="text-overline text-orange mt-2">Sensitivity</div>
-
-                                <v-slider class="mb-6" v-model="localConfig.sensitivity" min="0.5" max="10" step="0.5"
-                                    color="orange" thumb-label="always" show-ticks="always" persistent-hint
-                                    hint="Higher values reduce 'flip-flopping' of the trend">
-                                    <template v-slot:append>
-                                        <v-text-field v-model="localConfig.sensitivity" density="compact"
-                                            style="width: 70px" variant="outlined" hide-details single-line
-                                            type="number"></v-text-field>
-                                    </template>
-                                </v-slider>
-
-                                <div class="text-overline text-orange mt-2">Sample Size</div>
-                                <v-text-field v-model.number="localConfig.sampleSize" density="compact"
-                                    variant="outlined" hide-details></v-text-field>
-
-                                <div v-if="localConfig.algorithm === 'Percentile (Balanced)'"
-                                    class="text-caption text-grey mt-1">
-                                    Higher samples improve percentile accuracy (20th percentile).
-                                </div>
-                                <div v-else-if="localConfig.algorithm === 'Average (Smoother)'"
-                                    class="text-caption text-grey mt-1">
-                                    Higher samples dampen wild swings in trend.
-                                </div>
-                                <div v-else class="text-caption text-grey mt-1">
-                                    Min strikes needed to calculate trend.
-                                </div>
-
-                                <div class="text-overline text-orange mt-6">Chase Mode</div>
-
-                                <v-btn v-tooltip:top="'Chase Mode'" icon="mdi-radar" variant="text" size="x-large"
-                                    density="compact" :color="localConfig.isSnapped ? 'cyan-accent-2' : 'grey-darken-1'"
-                                    :class="['ml-2', { 'pulse-animation': localConfig.isSnapped }]"
-                                    @click="setThresholdFromCurrent"></v-btn>
-
-                                <div class="text-caption text-grey mt-1">
-                                    Sync Sample Size to strike frequency
-                                </div>
-                            </v-window-item>
-
-                            <v-window-item value="features" class="text-caption text-grey mt-1"
-                                style="height: 70vh; overflow-y: auto;">
-                                <h2> Lightning Monitor Features</h2>
-                                <h3>📡 Data &amp; Connection</h3>
-                                <ul>
-                                    <li><strong>Source:</strong> Real-time stream from <code>blitzortung.org</code>.
-                                    </li>
-                                    <li><strong>Dynamic WSS:</strong> Automatic server rotation and key extraction</li>
-                                    <li><strong>Lempel–Ziv–Welch (LZW):</strong> Custom decompression algorithm to
-                                        decode raw binary strike data.
-                                    </li>
-                                    <li><strong>State Management:</strong> Uses Browser Context to maintain persistent
-                                        dashboard data across refreshes.</li>
-                                </ul>
-                                <h3>🧠 Logic Engine</h3>
-                                <ul>
-                                    <li><strong>Haversine Formula:</strong> Precise distance calculation from your
-                                        configured <code>homeLocation</code>.</li>
-                                    <li><strong>Refined Trend Tracking:</strong> Compares the &quot;Near Distance&quot;
-                                        (closest strike) of the first half of the buffer vs. the second half to
-                                        determine movement.</li>
-                                    <li><strong>Tunable Sensitivity:</strong> Uses a configurable &quot;Dead Zone&quot;
-                                        (e.g., 2.0 units) to prevent the trend arrow from flickering during stationary
-                                        storms.</li>
-                                    <li><strong>Strikes/minute:</strong> Calculates a rolling strike frequency and
-                                        tracks the <strong>Peak Frequency</strong> of the current event.</li>
-                                    <li><strong>Auto Tune</strong> When selected applies the strike frequency to the
-                                        sample size
-                                        used in Trend tracking. This applies the trending to bursty strike data.</li>
-
-                                    <li><strong>Auto-Reset:</strong> Sweeps strikes older than <code>resetTime</code>
-                                        (Default: 30m) to ensure the UI returns to &quot;Clear&quot; once a storm
-                                        passes.</li>
-                                </ul>
-                                <h3>🎨 Dashboard UI</h3>
-                                <ul>
-                                    <li><strong>Strike Frequency</strong> Strikes per minute</li>
-                                    <li><strong>Action Buttons</strong>
-                                        <ul>
-                                            <li><v-icon>mdi-radar</v-icon> Strikes per minute / Chase Mode. Chip
-                                                colors track strikes per minute (less than 10: Blue, up to 20 Orange,
-                                                Over 20
-                                                Red)
-                                            </li>
-                                            <li>🔇Mute Strike Alert Audio</li>
-                                            <li><v-icon>mdi-trash-can</v-icon> Clearable Strike Buffer </li>
-                                            <li>⚙️ Settings/Tuning Modals</li>
-                                        </ul>
-                                    </li>
-                                    <li><strong>Status Banners:</strong>
-                                        <ul>
-                                            <li>🔴 <strong>DANGER:</strong> Strike detected within
-                                                <code>Alert Threshold</code>.
-                                            </li>
-                                            <li>🟠 <strong>ACTIVE:</strong> Strike detected within
-                                                <code>Search Radius</code>.
-                                            </li>
-                                            <li>🛡️ <strong>CLEAR:</strong> No active strikes in the buffer.</li>
-                                        </ul>
-                                    </li>
-                                    <li><strong>Directional Compass:</strong> Rotates an <code>mdi-navigation</code>
-                                        icon based on the calculated bearing (0° to 359°) of the most recent strike.
-                                    </li>
-                                    <li><strong>Trend Indicators:</strong> Textual Updates (Approaching, Receding,
-                                        Stationary) based on processed history.</li>
-                                    <li><strong>Tabular Settings:</strong> Organized modal interface separating
-                                        <strong>General</strong> setup from <strong>Tuning</strong> parameters.
-                                    </li>
-                                </ul>
-                                <h3>⚙️ Settings (General)</h3>
-                                <ul>
-                                    <li><strong>Unit Toggle:</strong> Seamlessly switch between <strong>Miles
-                                            (Mi)</strong> and <strong>Kilometers (Km)</strong>. All existing history and
-                                        thresholds are mathematically converted on-the-fly.</li>
-                                    <li><strong>Home Location:</strong> User-definable Latitude and Longitude for the
-                                        monitoring center. </li>
-                                    <li><strong>Reset Time:</strong> Selectable window [5, 10, 30, 60 mins] to determine
-                                        how long a strike remains &quot;active&quot; in the system.</li>
-                                    <li><strong>Search &amp; Alert Radii:</strong> Custom distance triggers for UI state
-                                        changes and audible alerts.</li>
-                                </ul>
-                                <h3>🛠️ Tuning (Advanced)</h3>
-                                <ul>
-                                    <li><strong>Calculation Mode:</strong> Choose the mathematical approach for trend
-                                        analysis (<code>Closest</code>, <code>Average</code>, or
-                                        <code>Percentile(20)</code>).
-                                    </li>
-                                    <li><strong>Trend Sensitivity:</strong> Adjust the movement threshold (e.g., 0.5 to
-                                        5.0 units) required to trigger an &quot;Approaching&quot; or
-                                        &quot;Receding&quot; status.</li>
-                                    <li><strong>Sample Size:</strong> Set the minimum number of strikes required in the
-                                        buffer before the system attempts to calculate a trend.</li>
-                                    <li><strong>Chase Mode</strong> Sync the Sample Size value to strikes per minute
-                                        value.</li>
-                                </ul>
-                                <h3>💾 Persistence</h3>
-                                <ul>
-                                    <li><strong>File Storage:</strong> Backup <code>lightning_settings.json</code> to
-                                        the
-                                        local download directory. Restore <code>lightning_settings.json</code> from the
-                                        local
-                                        download directory</li>
-                                    <li><strong>JSON Schema:</strong> Config and Strike Data Arrays</li>
-                                </ul>
-                            </v-window-item>
-                        </v-window>
-                    </v-card-text>
-                </v-layout>
-
-                <v-card-actions>
-                    <v-btn variant="outlined" color="blue" size="small" @click="exportToDisk">Backup to File</v-btn>
-                    <v-btn variant="outlined" color="green" size="small" @click="$refs.fileInput.click()">Restore from
-                        File</v-btn>
-
-                    <input type="file" ref="fileInput" style="display: none" @change="importFromDisk" accept=".json">
-
-                    <v-spacer></v-spacer>
-                    <v-btn variant="text" @click="showModal = false">Cancel</v-btn>
-                    <v-btn color="orange-darken-2" variant="flat" @click="saveSettings">Save</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
     </v-sheet>
 </template>
 
 <script>
-import { globalState } from '../../state.js';
+// import { globalState } from '../../state.js';
+import { settings } from './dashboardSettings.js';
 export default {
     name: 'LightningCard',
     data() {
         return {
-            state: {
-                history: [],
-                config: { searchRadius: 50, alertThreshold: 25, unit: 'Mi', isMuted: false, homeLocation: { lat: 0, lon: 0 }, resetTime: 30, sampleSize: 20 },
-                currentStorm: { distance: 0, bearing: 0, trend: 'Stationary', frequency: 0 }
-            },
-            showModal: false,
-            localConfig: {
-                searchRadius: 50, alertThreshold: 25, unit: 'Mi',
-                homeLocation: { lat: 0, lon: 0 }, resetTime: 30,
-                sensitivity: 5,
-                sampleSize: 5,
-                previousValue: 5,
-                isSnapped: false
-            },
-            calculationMethods: [
-                'Closest Strike (Fastest)',
-                'Average (Smoother)',
-                'Percentile (Balanced)'
-            ],
-            activeTab: 'general',
-            lastUnit: 'Mi',
+            stg: settings,
+            currentServerIndex: 0,
             connection: null,
-            panel: null,
-            expiryTimer: null,
-            connection: null,
+            reconnectTimer: null,
             heartbeat: null,
-            authKey: null,
-            wssServers: [8, 7, 2, 1],
-            currentServerIndex: 0
+            panel: null
         };
     },
-    watch: {
-        'localConfig.unit': {
-            handler(newUnit) {
-                if (newUnit === this.lastUnit) return;
-                const factor = 1.60934;
-                const isToKm = newUnit.toLowerCase() === 'km';
-                this.lastUnit = newUnit;
-                this.localConfig.alertThreshold = isToKm ? Math.round(this.localConfig.alertThreshold * factor) : Math.round(this.localConfig.alertThreshold / factor);
-                this.localConfig.searchRadius = isToKm ? Math.round(this.localConfig.searchRadius * factor) : Math.round(this.localConfig.searchRadius / factor);
-            }
-        }
+
+    beforeUnmount() {
+        if (this.heartbeat) clearInterval(this.heartbeat);
+        if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+        if (this.connection) this.connection.close();
     },
+
     mounted() {
         const saved = localStorage.getItem('lightning_config');
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-
-                this.state.config = {
-                    ...this.state.config,
-                    ...parsed
-                };
-
-                this.localConfig = JSON.parse(JSON.stringify(this.state.config));
+                // Sync directly to the shared lightning object
+                Object.assign(this.stg.lightning, parsed);
+                console.log("LightningCard: Synced shared settings from localStorage.");
             } catch (e) {
                 console.error("Failed to load settings:", e);
             }
@@ -460,6 +185,17 @@ export default {
     unmounted() {
         if (this.expiryTimer) clearInterval(this.expiryTimer);
         if (this.connection) this.connection.close();
+    },
+    watch: {
+        // This watches the setting in the OTHER card
+        'stg.lightning.resetTime'(newVal) {
+            console.log(`Setting changed to ${newVal}m. Sweeping history immediately.`);
+
+            // Manual trigger of the pruning logic
+            const cutoff = Date.now() - (newVal * 60 * 1000);
+            this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
+            this.stg.lightning.frequency = this.stg.lightning.history.length;
+        }
     },
     methods: {
         lzw_decode(s) {
@@ -512,13 +248,14 @@ export default {
 
         establishConnection() {
 
-            if (this.heartbeat) clearInterval(this.heartbeat);
+            if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
             if (this.connection) {
                 this.connection.onclose = null; // Prevent recursion
                 this.connection.close();
             }
-
-            const serverNum = this.wssServers[this.currentServerIndex];
+            const { lightning } = this.stg;
+            const serverNum = lightning.wssServers[this.stg.lightning.currentServerIndex];
+            // const wssUrl = `wss://ws${serverNum}.blitzortung.org`;
             const wssUrl = `wss://ws${serverNum}.blitzortung.org`;
 
             console.log(`Connecting to: ${wssUrl}`);
@@ -559,6 +296,7 @@ export default {
                         this.processIncomingStrike(strike);
                     }
                 } catch (e) {
+                    //console.error("Decoding/Parsing Error:", e);
                 }
             };
 
@@ -580,101 +318,108 @@ export default {
 
         processIncomingStrike(data) {
             if (!data || data.lat === undefined || data.lon === undefined) return;
-
             const now = Date.now();
-            const home = this.state.config.homeLocation || { lat: 0, lon: 0 };
-
+            const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
             const toRad = (v) => (v * Math.PI) / 180;
-            const R = this.state.config.unit?.toLowerCase() === 'km' ? 6371 : 3958.8;
+            const R = this.stg.lightning?.unit?.toLowerCase() === 'km' ? 6371 : 3958.8;
+
             const dLat = toRad(data.lat - home.lat);
             const dLon = toRad(data.lon - home.lon);
-
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 
-            if (dist <= this.state.config.searchRadius) {
+            // --- GLOBAL UPDATES (Happens for every strike) ---
+            this.stg.lightning.history.push({ time: data.time || now, dist, bearing: 0 }); // bearing updated below if needed
+
+            const cutoff = Date.now() - (this.stg.lightning.resetTime * 60 * 1000);
+            this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
+
+            // --- LOCAL UPDATES (Only if within your monitoring zone) ---
+            if (dist <= this.stg.lightning.searchRadius) {
                 const y = Math.sin(toRad(data.lon - home.lon)) * Math.cos(toRad(data.lat));
                 const x = Math.cos(toRad(home.lat)) * Math.sin(toRad(data.lat)) -
                     Math.sin(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.cos(toRad(data.lon - home.lon));
                 const bearing = Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360);
 
-                this.state.history.push({ time: data.time || now, dist, bearing });
-                this.state.currentStorm.distance = dist;
-                this.state.currentStorm.bearing = bearing;
+                // Update the specific history entry with the bearing
+                this.stg.lightning.history[this.stg.lightning.history.length - 1].bearing = bearing;
 
-                if (dist <= this.state.config.alertThreshold) {
+                this.stg.lightning.currentStorm.distance = dist;
+                this.stg.lightning.currentStorm.bearing = bearing;
+
+                if (dist <= this.stg.lightning.alertThreshold) {
                     this.playThunder();
                 }
 
                 this.calculateTrend();
                 this.updateFrequency();
 
-                if (this.localConfig.isSnapped) {
-                    const liveFreq = this.state.currentStorm.frequency || 0;
-                    this.localConfig.sampleSize = Math.max(0.5, liveFreq);
-                    this.state.config.sampleSize = this.localConfig.sampleSize;
-
-                    // Check your browser console (F12) to see if this fires!
-                    // console.log("SNAP ACTIVE - New SampleSize:", this.localConfig.sampleSize);
+                if (this.stg.lightning.isSnapped) {
+                    const liveFreq = this.stg.lightning.currentStorm.frequency || 0;
+                    this.stg.lightning.sampleSize = Math.max(0.5, liveFreq);
                 }
             }
         },
 
-
         startExpiryTimer() {
+            // Standard cleanup: don't let multiple timers run if this method is called twice
+            if (this.expiryTimer) clearInterval(this.expiryTimer);
+
             this.expiryTimer = setInterval(() => {
-                if (this.state?.history?.length > 0) {
-                    const limit = (this.state.config.resetTime || 30) * 60 * 1000;
-                    const cutoff = Date.now() - limit;
-                    this.state.history = this.state.history.filter(s => s && s.time > cutoff);
+                // Use the correct path based on your JSON structure
+                const history = this.stg.lightning.history;
+
+                if (history && history.length > 0) {
+                    // Get the current time in ms
+                    const now = Date.now();
+
+                    // DYNAMIC CALCULATION: 
+                    // It pulls the current value from settings EVERY 30 seconds.
+                    // If you change it from 5 to 60 in the UI, the next cycle uses 60.
+                    const userMinutes = this.stg.lightning.resetTime || 30;
+                    const limitMs = userMinutes * 60 * 1000;
+                    const cutoff = now - limitMs;
+
+                    // Apply the filter
+                    this.stg.lightning.history = history.filter(strike => {
+                        return strike && strike.time > cutoff;
+                    });
+
+                    // Keep your frequency count in sync
+                    this.stg.lightning.frequency = this.stg.lightning.history.length;
                 }
-            }, 30000);
+            }, 30000); // 30-second sweep interval
         },
 
         toggleMute() {
-            const newValue = !this.state.config.isMuted;
+            const newValue = !this.stg.lightning.isMuted;
 
-            this.state.config = {
-                ...this.state.config,
+            this.stg.lightning = {
+                ...this.stg.lightning,
                 isMuted: newValue
             };
 
-            localStorage.setItem('lightning_config', JSON.stringify(this.state.config));
+            localStorage.setItem('lightning_config', JSON.stringify(this.stg.config));
         },
 
         openSettings() {
-            // 1. Save your current Snap states so they don't get wiped
-            const currentSnap = this.localConfig.isSnapped;
-            const currentPrev = this.localConfig.previousValue;
-
-            // 2. Load the global config as you were doing
-            this.localConfig = JSON.parse(JSON.stringify(this.state.config));
-
-            // 3. Restore the Snap states back into the new localConfig object
-            this.localConfig.isSnapped = currentSnap;
-            this.localConfig.previousValue = currentPrev;
-
-            this.activeTab = 'general';
+            // Sync the local modal state with the current global reactive state
+            this.lightning = JSON.parse(JSON.stringify(this.stg.lightning));
             this.showModal = true;
         },
 
         saveSettings() {
-            const updated = {
-                ...this.state.config,
-                ...this.localConfig,
-                searchRadius: Number(this.localConfig.searchRadius),
-                alertThreshold: Number(this.localConfig.alertThreshold),
-                sampleSize: Number(this.localConfig.sampleSize),
-                sensitivity: Number(this.localConfig.sensitivity)
-            };
+            // 1. Update the global reactive state directly
+            Object.assign(this.stg.lightning, this.lightning);
 
-            this.state.config = JSON.parse(JSON.stringify(updated));
-
-            localStorage.setItem('lightning_config', JSON.stringify(this.state.config));
+            // 2. Persist to localStorage so it survives a page refresh
+            localStorage.setItem('lightning_config', JSON.stringify(this.stg.lightning));
 
             this.showModal = false;
+            console.log("Settings saved and persisted.");
         },
+
 
         formatTime(ts) {
             return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
@@ -693,14 +438,14 @@ export default {
         },
 
         calculateTrend() {
-            const h = this.state.history;
-            const config = this.state.config;
+            const h = this.stg.history;
+            const config = this.stg.config;
             //    const sampleSize = Number(config.sampleSize) || 10;
-            const sampleSize = Number(this.state.config.sampleSize) || 20;
-            const sensitivity = Number(this.localConfig.sensitivity) || 2;
+            const sampleSize = Number(this.stg.lightning.sampleSize) || 20;
+            const sensitivity = Number(this.lightning.sensitivity) || 2;
 
             if (h.length < sampleSize) {
-                this.state.currentStorm.trend = 'Stationary';
+                this.stg.lightning.currentStorm.trend = 'Stationary';
                 return;
             }
 
@@ -737,31 +482,55 @@ export default {
 
             // Apply Sensitivity Threshold
             if (diff > sensitivity) {
-                this.state.currentStorm.trend = 'Approaching';
+                this.stg.lightning.currentStorm.trend = 'Approaching';
             } else if (diff < -sensitivity) {
-                this.state.currentStorm.trend = 'Receding';
+                this.stg.lightning.currentStorm.trend = 'Receding';
             } else {
-                this.state.currentStorm.trend = 'Stationary';
+                this.stg.lightning.currentStorm.trend = 'Stationary';
             }
         },
+        /*
+                updateFrequency() {
+                    const oneMinuteAgo = Date.now() - 60000;
+                    const history = this.stg?.lightning?.history || [];
+                    const recentStrikes = history.filter(s => s.time > oneMinuteAgo);
+                    const freq = recentStrikes.length;
+        
+                    // Update local card UI
+                    this.stg.lightning.currentStorm.frequency = freq;
+                }, */
 
         updateFrequency() {
+            // 1. Check if the 'stg' object even exists in this context
+            if (!this.stg || !this.stg.lightning || !Array.isArray(this.stg.lightning.history)) {
+                console.warn("UpdateFrequency bypassed: stg.lightning.history not ready yet.");
+                return;
+            }
+            if (!this.stg || !this.stg.lightning) {
+                console.error("updateFrequency Failure: 'stg.lightning' is missing!");
+                return;
+            }
+
             const oneMinuteAgo = Date.now() - 60000;
-            const recentStrikes = this.state.history.filter(s => s.time > oneMinuteAgo);
 
-            const freq = recentStrikes.length;
+            // 2. Ensure history is at least an empty array so .filter() doesn't crash
+            const history = this.stg.lightning.history || [];
 
-            // Update local card UI
-            this.state.currentStorm.frequency = freq;
-            // Update Global state
-            if (window.G_STATE) {
-                window.G_STATE.lightning.frequency = freq;
+            try {
+                const recentStrikes = history.filter(s => s.time > oneMinuteAgo);
+
+                // 3. Update the frequency safely
+                if (this.stg.lightning) {
+                    this.stg.lightning.frequency = recentStrikes.length;
+                }
+            } catch (err) {
+                console.error("Filter crashed. History contents:", history);
             }
         },
 
         playThunder() {
             // Check the Gatekeeper
-            if (this.state.config.isMuted) {
+            if (this.stg.lightning.isMuted) {
                 console.log("🔇 Mute is ON - skipping audio");
                 return;
             }
@@ -775,28 +544,19 @@ export default {
         },
 
         resetBuffer() {
-            if (this.state?.history) {
-                this.state.history = [];
+            if (this.stg?.lightning.history) {
+                this.stg.lightning.history = [];
 
-                this.state.currentStorm = {
+                this.stg.lightning.currentStorm = {
                     distance: 0,
                     bearing: 0,
                     trend: 'Stationary',
                     frequency: 0
                 };
-
-                if (window.G_STATE) {
-                    window.G_STATE.lightning.frequency = 0;
-                }
             }
-
-            this.send({
-                topic: "session_reset",
-                payload: "Manual reset triggered"
-            });
         },
         exportToDisk() {
-            const dataStr = JSON.stringify(this.state.config, null, 4);
+            const dataStr = JSON.stringify(this.stg.config, null, 4);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
 
@@ -817,11 +577,11 @@ export default {
                 try {
                     const importedConfig = JSON.parse(e.target.result);
 
-                    this.state.config = { ...this.state.config, ...importedConfig };
+                    this.stg.lightning = { ...this.stg.lightning, ...importedConfig };
 
-                    this.localConfig = JSON.parse(JSON.stringify(this.state.config));
+                    this.localConfig = JSON.parse(JSON.stringify(this.stg.lightning));
 
-                    localStorage.setItem('lightning_config', JSON.stringify(this.state.config));
+                    localStorage.setItem('lightning_config', JSON.stringify(this.stg.lightning));
 
                     alert("Settings Restored Successfully!");
                 } catch (err) {
@@ -833,54 +593,96 @@ export default {
         },
 
         setThresholdFromCurrent() {
-            if (this.localConfig.isSnapped) {
+            if (this.stg.lightning.isSnapped) {
                 // RESTORE: Go back to exactly what we saved in the buffer
-                this.localConfig.sampleSize = this.localConfig.previousValue;
+                this.stg.lightning.sampleSize = this.stg.lightning.previousValue;
 
                 // --- ADD THIS LINE ---
-                this.state.config.sampleSize = this.localConfig.sampleSize;
+                this.stg.lightning.sampleSize = this.stg.lightning.sampleSize;
                 // ---------------------
 
-                this.localConfig.isSnapped = false;
+                this.stg.lightning.isSnapped = false;
             } else {
                 // SAVE: Store the current 2 (or whatever it is) before we snap
-                this.localConfig.previousValue = this.localConfig.sampleSize;
+                this.stg.lightning.previousValue = this.stg.lightning.sampleSize;
 
                 // SNAP: Set it to the current storm frequency
-                const currentFreq = this.state?.currentStorm?.frequency || 0;
-                this.localConfig.sampleSize = currentFreq;
-                this.localConfig.isSnapped = true;
+                const currentFreq = this.stg?.lightning.currentStorm.frequency || 0;
+                this.stg.lightning.sampleSize = currentFreq;
+                this.stg.lightning.isSnapped = true;
 
-                this.state.config.sampleSize = this.localConfig.sampleSize;
+                this.stg.lightning.sampleSize = this.stg.lightning.sampleSize;
             }
         }
     },
     computed: {
+        // Helper to make template code cleaner
+        lightning() {
+            return this.stg?.lightning || {};
+        },
+
         sparklineValues() {
-            return this.state.history.length ? this.state.history.map(h => 100 - h.dist) : [0, 0];
+            const history = this.lightning.history || [];
+            const radius = this.lightning.searchRadius || 50;
+
+            if (history.length === 0) return [0];
+
+            return history
+                .filter(h => h.dist <= radius)
+                .map(h => Math.max(0, radius - h.dist));
         },
+
         recentStrikes() {
-            return [...this.state.history].reverse().slice(0, 5);
+            const history = this.lightning.history || [];
+            const radius = this.lightning.searchRadius || 50;
+
+            // Filter by the reactive searchRadius and return the last 10 (newest first)
+            return [...history]
+                .filter(strike => strike.dist <= radius)
+                .reverse()
+                .slice(0, 10);
         },
+
         lastUpdated() {
-            if (!this.state.history.length) return 'No Data';
-            return this.getTimeAgo(this.state.history[this.state.history.length - 1].time);
+            const history = this.lightning.history || [];
+            const radius = this.lightning.searchRadius || 50;
+
+            // Only care about strikes within our defined area
+            const localHistory = history.filter(h => h.dist <= radius);
+
+            if (localHistory.length === 0) return 'No Local Data';
+
+            const lastStrike = localHistory[localHistory.length - 1];
+
+            // Use the 'now' trick if you want this to live-update the "minutes ago"
+            return this.getTimeAgo(lastStrike.time);
         },
+
+        convertedDistance() {
+            const d = parseFloat(this.lightning.currentStorm?.distance);
+            if (isNaN(d) || d === 0) return '0';
+
+            // Use the unit directly from the reactive settings
+            return this.lightning.unit === 'Mi' ? Math.round(d) : Math.round(d * 1.60934);
+        },
+
         trendColor() {
-            const t = this.state.currentStorm.trend;
+            const t = this.lightning.currentStorm?.trend;
             return t === 'Approaching' ? 'text-red-lighten-2' : (t === 'Receding' ? 'text-green-accent-2' : 'text-blue-lighten-3');
         },
+
         freqColor() {
-            const f = this.state.currentStorm.frequency;
+            const f = this.lightning.currentStorm?.frequency || 0;
             if (f === 0) return 'grey-darken-3';
             return f < 10 ? 'blue-lighten-1' : (f < 20 ? 'orange-darken-1' : 'red-darken-2');
         },
         isMuted() {
-            return this.state.config.isMuted;
+            return this.stg.lightning.isMuted;
         },
         convertedDistance() {
-            const unit = this.state.config.unit;
-            const d = parseFloat(this.state.currentStorm.distance);
+            const unit = this.stg.lightning.unit;
+            const d = parseFloat(this.stg.lightning.currentStorm.distance);
+            console.log(d);
 
             if (isNaN(d)) return '--';
 
