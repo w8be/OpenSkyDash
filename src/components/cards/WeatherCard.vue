@@ -45,9 +45,10 @@
 
             <div class=" metrics-grid border-t border-white-op">
                 <div class="metric-cell border-r border-white-op">
-                    <span class="label">🍃 Wind</span>
+                    <span class="label"><v-icon icon="mdi-weather-windy-variant" color="blue-lighten-3"
+                            size="small"></v-icon> Wind</span>
                     <span class="val">{{ weather.current.windDir }} <strong>{{ weather.current.windSpeed
-                            }}</strong></span>
+                    }}</strong></span>
                 </div>
                 <div class="metric-cell">
                     <span class="label"><v-icon icon="mdi-water" color="blue-lighten-3" size="small"></v-icon>
@@ -83,7 +84,7 @@
                     <span class="label"><v-icon icon="mdi-eye" color="blue-lighten-3" size="small"></v-icon>
                         Vis</span>
                     <span class="val"><strong>{{ weather.current.visibility }} {{ stg.weather.distanceUnit
-                    }}</strong></span>
+                            }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" color="blue-lighten-3" size="small"></v-icon>
