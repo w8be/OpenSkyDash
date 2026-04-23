@@ -1,6 +1,6 @@
 <template>
 
-    <!--  <pre>{{ this.stg.weather.distanceUnit }}</pre> -->
+    <!-- <pre>weather.distanceUnit: {{ stg.weather.distanceUnit }}</pre> -->
     <v-sheet value="weather" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
         <div v-if="weather.current">
@@ -46,49 +46,44 @@
             <div class=" metrics-grid border-t border-white-op">
                 <div class="metric-cell border-r border-white-op">
                     <span class="label"><v-icon icon="mdi-weather-windy-variant" color="blue-lighten-3"
-                            size="small"></v-icon> Wind</span>
-                    <span class="val">{{ weather.current.windDir }} <strong>{{ weather.current.windSpeed
-                    }}</strong></span>
+                            size="large"></v-icon></span>
+                    <span class="val">{{ weather.current.windDir }} <strong>{{ weather.current.windSpeed }} {{
+                        stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell">
-                    <span class="label"><v-icon icon="mdi-water" color="blue-lighten-3" size="small"></v-icon>
-                        Hum</span>
+                    <span class="label"><v-icon icon="mdi-water" color="blue-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.humidity }}%</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-windsock" color="blue-lighten-3" size="small"></v-icon>
-                        Gusts</span>
-                    <span class="val"><strong>{{ weather.current.gusts }}</strong></span>
+                    <span class="label"><v-icon icon="mdi-windsock" color="blue-lighten-3" size="large"></v-icon></span>
+                    <span class="val"><strong>{{ weather.current.gusts }} {{
+                        stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-water-thermometer" color="blue-lighten-3"
-                            size="small"></v-icon>
-                        Dew</span>
+                            size="large"></v-icon></span>
                     <span class="val"><strong>{{ Math.round(weather.current.dewPoint) }}°</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-gauge" color="blue-lighten-3" size="small"></v-icon>
-                        Pres</span>
+                    <span class="label"><v-icon icon="mdi-gauge" color="blue-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.pressure }}</strong> {{ stg.weather.pressureUnit ===
                         'inch' ? 'in' : 'mb' }}</span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
-                    <span class="label"><v-icon icon="mdi-clouds" color="blue-lighten-3" size="small"></v-icon>
-                        Clouds</span>
+                    <span class="label"><v-icon icon="mdi-clouds" color="blue-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.clouds }}%</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-eye" color="blue-lighten-3" size="small"></v-icon>
-                        Vis</span>
+                    <span class="label"><v-icon icon="mdi-eye" color="blue-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.visibility }} {{ stg.weather.distanceUnit
-                            }}</strong></span>
+                    }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
-                    <span class="label"><v-icon icon="mdi-sun-wireless" color="blue-lighten-3" size="small"></v-icon>
-                        UV</span>
+                    <span class="label"><v-icon icon="mdi-sun-wireless" color="blue-lighten-3"
+                            size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.uv }}</strong></span>
                 </div>
             </div>
@@ -150,21 +145,48 @@ export default {
         };
     },
     mounted() {
-        this.fetchWeather();
+        this.fetchWeather(); // Run immediately on load
+
+        // Set a 10-minute heartbeat (600,000 ms)
+        this.weatherTimer = setInterval(() => {
+            console.log("Heartbeat: Refreshing weather data...");
+            this.fetchWeather();
+        }, 600000);
+    },
+    beforeUnmount() {
+        // Clean up the timer when the component is destroyed
+        if (this.weatherTimer) {
+            clearInterval(this.weatherTimer);
+        }
     },
 
     watch: {
-        // Watch the entire settings object for ANY nested change
-        stg: {
+        // Watch settings (Units, etc.)
+        'stg.weather': {
             handler() {
-                console.log("Settings change detected (Location or Units)! Re-fetching...");
-                this.fetchWeather();
+                this.debouncedRefresh();
             },
             deep: true
+        },
+        // Watch location (Lat/Lon) - removed 'this.' and added to debounce
+        'stg.lightning.homeLocation.lat': {
+            handler() { this.debouncedRefresh(); }
+        },
+        'stg.lightning.homeLocation.lon': {
+            handler() { this.debouncedRefresh(); }
         }
     },
 
     methods: {
+
+        debouncedRefresh() {
+            clearTimeout(this.refreshTimer);
+            this.refreshTimer = setTimeout(() => {
+                console.log("Environment stabilized. Re-fetching Weather...");
+                this.fetchWeather();
+            }, 1000); // Increased to 1s to be extra safe during high-strike bursts
+        },
+
         async fetchWeather() {
             const lat = this.stg.lightning.homeLocation.lat;
             const lon = this.stg.lightning.homeLocation.lon;
@@ -176,8 +198,9 @@ export default {
             const params = [
                 `latitude=${lat}`,
                 `longitude=${lon}`,
-                `current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,visibility,dew_point_2m`,
-                `daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`,
+                // Add uv_index here
+                `current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,visibility,dew_point_2m,uv_index`,
+                `daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max`,
                 `temperature_unit=${tUnit}`,
                 `wind_speed_unit=${this.stg.weather.distanceUnit === 'mi' ? 'mph' : 'kmh'}`,
                 `precipitation_unit=inch`,
@@ -237,7 +260,7 @@ export default {
                     windDir: this.getWindDir(data.current.wind_direction_10m),
                     gusts: Math.round(data.current.wind_gusts_10m),
                     clouds: data.current.cloud_cover,
-                    uv: 0,
+                    uv: data.current.uv_index,
                     high: Math.round(data.daily.temperature_2m_max[0]),
                     low: Math.round(data.daily.temperature_2m_min[0]),
                     dewPoint: Math.round(data.current.dew_point_2m),
@@ -280,18 +303,6 @@ export default {
         }
     },
     // Inside WeatherCard.vue
-    watch: {
-        // Watch the Latitude specifically
-        'this.lightning.homeLocation.lat': function (newLat) {
-            console.log("Latitude change detected:", newLat);
-            this.fetchWeather();
-        },
-        // Watch the Longitude specifically
-        'this.lightning.homeLocation.lon': function (newLon) {
-            console.log("Longitude change detected:", newLon);
-            this.fetchWeather();
-        }
-    }
 };
 </script>
 
@@ -322,7 +333,7 @@ export default {
 }
 
 .val {
-    font-size: 1.0rem;
+    font-size: 0.85rem;
     color: #D7CCC8;
     font-weight: 600;
     font-family: 'Roboto Mono', monospace;
