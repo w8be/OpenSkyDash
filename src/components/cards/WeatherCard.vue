@@ -21,7 +21,7 @@
                     </div>
 
                     <span class="text-grey-darken-1 mt-n1" style="font-size: 0.55rem; padding-left: 2px;">
-                        Open-Meteo.com
+                        Open-Meteo.com {{ weather.current.lastUpdate }}
                     </span>
                 </div>
 
@@ -51,17 +51,17 @@
                         stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell">
-                    <span class="label"><v-icon icon="mdi-water" color="blue-lighten-3" size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-water" color="cyan-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.humidity }}%</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-windsock" color="blue-lighten-3" size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-windsock" color="teal-lighten-1" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.gusts }} {{
                         stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
-                    <span class="label"><v-icon icon="mdi-water-thermometer" color="blue-lighten-3"
+                    <span class="label"><v-icon icon="mdi-water-thermometer" color="cyan-lighten-3"
                             size="large"></v-icon></span>
                     <span class="val"><strong>{{ Math.round(weather.current.dewPoint) }}° {{ stg.weather.tempUnit ===
                         'fahrenheit' ? 'F' : 'C'
@@ -69,22 +69,22 @@
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-gauge" color="blue-lighten-3" size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-gauge" color="green-accent-4" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.pressure }}</strong> {{ stg.weather.pressureUnit ===
                         'inch' ? 'in' : 'mb' }}</span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
-                    <span class="label"><v-icon icon="mdi-clouds" color="blue-lighten-3" size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-clouds" color="indigo-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.clouds }}%</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-eye" color="blue-lighten-3" size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-eye" color="brown-lighten-2" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.visibility }} {{ stg.weather.distanceUnit
-                    }}</strong></span>
+                            }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
-                    <span class="label"><v-icon icon="mdi-sun-wireless" color="blue-lighten-3"
+                    <span class="label"><v-icon icon="mdi-sun-wireless" color="amber-lighten-4"
                             size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.uv }} UV</strong></span>
                 </div>
@@ -122,9 +122,9 @@ export default {
     data() {
         return {
             stg: settings,
-            panel: null, // Removed the duplicate
+            shared: window.G_STATE,
+            panel: null,
             currentServerIndex: 0,
-            shared: window.G_STATE || {},
             weather: {
                 current: {
                     temp: 0,
@@ -140,10 +140,12 @@ export default {
                     high: 0,
                     low: 0,
                     conditionText: 'Loading...', // Give it a string so the DOM doesn't flicker empty
-                    dewPoint: 0
+                    dewPoint: 0,
+                    lastUpdate: 0
                 },
                 alert: null,
-                forecast: []
+                forecast: [],
+                previousApiTime: null
             }
         };
     },
@@ -228,6 +230,9 @@ export default {
 
                 // 1. Process Condition
                 const condition = this.interpretWMO(data.current.weather_code);
+                this.weather.current.conditionText = condition.text;
+                this.shared.weather.icon = condition.icon;
+
                 const apiUnit = data.current_units.visibility; // 'ft' or 'm'
                 const rawVisibility = data.current.visibility;
                 let vCalc = 0;
@@ -249,6 +254,30 @@ export default {
                     // If units already match, just handle the decimal rounding
                     pressureVal = pressureVal.toFixed(this.stg.weather.pressureUnit === 'inch' ? 2 : 1);
                 }
+
+                // Add lastUpdated time
+                // 1. Get the data from the API
+                const apiTime = data.current.time; // e.g., "2026-04-24T12:00"
+
+                // 2. The Gatekeeper: Check if the weather is ACTUALLY new
+                if (apiTime !== this.previousApiTime) {
+
+                    // Update our "memory" of the last time the weather changed
+                    this.previousApiTime = apiTime;
+
+                    // 3. Formatting: Create the pretty string for the UI
+                    const date = new Date(); // The time "Now"
+                    this.weather.current.lastUpdate = date.toLocaleString('en-US', {
+                        hour12: true,
+                        hour: 'numeric',
+                        minute: 'numeric'
+                    });
+
+                    console.log("Weather data changed! Updating timestamp.");
+                } else {
+                    console.log("API returned same data. Keeping old timestamp.");
+                }
+
 
                 // 2. Map Current Weather
                 // Note: Using pressure_msl (Mean Sea Level) for your 'Pres' display
@@ -340,14 +369,14 @@ export default {
 
 .metric-cell .label {
     display: flex;
-    min-width: 32px;
+    min-width: 40px;
     /* Ensures icons line up vertically regardless of width */
     justify-content: center;
 }
 
 
 .val {
-    font-size: 0.85rem;
+    font-size: 0.80rem;
     color: #D7CCC8;
     font-weight: 600;
     font-family: 'Roboto Mono', monospace;
