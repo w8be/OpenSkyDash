@@ -72,8 +72,6 @@ export default {
 
       activeTab: 'lightning',
       shared: window.G_STATE || globalState,
-      currentTime: '',
-      currentWeatherIcon: 'mdi-weather-cloudy',
     };
   },
   mounted() {
