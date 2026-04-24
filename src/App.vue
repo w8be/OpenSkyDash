@@ -1,11 +1,12 @@
 <template>
-  <!-- <pre>Local: {{ shared.lightning.frequency }}</pre> 
-  <v-btn @click="shared.lightning.frequency++">Manual Bump</v-btn> -->
+  <!--<v-btn @click="shared.lightning.frequency++">Manual Bump</v-btn> -->
   <v-app theme="dark">
+    <pre>shared.weather.icon: {{ shared.weather.icon }} </pre>
     <v-app-bar color="#1e3838" density="compact">
-      <v-app-bar-title>Station-Dashboard</v-app-bar-title>
+      <v-app-bar-title><v-icon icon="mdi-monitor-dashboard" color="brown-lighten-4"
+          size="small"></v-icon></v-app-bar-title>
       <v-spacer></v-spacer>
-      <div class="pa-4 text-h6">{{ currentTime }}</div>
+      <div class="pa-4 text-h6 text-brown-lighten-4">{{ currentTime }}</div>
     </v-app-bar>
     <v-main class="d-flex align-start justify-center bg-grey-darken-5 rounded-lg mt-4">
       <v-card minwidth="300" maxwidth="300" class="mx-auto border-sm" elevation="24">
