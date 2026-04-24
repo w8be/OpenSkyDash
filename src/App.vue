@@ -72,6 +72,7 @@ export default {
 
       activeTab: 'lightning',
       shared: window.G_STATE || globalState,
+      currentTime: '',
     };
   },
   mounted() {
