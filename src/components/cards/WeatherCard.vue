@@ -124,6 +124,7 @@ export default {
             stg: settings,
             panel: null, // Removed the duplicate
             currentServerIndex: 0,
+            shared: window.G_STATE || {},
             weather: {
                 current: {
                     temp: 0,
