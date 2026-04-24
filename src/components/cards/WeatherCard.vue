@@ -43,11 +43,11 @@
 
 
 
-            <div class=" metrics-grid border-t border-white-op">
+            <div class=" metrics-grid border-t border-white-op ml-7">
                 <div class="metric-cell border-r border-white-op">
                     <span class="label"><v-icon icon="mdi-weather-windy-variant" color="blue-lighten-3"
                             size="large"></v-icon></span>
-                    <span class="val">{{ weather.current.windDir }} <strong>{{ weather.current.windSpeed }} {{
+                    <span class="val mr-2">{{ weather.current.windDir }} <strong>{{ weather.current.windSpeed }} {{
                         stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell">
@@ -200,7 +200,7 @@ export default {
             const params = [
                 `latitude=${lat}`,
                 `longitude=${lon}`,
-                // Add uv_index here
+                `cell_selection=nearest`,
                 `current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,visibility,dew_point_2m,uv_index`,
                 `daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max`,
                 `temperature_unit=${tUnit}`,
@@ -231,12 +231,12 @@ export default {
                 const rawVisibility = data.current.visibility;
                 let vCalc = 0;
 
-                if (this.stg.weather.distanceUnit === 'mi') {
+                if (this.stg.weather.distanceUnit.toLowerCase() === 'mi') {
                     vCalc = (apiUnit === 'ft') ? (rawVisibility / 5280) : (rawVisibility / 1609.34);
                 } else {
                     vCalc = (apiUnit === 'ft') ? (rawVisibility / 3280.84) : (rawVisibility / 1000);
                 }
-
+                console.log(vCalc);
                 let pressureVal = data.current.pressure_msl;
                 const apiPressureUnit = data.current_units.pressure_msl; // e.g., "hPa"
 
@@ -282,7 +282,11 @@ export default {
                     };
                 });
 
+                this.shared.weatherIcon = condition.icon;
+                this.weather.icon = condition.icon;
+
                 this.loading = false;
+
 
             } catch (error) {
                 console.error("Network or Parsing failure:", error);
@@ -317,22 +321,29 @@ export default {
 .metrics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    width: 100%;
+    /* Keep your columns */
 }
 
 .metric-cell {
     display: flex;
-    justify-content: space-between;
+    /* Turn on flexbox */
     align-items: center;
-    padding: 10px 12px;
+    /* Vertically center icon and text */
+    justify-content: flex-start;
+    /* Push everything to the left */
+    padding: 8px 12px;
+    /* Add some internal breathing room */
+    gap: 8px;
+    /* This is the MAGIC: fixed gap between icon and value */
 }
 
-.label {
-    color: #94a3b8;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: text-capitalize;
+.metric-cell .label {
+    display: flex;
+    min-width: 32px;
+    /* Ensures icons line up vertically regardless of width */
+    justify-content: center;
 }
+
 
 .val {
     font-size: 0.85rem;
@@ -370,7 +381,7 @@ export default {
 }
 
 .precip {
-    width: 45px;
+    width: 60px;
     text-align: right;
 }
 
