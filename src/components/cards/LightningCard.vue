@@ -158,16 +158,18 @@ export default {
     },
 
     mounted() {
-        const saved = localStorage.getItem('lightning_config');
-        if (saved) {
+        const saved = localStorage.getItem('station_config_v1');
+        if (saved && saved !== "undefined") {
             try {
-                const parsed = JSON.parse(saved);
-                // Sync directly to the shared lightning object
-                Object.assign(this.stg.lightning, parsed);
-                console.log("LightningCard: Synced shared settings from localStorage.");
+                const config = JSON.parse(saved);
+                // Apply your config logic here...
             } catch (e) {
-                console.error("Failed to load settings:", e);
+                console.error("Config Sysgen Failure: Malformed JSON in localStorage", e);
+                // Optional: clear the bad data so it doesn't crash next time
+                // localStorage.removeItem('station_config_v1');
             }
+        } else {
+            console.log("No saved config found. Loading defaults.");
         }
 
         this.connect();
