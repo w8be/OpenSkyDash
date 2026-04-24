@@ -19,8 +19,7 @@
             </v-icon></v-tab>
           <v-tab value="solar"><v-icon icon="mdi-white-balance-sunny" color="error" size="small" class="mr-1">
             </v-icon></v-tab>
-          <v-tab value="settings"><v-icon icon="mdi-cog" color="grey" size="small"
-              @click="stg.lightning.showModal = true">
+          <v-tab value="settings"><v-icon icon="mdi-cog" color="grey" size="small">
             </v-icon></v-tab>
         </v-tabs>
 
@@ -73,6 +72,7 @@ export default {
       activeTab: 'lightning',
       shared: window.G_STATE || globalState,
       currentTime: '',
+
     };
   },
   mounted() {

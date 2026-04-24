@@ -81,7 +81,7 @@
                 <div class="metric-cell border-t border-r border-white-op">
                     <span class="label"><v-icon icon="mdi-eye" color="blue-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.visibility }} {{ stg.weather.distanceUnit
-                            }}</strong></span>
+                    }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" color="blue-lighten-3"
@@ -93,7 +93,7 @@
             <v-expansion-panels v-model="panel" variant="accordion">
                 <v-expansion-panel value="forecast" bg-color="grey-darken-4" class="rounded-0">
                     <v-expansion-panel-title
-                        class=" text-capitalize text-caption font-weight-bold text-brown-lighten-4 py-2">
+                        class=" text-capitalize text-caption font-weight-bold text-brown-lighten-4">
                         Forecast
                     </v-expansion-panel-title>
                     <v-expansion-panel-text class="forecast-body">
@@ -332,7 +332,7 @@ export default {
     /* Vertically center icon and text */
     justify-content: flex-start;
     /* Push everything to the left */
-    padding: 8px 12px;
+    padding: 4px 8px;
     /* Add some internal breathing room */
     gap: 8px;
     /* This is the MAGIC: fixed gap between icon and value */
