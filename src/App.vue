@@ -1,10 +1,11 @@
 <template>
   <!--<v-btn @click="shared.lightning.frequency++">Manual Bump</v-btn> -->
+
   <v-app theme="dark">
     <pre>shared.weather.icon: {{ shared.weather.icon }} </pre>
     <v-app-bar color="#1e3838" density="compact">
-      <v-app-bar-title><v-icon icon="mdi-monitor-dashboard" color="brown-lighten-4"
-          size="small"></v-icon></v-app-bar-title>
+      <v-app-bar-title class="text-brown-lighten-4"><v-icon icon="mdi-monitor-dashboard" color="brown-lighten-4"
+          size="small"></v-icon> {{ stg.ui.appName }}</v-app-bar-title>
       <v-spacer></v-spacer>
       <div class="pa-4 text-h6 text-brown-lighten-4">{{ currentTime }}</div>
     </v-app-bar>
