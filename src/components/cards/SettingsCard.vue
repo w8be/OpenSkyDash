@@ -1,8 +1,6 @@
 <template>
     <!-- <pre>` stg.lighting.homelocation:  {{ stg.lightning.homeLocation }}`</pre> -->
 
-
-
     <v-card flat class="mx-auto" bg-color="transparent">
 
         <v-tabs v-model="stg.ui.activeTab" align-tabs="center">
@@ -21,7 +19,14 @@
 
         <v-card-text>
             <v-window v-model="stg.ui.activeTab" style="width: 300px" ;>
-                <v-window-item value="general" style="height: 60vh; overflow-y: auto;">
+
+                <v-window-item value="general" style="height: 65vh; overflow-y: auto;">
+
+                    <div class="text-brown-lighten-4 d-flex align-center mt-2">
+                        <v-text-field label="Dashboard Name" density="compact" variant="outlined"
+                            v-model="stg.ui.appName"></v-text-field>
+                    </div>
+
                     <div class="text-subtitle-2 mb-4 text-secondary d-flex align-center">
                         <v-icon color="#d9d2e9" class="mr-2">mdi-ruler</v-icon>
                         <span>Measurement Units</span>
@@ -262,7 +267,7 @@ import { settings } from './dashboardSettings.js';
 export default {
     props: {
         modelValue: Boolean, // This maps to v-model
-        stg: Object          // Your settings object
+        stg: Object,         // Your settings object
     },
     data() {
         return {
@@ -271,7 +276,7 @@ export default {
             socket: null,
             timer: null,
             localLat: settings.lightning.homeLocation.lat,
-            localLon: settings.lightning.homeLocation.lon
+            localLon: settings.lightning.homeLocation.lon,
         };
     },
     methods: {
@@ -279,6 +284,7 @@ export default {
             // 1. Validate the inputs before converting
             const newLat = parseFloat(this.localLat);
             const newLon = parseFloat(this.localLon);
+            const newAppName = this.appName;
 
             // 2. Safety Check: If either is Not a Number, stop the bus!
             if (isNaN(newLat) || isNaN(newLon)) {
@@ -295,11 +301,14 @@ export default {
             settings.weather.current.lat = newLat;
             settings.weather.current.lon = newLon;
 
+            // update UI settings
+            //  settings.ui.appName = newAppName;
+
             // 5. Commit to LocalStorage
             localStorage.setItem('station_config_v1', JSON.stringify(settings));
 
             // 6. Final confirmation
-            console.log("Station updated successfully:", newLat, newLon);
+            console.log("Station updated successfully:", newLat, newLon, newAppName);
         },
 
         saveSettings() {
@@ -310,24 +319,22 @@ export default {
         // 1. Logic to take your 'stg' object and save it as a JSON file
         exportToDisk() {
             try {
-                // Use the imported 'settings' object instead of 'this.stg'
-                const backupData = JSON.parse(JSON.stringify(settings));
+                // 1. Create a DEEP CLONE (A completely separate copy in memory)
+                const cleanData = JSON.parse(JSON.stringify(settings));
 
-                // Force the modal to false in the saved file
-                backupData.lightning.showModal = false;
+                // 2. Scrub the Activity Data from the clone
+                cleanData.weather.current = {};
+                cleanData.weather.forecast = [];
+                cleanData.lightning.history = [];
 
-                backupData.weather.current = {};
-                backupData.weather.forecast = [];
-                backupData.lightning.history = [];
+                // 3. Scrub the recursion (The Nesting Doll Fix)
+                delete cleanData.lightning.lightning;
 
-
-                // --- PERSISTENCE STEP ---
-                // Save to browser memory so refresh works
-                localStorage.setItem('station_config_v1', JSON.stringify(settings));
-                // -------------------------
+                // 4. PERSISTENCE: Save the clean version to browser memory
+                localStorage.setItem('station_config_v1', JSON.stringify(cleanData));
 
                 // Create the physical file download
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cleanData, null, 2));
                 const downloadAnchorNode = document.createElement('a');
                 downloadAnchorNode.setAttribute("href", dataStr);
                 downloadAnchorNode.setAttribute("download", "station_settings.json");
