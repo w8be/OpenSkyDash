@@ -47,8 +47,6 @@ const defaultSettings = reactive({
 
   // WEATHER CONFIGURATION
   weather: {
-    //   lat: 34.05,
-    //   lon: -118.24,
     tempUnit: 'fahrenheit',
     windUnit: 'mph',
     updateInterval: 300000, // 5 minutes,
@@ -82,6 +80,7 @@ const defaultSettings = reactive({
     showAttribution: true,
     activeTab: 0, // for the main dashboard tabs
     panel: null,
+    appName: 'Dashboard',
   },
 })
 
