@@ -1,6 +1,6 @@
 <template>
 
-    <!-- <pre>weather.distanceUnit: {{ stg.weather.distanceUnit }}</pre> -->
+    <!-- <pre>data.current.time: {{ apiTime }}</pre> -->
     <v-sheet value="weather" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
         <div v-if="weather.current">
@@ -14,20 +14,20 @@
                         <v-icon :icon="weather.current.icon || 'mdi-weather-cloudy'" color="blue-lighten-3"
                             size="x-large" class="mt-n1"></v-icon>
 
-                        <span class="font-weight-bold text-brown-lighten-4" style="font-size: 2.0rem; line-height: 1;">
-                            {{ Math.round(weather.current.temp) }}°{{ stg.weather.tempUnit === 'fahrenheit' ? 'F' : 'C'
-                            }}
+                        <span class="font-weight-bold text-brown-lighten-4" style="font-size: 1.5rem; line-height: 1;">
+                            {{ weather.current.conditionText }}
+
                         </span>
                     </div>
 
-                    <span class="text-grey-darken-1 mt-n1" style="font-size: 0.55rem; padding-left: 2px;">
+                    <span class="text-grey-darken-1" style="font-size: 0.55rem; padding-left: 1px;">
                         Open-Meteo.com {{ weather.current.lastUpdate }}
                     </span>
                 </div>
 
                 <div class="font-weight-bold text-brown-lighten-4"
-                    style="font-size: 1.5rem; line-height: 1; margin-top: -1px;">
-                    {{ weather.current.conditionText }}
+                    style="font-size: 2.0rem; line-height: 1; margin-top: -1px;">
+                    {{ Math.round(weather.current.temp) }}°{{ stg.weather.tempUnit === 'fahrenheit' ? 'F' : 'C' }}
                 </div>
             </div>
 
@@ -81,7 +81,7 @@
                 <div class="metric-cell border-t border-r border-white-op">
                     <span class="label"><v-icon icon="mdi-eye" color="brown-lighten-2" size="large"></v-icon></span>
                     <span class="val"><strong>{{ weather.current.visibility }} {{ stg.weather.distanceUnit
-                            }}</strong></span>
+                    }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" color="amber-lighten-4"
@@ -150,14 +150,21 @@ export default {
         };
     },
     mounted() {
-        this.fetchWeather(); // Run immediately on load
+        // clean up
+        if (this.weatherTimer) { clearInterval(this.weatherTimer); }
 
-        // Set a 10-minute heartbeat (600,000 ms)
+        // Load
+
+        // init
+        this.fetchWeather();
+
+        // schedule 
         this.weatherTimer = setInterval(() => {
             console.log("Heartbeat: Refreshing weather data...");
             this.fetchWeather();
-        }, 600000);
+        }, 300000);
     },
+
     beforeUnmount() {
         // Clean up the timer when the component is destroyed
         if (this.weatherTimer) {
@@ -215,8 +222,8 @@ export default {
 
             const url = `https://api.open-meteo.com/v1/forecast?${params}`;
 
-            console.log("DEBUG: pUnit is:", pUnit);
-            console.log("DEBUG: URL is:", url);
+            //  console.log("DEBUG: pUnit is:", pUnit);
+            //  console.log("DEBUG: URL is:", url);
 
             try {
                 const response = await fetch(url);
@@ -242,7 +249,7 @@ export default {
                 } else {
                     vCalc = (apiUnit === 'ft') ? (rawVisibility / 3280.84) : (rawVisibility / 1000);
                 }
-                console.log(vCalc);
+
                 let pressureVal = data.current.pressure_msl;
                 const apiPressureUnit = data.current_units.pressure_msl; // e.g., "hPa"
 

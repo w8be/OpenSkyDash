@@ -248,7 +248,7 @@
         </v-card-text>
 
 
-        <v-card-actions>
+        <v-card-actions class="mt-n8">
             <v-btn variant="outlined" color="blue" size="small" @click="exportToDisk">Backup</v-btn>
             <v-btn variant="outlined" color="green" size="small" @click="$refs.fileInput.click()">Restore</v-btn>
             <input type="file" ref="fileInput" style="display: none" @change="importFromDisk" accept=".json">

@@ -1,5 +1,5 @@
 <template>
-    <!-- <pre>currentStorm.distance: {{ stg.lightning.currentStorm.distance }}</pre> -->
+    <!-- <pre>   {{ this.lightning.wssServers.length }}</pre> -->
     <v-sheet value="lightning" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
 
@@ -7,7 +7,7 @@
             style="position: relative; z-index: 10; ">
             <div class="d-flex align-center">
                 <v-icon icon="mdi-flash" color="amber" size="large"
-                    :class="{ 'pulsing-icon': (stg?.lightning.currentStorm.frequency > 0) }">
+                    :class="{ 'pulsing-icon': (stg.lightning.currentStorm.frequency > 0) }">
                 </v-icon>
                 <div class="d-flex flex-column align-start">
                     <span class="text-subtitle-1 font-weight-bold text-brown-lighten-4"
@@ -18,8 +18,8 @@
 
             <div class="d-flex justify-space-between align-center">
                 <v-chip size="x-small" :color="freqColor" variant="flat"
-                    class="font-weight-bold d-flex justify-center mr-1" style="font-weight: bold; min-width: 65px;">
-                    {{ stg?.lightning.currentStorm.frequency || 0 }}/min
+                    class="font-weight-bold d-flex justify-center mr-2" style="font-weight: bold; min-width: 70px;">
+                    {{ stg.lightning.currentStorm.frequency || 0 }}/min
 
                     <template v-slot:append>
                         <v-btn v-tooltip:top="'Chase Mode'" icon="mdi-radar" variant="text" size="x-small"
@@ -48,62 +48,78 @@
             </div>
         </div>
 
+
         <template v-if="stg?.lightning">
             <div v-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <= stg.lightning.alertThreshold"
-                class="danger-banner text-center py-1 font-weight-bold text-white" style="background-color: #d32f2f;">
+                class="danger-banner text-center py-1 font-weight-bold text-white bg-red-darken-4">
                 <v-icon icon="mdi-alert-octagon" size="x-small" class="mr-1"></v-icon>
                 TAKE ACTION: Immediate Danger
             </div>
+
             <div v-else-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <= stg.lightning.searchRadius"
-                class="text-center py-1 font-weight-bold text-white" style="background-color: #c46300;">
+                class="text-center py-1 font-weight-bold text-white bg-orange-darken-3">
                 <v-icon icon="mdi-eye-check" size="x-small" class="mr-1"></v-icon>
                 CAUTION: Strikes In Area
             </div>
-            <div v-else class="text-center py-1 font-weight-bold text-white" style="background-color: #2e7d32;">
+
+            <div v-else class="text-center py-1 font-weight-bold text-white bg-green-darken-3">
                 <v-icon icon="mdi-shield-check" size="x-small" class="mr-1"></v-icon>
                 STATUS: Clear / Monitoring
             </div>
         </template>
 
-        <v-card-text v-if="stg?.lightning.history && stg.lightning.history.length > 0" class="pa-4">
-            <div class="d-flex justify-space-between align-end mb-4">
-                <div class="d-flex align-baseline">
-                    <div class="display-value text-brown-lighten-4">{{ convertedDistance }}</div>
-                    <div class="unit-text ml-1">{{ stg.lightning?.unit }}</div>
-                </div>
-                <div class="text-right d-flex flex-column align-center" style="min-width: 100px;">
-                    <v-icon icon="mdi-navigation"
-                        :style="{ transform: `rotate(${stg.lightning.currentStorm?.bearing || 0}deg)`, transition: 'transform 0.5s' }"
-                        size="34" color="brown-lighten-4"></v-icon>
-                    <div :class="['trend-text font-weight-black mt-1 text-capitalize', trendColor]">
-                        {{ stg.lightning.currentStorm?.trend }}
+        <v-card-text class="pa-4">
+            <div
+                v-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <= stg.lightning.searchRadius">
+                <div class="d-flex justify-space-between align-end mb-4">
+                    <div class="d-flex align-baseline">
+                        <div class="display-value text-brown-lighten-4">{{ convertedDistance }}</div>
+                        <div class="unit-text ml-1">{{ stg.lightning?.unit }}</div>
                     </div>
-                    <div class="unit-text ml-1" style="font-size: 1.0rem;">
-                        {{ getDir(stg.lightning.currentStorm?.bearing) }}
+                    <div class="text-right d-flex flex-column align-center" style="min-width: 100px;">
+                        <v-icon icon="mdi-navigation"
+                            :style="{ transform: `rotate(${stg.lightning.currentStorm?.bearing || 0}deg)`, transition: 'transform 0.5s' }"
+                            size="28" color="brown-lighten-4"></v-icon>
+                        <div :class="['trend-text font-weight-black mt-1 text-capitalize', trendColor]">
+                            {{ stg.lightning.currentStorm?.trend }}
+                        </div>
+                        <div class="unit-text ml-1" style="font-size: 1.0rem;">
+                            {{ getDir(stg.lightning.currentStorm?.bearing) }}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <v-sparkline :model-value="sparklineValues" :gradient="['#4caf50', '#ffeb3b', '#f44336']" smooth="10"
-                line-width="3" height="50" fill padding="4">
+            <div v-else class="text-center text-grey-darken-1">
+                <v-icon icon="mdi-shield-check-outline" size="48"></v-icon>
+                <div class="text-caption font-weight-bold text-uppercase">Quiet</div>
+            </div>
+
+            <v-sparkline v-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <=
+                stg.lightning.searchRadius" :model-value="sparklineValues"
+                :gradient="['#4caf50', '#ffeb3b', '#f44336']" smooth="10" line-width="3" height="50" fill padding="4">
             </v-sparkline>
 
-            <v-expansion-panels v-model="panel" variant="accordion" class="custom-panels">
-                <v-expansion-panel class="bg-transparent" value="strikes">
-                    <v-expansion-panel-title
-                        class="pa-0 ma-0 text-capitalize text-caption font-weight-bold text-brown-lighten-4">
+
+            <v-expansion-panels v-model="stg.lightning.ui.panel" flat class="mt-2">
+                <v-expansion-panel value="strikes" bg-color="transparent">
+                    <v-expansion-panel-title :ripple="false"
+                        class="text-capitalize text-caption font-weight-bold text-brown-lighten-4">
                         Recent Strikes
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
-                        <div v-for="(strike, index) in recentStrikes" :key="index" class="py-1">
+                        <div v-for="(strike, index) in recentStrikes" :key="index">
                             <v-row no-gutters align="center" class="text-caption">
-                                <v-col cols="4" class="text-left text-grey-lighten-1">{{ formatTime(strike.time)
-                                    }}</v-col>
-                                <v-col cols="5" class="text-center font-weight-bold text-orange-darken-1">{{ strike.dist
-                                    }}{{ stg.lightning.unit }}</v-col>
-                                <v-col cols="3" class="text-right font-weight-bold white--text">{{
-                                    getDir(strike.bearing)
-                                    }}</v-col>
+                                <v-col cols="4" class="text-left text-grey-lighten-1 time-col"
+                                    style="white-space: nowrap;">
+                                    {{ formatTime(strike.time) }}
+                                </v-col>
+                                <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
+                                    {{ strike.dist }}<span class="text-caption ml-1">{{ stg.lightning.unit }}</span>
+                                </v-col>
+                                <v-col cols="4" class="text-right font-weight-bold text-white">
+                                    {{ getDir(strike.bearing) }}
+                                </v-col>
                             </v-row>
                             <v-divider v-if="index < recentStrikes.length - 1"
                                 class="mt-1 border-bottom-dim"></v-divider>
@@ -113,10 +129,6 @@
             </v-expansion-panels>
         </v-card-text>
 
-        <v-card-text v-else class="pa-10 text-center text-grey-darken-1">
-            <v-icon icon="mdi-shield-check-outline" size="48" class="mb-2"></v-icon>
-            <div class="text-caption font-weight-bold text-uppercase">Quiet</div>
-        </v-card-text>
 
         <div class="px-5 py-1 footer-bg border-top-dim rounded-b-lg">
             <div class="d-flex justify-space-between align-center text-caption font-weight-bold">
@@ -143,6 +155,7 @@ export default {
     data() {
         return {
             stg: settings,
+            shared: window.G_STATE,
             currentServerIndex: 0,
             connection: null,
             reconnectTimer: null,
@@ -158,6 +171,11 @@ export default {
     },
 
     mounted() {
+        // 1. Cleanup
+        if (this.freqTimer) clearInterval(this.freqTimer);
+        if (this.expiryTimer) clearInterval(this.expiryTimer);
+
+        // Load
         const saved = localStorage.getItem('station_config_v1');
         if (saved && saved !== "undefined") {
             try {
@@ -172,17 +190,17 @@ export default {
             console.log("No saved config found. Loading defaults.");
         }
 
+        // Init
         this.connect();
-
+        this.thunderPlayer = new Audio('/sounds/thunder.mp3');
+        this.thunderPlayer.load();
+        this.updateFrequency();
         this.startExpiryTimer();
 
+        // Schedule
         this.freqTimer = setInterval(() => {
             this.updateFrequency();
         }, 10000);
-
-        this.thunderPlayer = new Audio('/sounds/thunder.mp3');
-        // Pre-load it so it's ready for the first strike
-        this.thunderPlayer.load();
     },
     unmounted() {
         if (this.expiryTimer) clearInterval(this.expiryTimer);
@@ -196,7 +214,7 @@ export default {
             // Manual trigger of the pruning logic
             const cutoff = Date.now() - (newVal * 60 * 1000);
             this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
-            this.stg.lightning.frequency = this.stg.lightning.history.length;
+            this.stg.lightning.currentStorm.frequency = this.stg.lightning.history.length;
         }
     },
     methods: {
@@ -278,7 +296,7 @@ export default {
                     if (this.connection && this.connection.readyState === 1) {
                         const payload = JSON.stringify({ a: this.authKey });
                         this.connection.send(payload);
-                        console.log("Heartbeat SENT:", payload);
+                        console.log("Blitzortung Wss Heartbeat SENT:", payload);
                     }
                 }, 30000);
             };
@@ -288,14 +306,21 @@ export default {
                     const decodedString = this.lzw_decode(event.data);
                     const raw = JSON.parse(decodedString);
 
+
                     const strike = {
                         lat: raw[1] || raw.la || raw.lat,
                         lon: raw[2] || raw.lo || raw.lon,
+                        //  time: Math.floor((raw.time || raw.t || Date.now()) / 1000000)
                         time: Math.floor((raw.time || raw.t || Date.now()) / 1000000)
                     };
-
+                    // console.log(strike);
                     if (strike.lat !== undefined && strike.lon !== undefined) {
+                        // Update your "Last Strike" memory
+                        this.stg.lightning.lastStrikeTimestamp = strike.time;
+
+                        // Send it to your distance/bearing logic
                         this.processIncomingStrike(strike);
+
                     }
                 } catch (e) {
                     //console.error("Decoding/Parsing Error:", e);
@@ -305,7 +330,7 @@ export default {
             this.connection.onclose = () => {
                 if (this.heartbeat) clearInterval(this.heartbeat);
 
-                this.currentServerIndex = (this.currentServerIndex + 1) % this.wssServers.length;
+                this.currentServerIndex = (this.currentServerIndex + 1) % this.lightning.wssServers.length;
 
                 console.log(`Server ${serverNum} closed. Rotating to next server in 5s...`);
                 setTimeout(() => this.establishConnection(), 5000);
@@ -318,45 +343,95 @@ export default {
         },
 
 
+        /*  processIncomingStrike(data) {
+              if (!data || data.lat === undefined || data.lon === undefined) return;
+              const now = Date.now();
+              const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
+              const toRad = (v) => (v * Math.PI) / 180;
+              const R = this.stg.lightning?.unit?.toLowerCase() === 'km' ? 6371 : 3958.8;
+  
+              const dLat = toRad(data.lat - home.lat);
+              const dLon = toRad(data.lon - home.lon);
+              const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+              const dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+  
+              // --- GLOBAL UPDATES (Happens for every strike) ---
+              this.stg.lightning.history.push({ time: data.time || now, dist, bearing: 0 }); // bearing updated below if needed
+  
+              const cutoff = Date.now() - (this.stg.lightning.resetTime * 60 * 1000);
+              this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
+  
+              // --- LOCAL UPDATES (Only if within your monitoring zone) ---
+              if (dist <= this.stg.lightning.searchRadius) {
+                  const y = Math.sin(toRad(data.lon - home.lon)) * Math.cos(toRad(data.lat));
+                  const x = Math.cos(toRad(home.lat)) * Math.sin(toRad(data.lat)) -
+                      Math.sin(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.cos(toRad(data.lon - home.lon));
+                  const bearing = Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360);
+  
+                  // Update the specific history entry with the bearing
+                  this.stg.lightning.history[this.stg.lightning.history.length - 1].bearing = bearing;
+  
+                  this.stg.lightning.currentStorm.distance = dist;
+                  this.stg.lightning.currentStorm.bearing = bearing;
+  
+                  if (dist <= this.stg.lightning.searchRadius) {
+                      this.playThunder();
+                  }
+  
+                  this.calculateTrend();
+                  this.updateFrequency();
+  
+                  if (this.stg.lightning.isSnapped) {
+                      const liveFreq = this.stg.lightning.currentStorm.frequency || 0;
+                      this.stg.lightning.sampleSize = Math.max(0.5, liveFreq);
+                  }
+              }
+          }, */
+
         processIncomingStrike(data) {
             if (!data || data.lat === undefined || data.lon === undefined) return;
+
             const now = Date.now();
             const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
             const toRad = (v) => (v * Math.PI) / 180;
             const R = this.stg.lightning?.unit?.toLowerCase() === 'km' ? 6371 : 3958.8;
 
+            // 1. Calculate Distance FIRST
             const dLat = toRad(data.lat - home.lat);
             const dLon = toRad(data.lon - home.lon);
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 
-            // --- GLOBAL UPDATES (Happens for every strike) ---
-            this.stg.lightning.history.push({ time: data.time || now, dist, bearing: 0 }); // bearing updated below if needed
+            // 2. GLOBAL UPDATES: Log the strike to history (for the sparkline)
+            // We default bearing to 0 and update it if it's within our radius
+            this.stg.lightning.history.push({ time: data.time || now, dist, bearing: 0 });
 
+            // Cleanup old history based on your resetTime
             const cutoff = Date.now() - (this.stg.lightning.resetTime * 60 * 1000);
             this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
 
-            // --- LOCAL UPDATES (Only if within your monitoring zone) ---
+            // 3. LOCAL UPDATES: Only trigger for strikes inside the searchRadius
             if (dist <= this.stg.lightning.searchRadius) {
+                // Calculate Bearing (The missing math)
                 const y = Math.sin(toRad(data.lon - home.lon)) * Math.cos(toRad(data.lat));
                 const x = Math.cos(toRad(home.lat)) * Math.sin(toRad(data.lat)) -
                     Math.sin(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.cos(toRad(data.lon - home.lon));
                 const bearing = Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360);
 
-                // Update the specific history entry with the bearing
+                // Update the history entry we just added with the real bearing
                 this.stg.lightning.history[this.stg.lightning.history.length - 1].bearing = bearing;
 
+                // Update UI State
                 this.stg.lightning.currentStorm.distance = dist;
                 this.stg.lightning.currentStorm.bearing = bearing;
 
-                if (dist <= this.stg.lightning.alertThreshold) {
-                    this.playThunder();
-                }
-
+                this.playThunder();
                 this.calculateTrend();
                 this.updateFrequency();
 
+                // Chase Mode (Auto-snapping sample size)
                 if (this.stg.lightning.isSnapped) {
                     const liveFreq = this.stg.lightning.currentStorm.frequency || 0;
                     this.stg.lightning.sampleSize = Math.max(0.5, liveFreq);
@@ -389,7 +464,7 @@ export default {
                     });
 
                     // Keep your frequency count in sync
-                    this.stg.lightning.frequency = this.stg.lightning.history.length;
+                    this.stg.lightning.currentStorm.frequency = this.stg.lightning.history.length;
                 }
             }, 30000); // 30-second sweep interval
         },
@@ -424,7 +499,14 @@ export default {
 
 
         formatTime(ts) {
-            return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            if (!ts) return "--:--:--";
+            const date = new Date(ts);
+            return date.toLocaleTimeString('en-US', {
+                hour12: true,
+                hour: 'numeric',
+                minute: '2-digit',
+                second: '2-digit'
+            }).replace(/\s/g, ''); // Removes the space before AM/PM for high density
         },
 
         getDir(b) {
@@ -442,7 +524,6 @@ export default {
         calculateTrend() {
             const h = this.stg.history;
             const config = this.stg.config;
-            //    const sampleSize = Number(config.sampleSize) || 10;
             const sampleSize = Number(this.stg.lightning.sampleSize) || 20;
             const sensitivity = Number(this.lightning.sensitivity) || 2;
 
@@ -491,42 +572,26 @@ export default {
                 this.stg.lightning.currentStorm.trend = 'Stationary';
             }
         },
-        /*
-                updateFrequency() {
-                    const oneMinuteAgo = Date.now() - 60000;
-                    const history = this.stg?.lightning?.history || [];
-                    const recentStrikes = history.filter(s => s.time > oneMinuteAgo);
-                    const freq = recentStrikes.length;
-        
-                    // Update local card UI
-                    this.stg.lightning.currentStorm.frequency = freq;
-                }, */
+
+
 
         updateFrequency() {
-            // 1. Check if the 'stg' object even exists in this context
-            if (!this.stg || !this.stg.lightning || !Array.isArray(this.stg.lightning.history)) {
-                console.warn("UpdateFrequency bypassed: stg.lightning.history not ready yet.");
-                return;
-            }
-            if (!this.stg || !this.stg.lightning) {
-                console.error("updateFrequency Failure: 'stg.lightning' is missing!");
-                return;
-            }
-
             const oneMinuteAgo = Date.now() - 60000;
+            const radius = Number(this.stg.lightning.searchRadius || 1000);
 
-            // 2. Ensure history is at least an empty array so .filter() doesn't crash
-            const history = this.stg.lightning.history || [];
+            // We define 'localStrikes' here so the browser knows what it is
+            const localStrikes = this.stg.lightning.history.filter(s => {
+                return s.time > oneMinuteAgo && Number(s.dist) <= radius;
+            });
 
-            try {
-                const recentStrikes = history.filter(s => s.time > oneMinuteAgo);
+            const freq = localStrikes.length;
 
-                // 3. Update the frequency safely
-                if (this.stg.lightning) {
-                    this.stg.lightning.frequency = recentStrikes.length;
-                }
-            } catch (err) {
-                console.error("Filter crashed. History contents:", history);
+            // Update the UI state
+            this.stg.lightning.currentStorm.frequency = freq;
+
+            // If you use a shared state object:
+            if (this.shared?.lightning) {
+                this.shared.lightning.frequency = freq;
             }
         },
 
@@ -623,15 +688,28 @@ export default {
             return this.stg?.lightning || {};
         },
 
+        /*   sparklineValues() {
+               const raw = this.stg?.lightning?.history || [];
+               const radius = Number(this.stg?.lightning?.searchRadius || 1000);
+   
+               if (raw.length === 0) return [0, 0];
+   
+               // Take only the last 25 strikes so the graph doesn't get "crowded"
+               return raw.slice(0, 25)
+                   .filter(h => Number(h.dist) <= radius)
+                   .map(h => {
+                       const d = Number(h.dist);
+                       const inverted = Math.max(0, radius - d);
+                       return Math.round((inverted / radius) * 100);
+                   })
+                   .reverse();
+           }, */
         sparklineValues() {
-            const history = this.lightning.history || [];
-            const radius = this.lightning.searchRadius || 50;
+            const radius = Number(this.stg?.lightning?.searchRadius || 1000);
 
-            if (history.length === 0) return [0];
-
-            return history
-                .filter(h => h.dist <= radius)
-                .map(h => Math.max(0, radius - h.dist));
+            return this.stg.lightning.history.length
+                ? this.stg.lightning.history.filter(h => Number(h.dist) <= radius).map(h => 100 - h.dist)
+                : [0, 0];
         },
 
         recentStrikes() {
@@ -642,7 +720,7 @@ export default {
             return [...history]
                 .filter(strike => strike.dist <= radius)
                 .reverse()
-                .slice(0, 10);
+                .slice(0, 5);
         },
 
         lastUpdated() {
@@ -681,16 +759,15 @@ export default {
         isMuted() {
             return this.stg.lightning.isMuted;
         },
-        convertedDistance() {
-            const unit = this.stg.lightning.unit;
-            const d = parseFloat(this.stg.lightning.currentStorm.distance);
-            console.log(d);
+        nearestActiveStrike() {
+            if (!this.stg?.lightning?.history?.length) return null;
 
-            if (isNaN(d)) return '--';
+            // Return the strike with the smallest distance
+            return this.stg.lightning.history.reduce((prev, curr) =>
+                prev.dist < curr.dist ? prev : curr
+            );
+        }
 
-            const val = unit === 'Mi' ? d : (d * 1.60934);
-            return Math.round(val);
-        },
     }
 };
 </script>
@@ -718,7 +795,7 @@ export default {
 }
 
 .display-value {
-    font-size: 4.0rem;
+    font-size: 3.5rem;
     font-weight: 900;
     line-height: 1;
     letter-spacing: -2px;
@@ -797,5 +874,30 @@ export default {
     100% {
         opacity: 1;
     }
+}
+
+.time-col {
+    white-space: nowrap;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+/* Tighten the expansion panel title */
+:deep(.v-expansion-panel-title) {
+    min-height: 32px !important;
+    /* Forces it to be slimmer */
+    padding: 0 8px !important;
+    /* Standardize horizontal padding */
+}
+
+/* Adjust the icon (chevron) size if it feels too big now */
+:deep(.v-expansion-panel-title__icon) {
+    margin-inline-start: 4px !important;
+    user-select: none;
+}
+
+/* Remove extra padding from the content area to keep it compact */
+:deep(.v-expansion-panel-text__wrapper) {
+    padding: 8px 12px 12px 12px !important;
 }
 </style>

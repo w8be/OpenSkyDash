@@ -1,8 +1,6 @@
 <template>
-  <!--<v-btn @click="shared.lightning.frequency++">Manual Bump</v-btn> -->
-
+  <!-- <pre>{{ shared.lightning.frequency }} </pre> -->
   <v-app theme="dark">
-    <pre>shared.weather.icon: {{ shared.weather.icon }} </pre>
     <v-app-bar color="#1e3838" density="compact">
       <v-app-bar-title class="text-brown-lighten-4"><v-icon icon="mdi-monitor-dashboard" color="brown-lighten-4"
           size="small"></v-icon> {{ stg.ui.appName }}</v-app-bar-title>
@@ -50,8 +48,10 @@
 
 <script>
 // 1. Import your existing state and the NEW dashboard settings
+import { reactive } from 'vue';
 import { globalState } from './state.js';
 import { settings } from './components/cards/dashboardSettings.js'; // Import the new master file
+import '@mdi/font/css/materialdesignicons.css';
 
 // 2. Import .vue files
 import LightningCard from './components/cards/LightningCard.vue';
@@ -70,9 +70,8 @@ export default {
     return {
       // MASTER SETTINGS LINK
       stg: settings,
-
-      activeTab: 'lightning',
-      shared: window.G_STATE || globalState,
+      activeTab: 'weather',
+      shared: reactive(window.G_STATE || globalState),
       currentTime: '',
 
     };
@@ -171,5 +170,27 @@ export default {
   /* Allows tab to shrink below 90px */
   padding: 0 4px;
   /* Reduces horizontal padding */
+}
+
+.pulsing-icon {
+  animation: pulse-lightning 1.5s infinite ease-in-out;
+  display: inline-block;
+}
+
+@keyframes pulse-lightning {
+  0% {
+    transform: scale(1);
+    filter: brightness(1) drop-shadow(0 0 0px rgba(255, 193, 7, 0));
+  }
+
+  50% {
+    transform: scale(1.2);
+    filter: brightness(1.8) drop-shadow(0 0 5px rgba(255, 193, 7, 0.8));
+  }
+
+  100% {
+    transform: scale(1);
+    filter: brightness(1) drop-shadow(0 0 0px rgba(255, 193, 7, 0));
+  }
 }
 </style>

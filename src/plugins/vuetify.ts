@@ -1,14 +1,18 @@
 // plugins/vuetify.ts
 import { createVuetify } from 'vuetify'
 
-// These are the lines Vite was complaining about
+// Try this path instead - it's the more common export for Labs
+import * as labsComponents from 'vuetify/labs/components'
+
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
-
-// This part ensures Vuetify knows how to use the icons you just installed
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 export default createVuetify({
+  // Register all labs components, or just VSparkline from that set
+  components: {
+    ...labsComponents,
+  },
   theme: {
     defaultTheme: 'dark',
   },
