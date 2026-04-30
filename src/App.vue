@@ -2,7 +2,7 @@
   <!-- <pre>{{ shared.lightning.frequency }} </pre> -->
   <v-app theme="dark">
     <v-app-bar color="#1e3838" density="compact">
-      <v-app-bar-title class="text-brown-lighten-4"><v-icon icon="mdi-monitor-dashboard" color="brown-lighten-4"
+      <v-app-bar-title class="text-brown-lighten-4"><v-icon icon="mdi-monitor-dashboard" color="primary"
           size="small"></v-icon> {{ stg.ui.appName }}</v-app-bar-title>
       <v-spacer></v-spacer>
       <div class="pa-4 text-h6 text-brown-lighten-4">{{ currentTime }}</div>
@@ -28,16 +28,16 @@
         <v-window v-model="activeTab">
 
           <v-window-item value="weather">
-            <WeatherCard />
+            <WeatherCard :stg="stg" />
           </v-window-item>
-          <v-window-item value="lightning">
-            <LightningCard />
+          <v-window-item value="lightning" eager>
+            <LightningCard :stg="stg" />
           </v-window-item>
-          <v-window-item value="solar">
-            <SolarCard />
+          <v-window-item value="solar" eager>
+            <SolarCard :stg="stg" />
           </v-window-item>
           <v-window-item value="settings">
-            <SettingsCard />
+            <SettingsCard v-if="activeTab === 'settings'" :stg="stg" />
           </v-window-item>
 
         </v-window>

@@ -4,9 +4,9 @@ const defaultSettings = reactive({
   // LIGHTNING CONFIGURATION
   lightning: {
     // User-adjustable values
+    shouldConnect: true,
     searchRadius: 50,
     alertThreshold: 25,
-    areaThreshold: 50,
     unit: 'Mi',
     homeLocation: { lat: 34.05, lon: -118.24 },
 
@@ -69,9 +69,39 @@ const defaultSettings = reactive({
       low: 0,
       conditionText: '',
       dewPoint: 0,
+      lastUpdate: 0,
     },
     alert: null,
     forecast: [],
+  },
+
+  solar: {
+    shouldConnect: true,
+    current: {
+      geoMagnetic: {
+        aIndex: 0,
+        kIndex: 0,
+        flux: 0,
+      },
+      ionosphere: {
+        fof2: 8.01, // Critical Frequency (MHz)
+        hmf2: 262.1, // Height of maximum density (km)
+        mufd: 24.7, // Maximum Usable Frequency (for a 3000km path)
+        timestamp: 1777562100, // Unix epoch
+      },
+      scales: {
+        current: {
+          r: 0, // Radio Blackouts
+          s: 0, // Solar Radiation Storms
+          g: 0, // Geomagnetic Storms
+        },
+        probabilities: {
+          rMinor: 65, // M-Class flare probability
+          rMajor: 10, // X-Class flare probability
+          sStorm: 10, // Proton storm probability
+        },
+      },
+    },
   },
 
   // GLOBAL UI

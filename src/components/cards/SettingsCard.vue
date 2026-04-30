@@ -27,8 +27,8 @@
                             v-model="stg.ui.appName"></v-text-field>
                     </div>
 
-                    <div class="text-subtitle-2 mb-4 text-secondary d-flex align-center">
-                        <v-icon color="#d9d2e9" class="mr-2">mdi-ruler</v-icon>
+                    <div class="text-subtitle-2 mb-1 text-secondary d-flex align-center">
+                        <v-icon color="#d9d2e9" class="mr-2" size="small">mdi-ruler</v-icon>
                         <span>Measurement Units</span>
                     </div>
 
@@ -71,7 +71,7 @@
                         </v-col>
                     </v-row>
 
-                    <v-row density="comfortable" class="mb-2">
+                    <v-row density="comfortable">
                         <v-col class="text-info" cols="6">
                             <v-text-field v-model.number="localLat" label="Lat" density="compact" variant="outlined"
                                 @keydown.enter.prevent="updateLocation"></v-text-field>
@@ -83,28 +83,29 @@
                         </v-col>
                     </v-row>
 
-                    <div class="text-subtitle-2 mb-2 text-secondary">
-                        <v-icon size="large" color="#b06e69">mdi-clock-outline</v-icon> Reset Time ({{
+                    <div class="text-subtitle-2 mb-1 text-secondary">
+                        <v-icon size="small" color="#b06e69">mdi-clock-outline</v-icon> Reset Time ({{
                             stg.lightning.resetTime }}m)
                     </div>
-                    <v-btn-toggle v-model="stg.lightning.resetTime" mandatory color="blue" class="mb-6">
-                        <v-btn :value="5">5</v-btn>
-                        <v-btn :value="10">10</v-btn>
-                        <v-btn :value="30">30</v-btn>
-                        <v-btn :value="60">60</v-btn>
+                    <v-btn-toggle v-model="stg.lightning.resetTime" density="compact" mandatory color="blue"
+                        class="mb-6">
+                        <v-btn :value="5" size="small">5m</v-btn>
+                        <v-btn :value="10" size="small">10m</v-btn>
+                        <v-btn :value="30" size="small">30m</v-btn>
+                        <v-btn :value="60" size="small">60m</v-btn>
                     </v-btn-toggle>
 
                     <v-row density="comfortable">
                         <v-col cols="6">
                             <div class="text-subtitle-2 mb-1 text-secondary">
-                                <v-icon color="#4285F4" size="large">mdi-earth</v-icon> Search Radius
+                                <v-icon color="#4285F4" size="small">mdi-earth</v-icon> Search Radius
                             </div>
                             <v-text-field v-model.number="stg.lightning.searchRadius" density="compact"
                                 variant="outlined"></v-text-field>
                         </v-col>
                         <v-col cols="6">
                             <div class="text-subtitle-2 mb-1 text-secondary">
-                                <v-icon color="orange" size="large">mdi-lightning-bolt</v-icon> Alert Radius
+                                <v-icon color="orange" size="small">mdi-lightning-bolt</v-icon> Alert Radius
                             </div>
                             <v-text-field v-model.number="stg.lightning.alertThreshold" density="compact"
                                 variant="outlined"></v-text-field>
@@ -266,17 +267,18 @@
 import { settings } from './dashboardSettings.js';
 export default {
     props: {
-        modelValue: Boolean, // This maps to v-model
-        stg: Object,         // Your settings object
+        stg: {
+            type: Object,
+            required: true
+        }
     },
     data() {
         return {
-            stg: settings,
             // Keep your WebSockets and Timers here local
             socket: null,
             timer: null,
-            localLat: settings.lightning.homeLocation.lat,
-            localLon: settings.lightning.homeLocation.lon,
+            localLat: this.stg?.lightning?.homeLocation?.lat,
+            localLon: this.stg?.lightning?.homeLocation?.lon
         };
     },
     methods: {

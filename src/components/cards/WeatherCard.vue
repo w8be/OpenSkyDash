@@ -3,31 +3,31 @@
     <!-- <pre>data.current.time: {{ apiTime }}</pre> -->
     <v-sheet value="weather" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
-        <div v-if="weather.current">
+        <div v-if="stg.weather.current">
 
-            <div v-if="weather.current && weather.current.temp !== undefined"
+            <div v-if="stg.weather.current && stg.weather.current.temp !== undefined"
                 class="d-flex justify-space-between align-start header-bg px-3 py-2 mt-2"
                 style="position: relative; z-index: 10;">
 
                 <div class="d-flex flex-column">
                     <div class="d-flex align-start ga-2">
-                        <v-icon :icon="weather.current.icon || 'mdi-weather-cloudy'" color="blue-lighten-3"
+                        <v-icon :icon="stg.weather.current.icon || 'mdi-weather-cloudy'" color="blue-lighten-3"
                             size="x-large" class="mt-n1"></v-icon>
 
                         <span class="font-weight-bold text-brown-lighten-4" style="font-size: 1.5rem; line-height: 1;">
-                            {{ weather.current.conditionText }}
+                            {{ stg.weather.current.conditionText }}
 
                         </span>
                     </div>
 
                     <span class="text-grey-darken-1" style="font-size: 0.55rem; padding-left: 1px;">
-                        Open-Meteo.com {{ weather.current.lastUpdate }}
+                        Open-Meteo.com {{ stg.weather.current.lastUpdate }}
                     </span>
                 </div>
 
                 <div class="font-weight-bold text-brown-lighten-4"
                     style="font-size: 2.0rem; line-height: 1; margin-top: -1px;">
-                    {{ Math.round(weather.current.temp) }}°{{ stg.weather.tempUnit === 'fahrenheit' ? 'F' : 'C' }}
+                    {{ Math.round(stg.weather.current.temp) }}°{{ stg.weather.tempUnit === 'fahrenheit' ? 'F' : 'C' }}
                 </div>
             </div>
 
@@ -36,9 +36,9 @@
             </div>
 
             <div class="d-flex justify-center ga-4 mb-4 text-caption text-grey-lighten-1">
-                <span>Feels like {{ Math.round(weather.current.feelsLike) }}°</span>
-                <span class="text-orange-lighten-2">▲{{ Math.round(weather.current.high) }}°</span>
-                <span class="text-blue-lighten-2">▼{{ Math.round(weather.current.low) }}°</span>
+                <span>Feels like {{ Math.round(stg.weather.current.feelsLike) }}°</span>
+                <span class="text-orange-lighten-2">▲{{ Math.round(stg.weather.current.high) }}°</span>
+                <span class="text-blue-lighten-2">▼{{ Math.round(stg.weather.current.low) }}°</span>
             </div>
 
 
@@ -47,46 +47,49 @@
                 <div class="metric-cell border-r border-white-op">
                     <span class="label"><v-icon icon="mdi-weather-windy-variant" color="blue-lighten-3"
                             size="large"></v-icon></span>
-                    <span class="val mr-2">{{ weather.current.windDir }} <strong>{{ weather.current.windSpeed }} {{
-                        stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
+                    <span class="val mr-2">{{ stg.weather.current.windDir }} <strong>{{ stg.weather.current.windSpeed }}
+                            {{
+                                stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell">
                     <span class="label"><v-icon icon="mdi-water" color="cyan-lighten-3" size="large"></v-icon></span>
-                    <span class="val"><strong>{{ weather.current.humidity }}%</strong></span>
+                    <span class="val"><strong>{{ stg.weather.current.humidity }}%</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
                     <span class="label"><v-icon icon="mdi-windsock" color="teal-lighten-1" size="large"></v-icon></span>
-                    <span class="val"><strong>{{ weather.current.gusts }} {{
+                    <span class="val"><strong>{{ stg.weather.current.gusts }} {{
                         stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-water-thermometer" color="cyan-lighten-3"
                             size="large"></v-icon></span>
-                    <span class="val"><strong>{{ Math.round(weather.current.dewPoint) }}° {{ stg.weather.tempUnit ===
+                    <span class="val"><strong>{{ Math.round(stg.weather.current.dewPoint) }}° {{ stg.weather.tempUnit
+                        ===
                         'fahrenheit' ? 'F' : 'C'
                             }}</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
                     <span class="label"><v-icon icon="mdi-gauge" color="green-accent-4" size="large"></v-icon></span>
-                    <span class="val"><strong>{{ weather.current.pressure }}</strong> {{ stg.weather.pressureUnit ===
+                    <span class="val"><strong>{{ stg.weather.current.pressure }}</strong> {{ stg.weather.pressureUnit
+                        ===
                         'inch' ? 'in' : 'mb' }}</span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-clouds" color="indigo-lighten-3" size="large"></v-icon></span>
-                    <span class="val"><strong>{{ weather.current.clouds }}%</strong></span>
+                    <span class="val"><strong>{{ stg.weather.current.clouds }}%</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
                     <span class="label"><v-icon icon="mdi-eye" color="brown-lighten-2" size="large"></v-icon></span>
-                    <span class="val"><strong>{{ weather.current.visibility }} {{ stg.weather.distanceUnit
+                    <span class="val"><strong>{{ stg.weather.current.visibility }} {{ stg.weather.distanceUnit
                     }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" color="amber-lighten-4"
                             size="large"></v-icon></span>
-                    <span class="val"><strong>{{ weather.current.uv }} UV</strong></span>
+                    <span class="val"><strong>{{ stg.weather.current.uv }} UV</strong></span>
                 </div>
             </div>
 
@@ -97,7 +100,7 @@
                         Forecast
                     </v-expansion-panel-title>
                     <v-expansion-panel-text class="forecast-body">
-                        <div v-for="day in weather.forecast" :key="day.name" class="forecast-row">
+                        <div v-for="day in stg.weather.forecast" :key="day.name" class="forecast-row">
                             <span class="day-label mr-2">{{ day.name }}</span>
                             <v-icon :icon="day.icon" size="small" color="blue-lighten-4"></v-icon>
                             <span class="temp-range">{{ Math.round(day.high) }}°/{{ Math.round(day.low) }}°</span>
@@ -118,40 +121,25 @@
 import { settings } from './dashboardSettings.js';
 export default {
     name: 'WeatherCard',
-
+    props: {
+        stg: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
-            stg: settings,
             shared: window.G_STATE,
             panel: null,
             currentServerIndex: 0,
-            weather: {
-                current: {
-                    temp: 0,
-                    feelsLike: 0,
-                    humidity: 0,
-                    windSpeed: 0,
-                    windDir: '',
-                    gusts: 0,
-                    pressure: 0,
-                    clouds: 0,
-                    visibility: 0,
-                    uv: 0,
-                    high: 0,
-                    low: 0,
-                    conditionText: 'Loading...', // Give it a string so the DOM doesn't flicker empty
-                    dewPoint: 0,
-                    lastUpdate: 0
-                },
-                alert: null,
-                forecast: [],
-                previousApiTime: null
-            }
+            alert: null,
+            forecast: [],
+            previousApiTime: null,
         };
     },
     mounted() {
         // clean up
-        if (this.weatherTimer) { clearInterval(this.weatherTimer); }
+        if (this.stg.weatherTimer) { clearInterval(this.stg.weatherTimer); }
 
         // Load
 
@@ -159,7 +147,7 @@ export default {
         this.fetchWeather();
 
         // schedule 
-        this.weatherTimer = setInterval(() => {
+        this.stg.weatherTimer = setInterval(() => {
             console.log("Heartbeat: Refreshing weather data...");
             this.fetchWeather();
         }, 300000);
@@ -167,26 +155,23 @@ export default {
 
     beforeUnmount() {
         // Clean up the timer when the component is destroyed
-        if (this.weatherTimer) {
-            clearInterval(this.weatherTimer);
+        if (this.stg.weatherTimer) {
+            clearInterval(this.stg.weatherTimer);
         }
     },
 
     watch: {
-        // Watch settings (Units, etc.)
-        'stg.weather': {
+        // Only re-fetch if the location actually changes
+        'stg.lightning.homeLocation': {
             handler() {
-                this.debouncedRefresh();
+                console.log("Location changed. Re-fetching Weather...");
+                this.fetchWeather();
             },
             deep: true
         },
-        // Watch location (Lat/Lon) - removed 'this.' and added to debounce
-        'stg.lightning.homeLocation.lat': {
-            handler() { this.debouncedRefresh(); }
-        },
-        'stg.lightning.homeLocation.lon': {
-            handler() { this.debouncedRefresh(); }
-        }
+        // Only re-fetch if the user toggles Celsius/Fahrenheit or Pressure units
+        'stg.weather.tempUnit': function () { this.fetchWeather(); },
+        'stg.weather.pressureUnit': function () { this.fetchWeather(); }
     },
 
     methods: {
@@ -237,7 +222,7 @@ export default {
 
                 // 1. Process Condition
                 const condition = this.interpretWMO(data.current.weather_code);
-                this.weather.current.conditionText = condition.text;
+                this.stg.weather.current.conditionText = condition.text;
                 this.shared.weather.icon = condition.icon;
 
                 const apiUnit = data.current_units.visibility; // 'ft' or 'm'
@@ -274,7 +259,7 @@ export default {
 
                     // 3. Formatting: Create the pretty string for the UI
                     const date = new Date(); // The time "Now"
-                    this.weather.current.lastUpdate = date.toLocaleString('en-US', {
+                    this.stg.weather.current.lastUpdate = date.toLocaleString('en-US', {
                         hour12: true,
                         hour: 'numeric',
                         minute: 'numeric'
@@ -282,14 +267,14 @@ export default {
 
                     console.log("Weather data changed! Updating timestamp.");
                 } else {
-                    console.log("API returned same data. Keeping old timestamp.");
+                    console.log("Weather API returned same data. Keeping old timestamp.");
                 }
 
 
                 // 2. Map Current Weather
                 // Note: Using pressure_msl (Mean Sea Level) for your 'Pres' display
-                this.weather.current = {
-                    ...this.weather.current, // Keep existing structure
+                this.stg.weather.current = {
+                    ...this.stg.weather.current, // Keep existing structure
                     temp: Math.round(data.current.temperature_2m),
                     visibility: vCalc.toFixed(1), // Apply formatting here
                     pressure: pressureVal,
@@ -308,7 +293,7 @@ export default {
                 };
 
                 // 3. Map Forecast Array
-                this.weather.forecast = data.daily.time.slice(0, 3).map((date, i) => {
+                this.stg.weather.forecast = data.daily.time.slice(0, 3).map((date, i) => {
                     const dayCond = this.interpretWMO(data.daily.weather_code[i]);
                     return {
                         name: i === 0 ? 'Today' : new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' }),
@@ -320,7 +305,7 @@ export default {
                 });
 
                 this.shared.weatherIcon = condition.icon;
-                this.weather.icon = condition.icon;
+                this.stg.weather.icon = condition.icon;
 
                 this.loading = false;
 
