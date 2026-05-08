@@ -2,7 +2,7 @@
 
     <v-sheet value="lightning" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
-        <!-- {{ stg?.lightning.history.length }} -->
+        <!-- <pre>{{ stg.lightning.resetTime }}</pre> -->
 
         <div class="d-flex justify-space-between align-center header-bg px-3 py-2"
             style="position: relative; z-index: 10; ">
@@ -23,13 +23,13 @@
                     style="font-size: 0.90rem; font-weight: bold; min-width: 70px;">
                     {{ stg.lightning.currentStorm.frequency || 0 }}/min
 
-                    <template v-slot:append>
+                    <!-- <template v-slot:append>
                         <v-btn v-tooltip:top="'Chase Mode'" icon="mdi-radar" variant="text" size="x-small"
                             class="ml-2 ma-0" density="compact"
                             :color="stg?.lightning.isSnapped ? 'cyan-accent-2' : 'grey-lighten-1'"
                             :class="{ 'ml-2 ma-0, pulse-animation': stg?.lightning.isSnapped }"
                             @click="setThresholdFromCurrent"></v-btn>
-                    </template>
+                    </template> -->
                 </v-chip>
 
                 <div class="d-flex align-center">
@@ -91,17 +91,21 @@
                 </div>
             </div>
 
-            <div v-else class="text-center text-grey-darken-1">
-                <v-icon icon="mdi-shield-check-outline" size="36"></v-icon>
+            <div v-else-if="stg.lightning.history.length === 0" class="text-center text-grey-darken-1 py-6">
+                <v-icon icon="mdi-shield-check-outline" size="48"></v-icon>
                 <div class="text-caption font-weight-bold text-uppercase">Quiet</div>
             </div>
 
-            <div class="sparkline-container mt-n4" style="position: relative;">
+            <!-- <div v-if="hasActiveAlert"> -->
+            <div v-if="stg.lightning.history.length && stg.lightning.history.length > 0">
+                <!-- <pre>{{ stg.lightning.history.length }}</pre> -->
+                <div class="sparkline-container mt-2" style="position: relative;">
 
-                <v-sparkline v-if="stg.lightning.currentStorm.distance <= stg.lightning.searchRadius"
-                    :model-value="sparklineValues" :gradient="['#4caf50', '#ffeb3b', '#f44336']" smooth="10"
-                    line-width="3" height="80" fill padding="8"></v-sparkline>
-                <div style="
+                    <template v-if="stg.lightning.history.length > 0">
+                        <!-- <pre>{{ stg.lightning.currentStorm.distance }}  {{ stg.lightning.searchRadius }}</pre> -->
+                        <v-sparkline :model-value="sparklineValues" :gradient="['#4caf50', '#ffeb3b', '#f44336']"
+                            smooth="100" line-width="2" height="75" fill padding="3"></v-sparkline>
+                        <div style="
                     position: absolute; 
                     bottom: 5px; 
                     left: 10px; 
@@ -116,39 +120,45 @@
                     color: sparklineValues.some(v => v > 0) ? '#FFFFFF' : '#757575',
                     opacity: sparklineValues.some(v => v > 0) ? '1.0' : '0.5'
                 }" class="text-caption font-weight-bold">
-                    <span>-{{ stg.lightning.resetTime }}m</span>
-                    <span>NOW</span>
-                </div>
-            </div>
-            <div class="text-grey-darken-1 ml-2" style="font-size: 0.50rem;">Closer strikes peak higher </div>
-
-            <v-expansion-panels v-model="stg.lightning.ui.panel" flat class="mt-2">
-                <v-expansion-panel value="strikes" bg-color="transparent">
-                    <v-expansion-panel-title :ripple="false"
-                        class="text-capitalize text-caption font-weight-bold text-brown-lighten-4"
-                        :class="[(stg?.lightning.history.length > 0) ? 'text-green-accent-2' : 'text-grey-darken-1']">
-                        Recent Strikes
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text>
-                        <div v-for="(strike, index) in recentStrikes" :key="index">
-                            <v-row no-gutters align="center" class="text-caption">
-                                <v-col cols="4" class="text-left text-grey-lighten-1 time-col"
-                                    style="white-space: nowrap;">
-                                    {{ formatTime(strike.time) }}
-                                </v-col>
-                                <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
-                                    {{ strike.dist }}<span class="text-caption ml-1">{{ stg.lightning.unit }}</span>
-                                </v-col>
-                                <v-col cols="4" class="text-right font-weight-bold text-white">
-                                    {{ getDir(strike.bearing) }}
-                                </v-col>
-                            </v-row>
-                            <v-divider v-if="index < recentStrikes.length - 1"
-                                class="mt-1 border-bottom-dim"></v-divider>
+                            <span>-{{ stg.lightning.resetTime }}m</span>
+                            <span class="text-grey-darken-1 ml-2 mt-1" style="font-size: 0.65rem;">Closer strikes peak
+                                higher
+                            </span>
+                            <span>NOW</span>
                         </div>
-                    </v-expansion-panel-text>
-                </v-expansion-panel>
-            </v-expansion-panels>
+
+                    </template>
+                </div>
+
+                <v-expansion-panels v-model="stg.lightning.ui.panel" flat class="mt-2">
+                    <v-expansion-panel value="strikes" bg-color="transparent">
+                        <v-expansion-panel-title :ripple="false"
+                            class="text-capitalize text-caption font-weight-bold text-brown-lighten-4"
+                            :class="[(stg?.lightning.history.length > 0) ? 'text-green-accent-2' : 'text-grey-darken-1']">
+                            Recent Strikes
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <div v-for="(strike, index) in recentStrikes" :key="index">
+                                <v-row no-gutters align="center" class="text-caption">
+                                    <v-col cols="4" class="text-left text-grey-lighten-1 time-col"
+                                        style="white-space: nowrap;">
+                                        {{ formatTime(strike.time) }}
+                                    </v-col>
+                                    <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
+                                        {{ strike.dist }}<span class="text-caption ml-1">{{ stg.lightning.unit }}</span>
+                                    </v-col>
+                                    <v-col cols="4" class="text-right font-weight-bold text-white">
+                                        {{ getDir(strike.bearing) }}
+                                    </v-col>
+                                </v-row>
+                                <v-divider v-if="index < recentStrikes.length - 1"
+                                    class="mt-1 border-bottom-dim"></v-divider>
+                            </div>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+                </v-expansion-panels>
+            </div>
+
         </v-card-text>
 
 
@@ -326,7 +336,7 @@ export default {
                     if (this.connection.readyState === WebSocket.OPEN) {
                         const payload = JSON.stringify({ a: this.authKey });
                         this.connection.send(payload);
-                        console.log("Handshake SENT:", payload);
+                        console.log(`Handshake SENT at ${new Date().toLocaleTimeString()}: ${payload}`);
                     }
                 }, 1000);
 
@@ -334,7 +344,7 @@ export default {
                     if (this.connection && this.connection.readyState === 1) {
                         const payload = JSON.stringify({ a: this.authKey });
                         this.connection.send(payload);
-                        console.log("Blitzortung Wss Heartbeat SENT:", payload);
+                        console.log(`Blitzortung Wss Heartbeat SENT at ${new Date().toLocaleTimeString()}: ${payload}`);
                     }
                 }, 30000);
             };
@@ -417,9 +427,9 @@ export default {
                 this.calculateTrend();
 
                 // Auto-snap sample size logic
-                if (this.stg.lightning.isSnapped) {
-                    this.stg.lightning.sampleSize = Math.max(0.5, this.stg.lightning.history.length);
-                }
+                // if (this.stg.lightning.isSnapped) {
+                //     this.stg.lightning.sampleSize = Math.max(0.5, this.stg.lightning.history.length);
+                // }
 
                 console.log(`Local Strike: ${dist}mi @ ${bearing}°`);
             }
@@ -428,22 +438,25 @@ export default {
         startExpiryTimer() {
             if (this.expiryTimer) clearInterval(this.expiryTimer);
 
+            // Run a cleanup check every 10 seconds
             this.expiryTimer = setInterval(() => {
-                // Look at the setting from your dashboardSettings.js (e.g., 10 minutes)
-                const windowMinutes = this.stg.lightning.resetTime || 10;
-                const cutoff = Date.now() - (windowMinutes * 60 * 1000);
+                const history = this.stg.lightning.history;
+                if (!history.length) return;
 
-                // Filter: Keep only strikes newer than the cutoff
-                const beforeCount = this.stg.lightning.history.length;
-                this.stg.lightning.history = this.stg.lightning.history.filter(strike => strike.time > cutoff);
+                const now = Date.now();
+                // Convert minutes (e.g., 5) to milliseconds
+                const windowMs = (this.stg.lightning.resetTime || 30) * 60 * 1000;
+                const cutoff = now - windowMs;
 
-                // Update frequency so the UI reflects the new count immediately
-                this.stg.lightning.frequency = this.stg.lightning.history.length;
+                // One line to filter
+                this.stg.lightning.history = history.filter(s => s.time > cutoff);
 
-                if (beforeCount !== this.stg.lightning.history.length) {
-                    console.log(`Pruned ${beforeCount - this.stg.lightning.history.length} expired strikes.`);
+                // If everything was just wiped out, reset the "Current Storm" display
+                if (this.stg.lightning.history.length === 0) {
+                    this.stg.lightning.currentStorm = { distance: 0, bearing: 0, trend: 'Stationary', frequency: 0 };
+                    console.log("Cleanup: History expired. Dashboard reset.");
                 }
-            }, 10000); // Check every 10 seconds for a smooth UI countdown
+            }, 10000);
         },
 
         toggleMute() {
@@ -636,28 +649,28 @@ export default {
             reader.readAsText(file);
         },
 
-        setThresholdFromCurrent() {
-            if (this.stg.lightning.isSnapped) {
-                // RESTORE: Go back to exactly what we saved in the buffer
-                this.stg.lightning.sampleSize = this.stg.lightning.previousValue;
-
-                // --- ADD THIS LINE ---
-                this.stg.lightning.sampleSize = this.stg.lightning.sampleSize;
-                // ---------------------
-
-                this.stg.lightning.isSnapped = false;
-            } else {
-                // SAVE: Store the current 2 (or whatever it is) before we snap
-                this.stg.lightning.previousValue = this.stg.lightning.sampleSize;
-
-                // SNAP: Set it to the current storm frequency
-                const currentFreq = this.stg?.lightning.currentStorm.frequency || 0;
-                this.stg.lightning.sampleSize = currentFreq;
-                this.stg.lightning.isSnapped = true;
-
-                this.stg.lightning.sampleSize = this.stg.lightning.sampleSize;
-            }
-        }
+        /* setThresholdFromCurrent() {
+             if (this.stg.lightning.isSnapped) {
+                 // RESTORE: Go back to exactly what we saved in the buffer
+                 this.stg.lightning.sampleSize = this.stg.lightning.previousValue;
+ 
+                 // --- ADD THIS LINE ---
+                 this.stg.lightning.sampleSize = this.stg.lightning.sampleSize;
+                 // ---------------------
+ 
+                 this.stg.lightning.isSnapped = false;
+             } else {
+                 // SAVE: Store the current 2 (or whatever it is) before we snap
+                 this.stg.lightning.previousValue = this.stg.lightning.sampleSize;
+ 
+                 // SNAP: Set it to the current storm frequency
+                 const currentFreq = this.stg?.lightning.currentStorm.frequency || 0;
+                 this.stg.lightning.sampleSize = currentFreq;
+                 this.stg.lightning.isSnapped = true;
+ 
+                 this.stg.lightning.sampleSize = this.stg.lightning.sampleSize;
+             }
+         } */
     },
     computed: {
         // 1. Helper to make template code cleaner
@@ -708,13 +721,19 @@ export default {
                 .slice(0, 5);
         },
 
+        // lastUpdated() {
+        //     const history = this.lightning.history || [];
+        //     const radius = this.lightning.searchRadius || 50;
+        //     const localHistory = history.filter(h => h.dist <= radius);
+        //     if (localHistory.length === 0) return 'No Local Strikes';
+        //     const lastStrike = localHistory[localHistory.length - 1];
+        //     return this.getTimeAgo(lastStrike.time);
+
+        // },
+
         lastUpdated() {
-            const history = this.lightning.history || [];
-            const radius = this.lightning.searchRadius || 50;
-            const localHistory = history.filter(h => h.dist <= radius);
-            if (localHistory.length === 0) return 'No Local Strikes';
-            const lastStrike = localHistory[localHistory.length - 1];
-            return this.getTimeAgo(lastStrike.time);
+            if (!this.lightning.history.length) return 'No Data';
+            return this.getTimeAgo(this.lightning.history[this.lightning.history.length - 1].time);
         },
 
         convertedDistance() {
@@ -743,7 +762,30 @@ export default {
             return this.stg.lightning.history.reduce((prev, curr) =>
                 prev.dist < curr.dist ? prev : curr
             );
-        }
+        },
+        // // Everything currently being tracked (The 1500mi net)
+        // strikesInSearchRadius() {
+        //     const radius = this.stg.lightning.searchRadius; // 1500
+        //     return this.stg.lightning.buffer.filter(s => s.distance <= radius);
+        // },
+
+        // // Only the strikes that trigger the orange 'Caution' bar (The 25mi circle)
+        // strikesInAlertRadius() {
+        //     const threshold = this.stg.lightning.alertThreshold; // 25
+        //     return this.strikesInSearchRadius.filter(s => s.distance <= threshold);
+        // },
+
+        // // This property controls if the Card Body is visible
+        // hasDataToShow() {
+        //     return this.strikesInSearchRadius.length > 0;
+        // },
+
+        // // This property controls if the Status Bar says 'Caution' or 'Clear'
+        // isAlertActive() {
+        //     return this.strikesInAlertRadius.length > 0;
+        // }
+
+
     } // End of computed
 };
 </script>

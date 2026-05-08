@@ -45,6 +45,15 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/blitz-js/, ''),
       },
+      '/api-kc2g': {
+        target: 'https://prop.kc2g.com',
+        changeOrigin: true,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) YourAppName/1.0',
+          Referer: 'https://prop.kc2g.com/',
+        },
+        rewrite: (path) => path.replace(/^\/api-kc2g/, ''),
+      },
     },
   },
 })

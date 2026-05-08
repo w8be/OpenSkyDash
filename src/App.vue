@@ -1,6 +1,6 @@
 <template>
   <!-- <pre>{{ shared.lightning.frequency }} </pre> -->
-  <v-app theme="dark">
+  <v-app :theme="stg.ui.theme">
     <v-app-bar color="#1e3838" density="compact">
       <v-app-bar-title class="text-brown-lighten-4"><v-icon icon="mdi-monitor-dashboard" color="primary"
           size="small"></v-icon> {{ stg.ui.appName }}</v-app-bar-title>
@@ -48,6 +48,7 @@
 
 <script>
 // 1. Import your existing state and the NEW dashboard settings
+import { useTheme } from 'vuetify';
 import { reactive } from 'vue';
 import { globalState } from './state.js';
 import { settings } from './components/cards/dashboardSettings.js'; // Import the new master file
@@ -59,6 +60,7 @@ import SolarCard from './components/cards/SolarCard.vue';
 import WeatherCard from './components/cards/WeatherCard.vue';
 import SettingsCard from './components/cards/SettingsCard.vue';
 
+
 export default {
   components: {
     LightningCard,
@@ -66,9 +68,14 @@ export default {
     WeatherCard,
     SettingsCard
   },
+  setup() {
+    const theme = useTheme();
+    return { theme };
+  },
   data() {
     return {
       // MASTER SETTINGS LINK
+      isDark: localStorage.getItem('theme') === 'dark' || true, // Default to dark for that station look
       stg: settings,
       activeTab: 'weather',
       shared: reactive(window.G_STATE || globalState),
@@ -80,6 +87,28 @@ export default {
     this.updateClock();
     setInterval(this.updateClock, 1000);
   },
+
+  watch: {
+    // Watch the theme property inside your global settings object
+    'stg.ui.theme': {
+      handler(newTheme) {
+        const isDark = newTheme === 'dark';
+
+        // 1. Tell Vuetify to switch its internal engine
+        this.theme.global.name = newTheme;
+
+        // 2. Toggle the CSS class for any custom non-Vuetify styles
+        document.documentElement.classList.toggle('dark', isDark);
+
+        // 3. Persist to localStorage
+        localStorage.setItem('theme', newTheme);
+
+        console.log("Theme switched to:", newTheme);
+      },
+      immediate: true,
+    },
+  },
+
   methods: {
     updateClock() {
       this.currentTime = new Date().toLocaleTimeString();
@@ -87,12 +116,28 @@ export default {
     // Add a helper to open the settings
     openSettings() {
       this.stg.lightning.showModal = true;
-    }
+    },
   }
 };
 </script>
 
 <style scoped>
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+}
+
+html.dark {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
 .border-white-op {
   border-color: rgba(255, 255, 255, 0.1) !important;
 }

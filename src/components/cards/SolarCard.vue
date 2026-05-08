@@ -1,21 +1,155 @@
 <template>
-    <v-sheet value="solar" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
+
+    <v-sheet value="solar" transition="fade-transition" flat class="solarCard mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
         <div class="d-flex justify-space-between align-center header-bg px-3 py-2"
             style="position: relative; z-index: 10;">
             <div class="d-flex align-center">
                 <v-icon icon="mdi-white-balance-sunny" color="error" size="large" </v-icon>
                     <div class="d-flex flex-column align-start ml-2">
-                        <span class="text-subtitle-1 font-weight-bold text-brown-lighten-4"
+                        <span class="text-subtitle-1 font-weight-bold stat-value"
                             style="line-height: 1.0rem; font-size: 1.2rem;">Solar</span>
-                        <span class="text-grey-darken-1" style="font-size: 0.55rem;">NOAA.org / KC2G.com</span>
-                        <!-- <span class="text-grey-darken-1" style="font-size: 0.50rem;">kc2g.com</span> -->
+                        <span class="text-grey-darken-1" style="font-size: 0.55rem;">NOAA.org / KC2G.com {{
+                            stg.solar.current.ionosphere.timestamp }}</span>
                     </div>
             </div>
         </div>
-        <pre>a: {{ stg.solar.current.geoMagnetic.aIndex }},  k: {{ stg.solar.current.geoMagnetic.kIndex }}, sFi: {{ stg.solar.current.geoMagnetic.flux }}, 
-ionosphere: {{ stg.solar.current.ionosphere }}, 
-solarScales: {{ stg.solar.current.scales }}</pre>
+        <div>
+            <v-row justify="space-around" class="mt-1">
+                <!-- SFI Gauge: Max 300 -->
+                <v-col cols="4" class="text-center">
+                    <v-progress-circular :model-value="Number(stg.solar.current.geoMagnetic.flux / 300) * 100"
+                        :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic.flux)"
+                        bg-color="grey-darken-3" rotate="220">
+                        <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.flux
+                            }}</span>
+                    </v-progress-circular>
+                    <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
+                </v-col>
+
+                <!-- A-Index Gauge: Max 100 -->
+                <v-col cols="4" class="text-center">
+                    <v-progress-circular :model-value="Number(stg.solar.current.geoMagnetic.aIndex)" :max="100"
+                        :size="60" :width="8" :color="getAIndexColor(stg.solar.current.geoMagnetic.aIndex)"
+                        bg-color="grey-darken-3" rotate="220">
+                        <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.aIndex }}</span>
+                    </v-progress-circular>
+                    <div class="text-subtitle-2 mt-1  stat-value">A</div>
+                </v-col>
+
+                <!-- K-Index Gauge: Max 9 -->
+                <v-col cols="4" class="text-center">
+                    <v-progress-circular :model-value="Number(stg.solar.current.geoMagnetic.kIndex / 9) * 100" :max="9"
+                        :size="60" :width="8" :color="getKIndexColor(stg.solar.current.geoMagnetic.kIndex)"
+                        bg-color="grey-darken-3" rotate="220">
+                        <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.kIndex }}</span>
+                    </v-progress-circular>
+                    <div class="text-subtitle-2 mt-1  stat-value">K</div>
+                </v-col>
+            </v-row>
+        </div>
+
+        <!-- Critical Frequency (foF2) -->
+        <v-row no-gutters class="border-t-lg border-white-op py-2 mt-2">
+            <!-- foF2 -->
+            <v-col cols="4" class="d-flex flex-column align-center border-r ionosphere-value border-white-op">
+                <v-icon icon="mdi-wave" v-tooltip:top="'F2 Critical Freq'" color="cyan-lighten-3" size="small"
+                    class="mb-1"></v-icon>
+                <div class="text-body-2 font-weight-bold  stat-value" style="line-height: 1;">
+                    {{ stg.solar.current.ionosphere.fof2 }}
+                </div>
+                <div class="text-grey-darken-1 mt-1"
+                    style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    foF2
+                </div>
+            </v-col>
+
+            <!-- MUF -->
+            <v-col cols="4" class="d-flex flex-column align-center border-r border-white-op">
+                <v-icon icon="mdi-radio-tower" v-tooltip:top="'Max Usable Freq'" color="green-lighten-3" size="small"
+                    class="mb-1"></v-icon>
+                <div class="text-body-2 font-weight-bold  stat-value" style="line-height: 1;">
+                    {{ stg.solar.current.ionosphere.mufd }}
+                </div>
+                <div class="text-grey-darken-1 mt-1"
+                    style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    MUF
+                </div>
+            </v-col>
+
+            <!-- hmF2 -->
+            <v-col cols="4" class="d-flex flex-column align-center">
+                <v-icon icon="mdi-arrow-up-bold-box-outline" v-tooltip:top="'F2 Max Altitude'" color="amber-lighten-3"
+                    size="small" class="mb-1"></v-icon>
+                <div class="text-body-2 font-weight-bold  stat-value" style="line-height: 1;">
+                    {{ stg.solar.current.ionosphere.hmf2 }} {{ stg.units.distance === 'Mi' ? 'mi' : 'km' }}
+                </div>
+                <div class="text-grey-darken-1 mt-1"
+                    style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    hmF2
+                </div>
+            </v-col>
+        </v-row>
+
+
+        <div><v-row no-gutters justify="center" class="mt-2 mb-2">
+                <v-col v-for="(val, key) in stg.solar.current.scales.current" :key="key" cols="3" class="mx-1">
+                    <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val)" theme="light">
+                        <!-- The Big Letter -->
+                        <div class="text-h4 font-weight-black pt-1" style="line-height: 1;">
+                            {{ key.toUpperCase() }}
+                        </div>
+
+                        <!-- The Status Text -->
+                        <v-sheet class="mt-1 py-0 text-caption font-weight-bold" :color="getScaleColor(val, true)">
+                            {{ val > 0 ? val : 'none' }}
+                        </v-sheet>
+                    </v-card>
+                </v-col>
+                <span class="text-grey-darken-1 mt-2" style="font-size: 0.70rem;">Latest
+                    Observed</span>
+            </v-row>
+
+            <v-expansion-panels variant="accordion">
+                <v-expansion-panel bg-color="transparent" elevation="0">
+                    <v-expansion-panel-title class="text-caption font-weight-bold px-4">
+                        Flare/Storm Probabilities
+                    </v-expansion-panel-title>
+
+                    <v-expansion-panel-text class="px-4 pb-4">
+                        <!-- R1-R2 Probability -->
+                        <div class="d-flex align-center mb-2">
+                            <span class="text-caption mr-2 prob-label">R1-R2</span>
+                            <v-progress-linear :model-value="stg.solar.current.scales.probabilities.rMinor"
+                                color="yellow-darken-2" height="8" rounded></v-progress-linear>
+                            <span class="text-caption ml-2 prob-percent">{{
+                                stg.solar.current.scales.probabilities.rMinor }}%</span>
+                        </div>
+
+                        <!-- R3-R5 Probability -->
+                        <div class="d-flex align-center mb-2">
+                            <span class="text-caption mr-2 prob-label">R3-R5</span>
+                            <v-progress-linear :model-value="stg.solar.current.scales.probabilities.rMajor"
+                                color="orange-darken-2" height="8" rounded></v-progress-linear>
+                            <span class="text-caption ml-2 prob-percent">{{
+                                stg.solar.current.scales.probabilities.rMajor }}%</span>
+                        </div>
+
+                        <!-- S1+ Probability -->
+                        <div class="d-flex align-center mb-1">
+                            <span class="text-caption mr-2 prob-label">S1+</span>
+                            <v-progress-linear :model-value="stg.solar.current.scales.probabilities.sStorm"
+                                color="red-darken-2" height="8" rounded></v-progress-linear>
+                            <span class="text-caption ml-2 prob-percent">{{
+                                stg.solar.current.scales.probabilities.sStorm }}%</span>
+                        </div>
+                    </v-expansion-panel-text>
+                </v-expansion-panel>
+            </v-expansion-panels>
+        </div>
+
+        <!-- <pre>ionosphere: {{ stg.solar.current.ionosphere }}, solarScales: {{ stg.solar.current.scales }}</pre> -->
+
     </v-sheet>
 
 </template>
@@ -41,30 +175,60 @@ export default {
             panel: null,
         };
     },
+    beforeUnmount() {
+        if (this.solarTimer) {
+            clearInterval(this.solarTimer);
+            console.log("Solar timer cleared.");
+        }
+    },
     mounted() {
         // 1. CLEANUP (If you add a timer later)
         if (this.solarTimer) clearInterval(this.solarTimer);
 
         // 2. LOAD CONFIG
+        // Load
         const saved = localStorage.getItem('station_config_v1');
-        // ... your existing JSON.parse logic ...
+        if (saved && saved !== "undefined") {
+            try {
+                const config = JSON.parse(saved);
+                // Apply your config logic here...
+            } catch (e) {
+                console.error("Config Sysgen Failure: Malformed JSON in localStorage", e);
+                // Optional: clear the bad data so it doesn't crash next time
+                // localStorage.removeItem('station_config_v1');
+            }
+        } else {
+            console.log("No saved config found. Loading defaults.");
+        }
 
         // 3. INITIAL FETCH
         this.fetchSolarData();
         this.fetchGeomagneticIndices();
         this.fetchSolarFlux();
+        this.fetchIonosphere();
+        this.fetchScales();
 
         // 4. SCHEDULE (Solar data doesn't change fast, maybe every 15-30 mins)
         this.solarTimer = setInterval(() => {
             this.fetchSolarData();
             this.fetchSolarFlux();
+            this.fetchGeomagneticIndices();
+            this.fetchIonosphere();
+            this.fetchScales();
         }, 900000);
     },
     unmounted() { },
-    watch: {},
+    watch: {
+        // Watch for unit changes to re-calculate distance
+        'stg.units.distance': {
+            handler() {
+                console.log("Distance unit changed, refreshing Ionosphere...");
+                this.fetchIonosphere();
+            }
+        }
+    },
     computed: {},
     methods: {
-
         async fetchSolarData() {
             const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
 
@@ -87,7 +251,7 @@ export default {
                 // Your fetch logic goes here...
 
             } catch (error) {
-                console.error("Solar Sysgen Error:", error);
+                console.error("Solar  Error:", error);
             }
         },
 
@@ -143,8 +307,8 @@ export default {
 
                 // NOAA returns an array of objects. We want the latest one (index 0).
                 if (data && data.length > 0) {
-                    const currentFlux = data[0].flux;
-                    console.log(`Solar: Flux ${currentFlux}`);
+                    const currentFlux = parseFloat(data[0].flux);
+                    console.log(`Solar: Flux ${typeof (currentFlux)}`);
 
                     // Save to state - make sure the variable name matches (currentFlux)
                     this.stg.solar.current.geoMagnetic.flux = currentFlux;
@@ -157,8 +321,18 @@ export default {
             }
         },
         async fetchIonosphere() {
-            const url = "YOUR_IONOSPHERE_ENDPOINT"; // e.g., KC2G or similar API
+            const home = this.stg.lightning.homeLocation;
+
+            if (!home || !home.lat || !home.lon) {
+                console.warn("Ionosphere fetch skipped: homeLocation undefined.");
+                return;
+            }
+
+            const url = `/api-kc2g/api/point_prediction.json?grid=${home.lat},${home.lon}`;
+            const unit = this.stg.units.distance.toLowerCase() === 'km' ? 1 : 0.621371;
+            // console.log(unit);
             try {
+                console.log(url);
                 const response = await fetch(url);
                 const data = await response.json();
 
@@ -166,11 +340,18 @@ export default {
                 const { fof2, hmf2, mufd, ts } = data;
 
                 // Update state with precision formatting
+                const date = new Date(); // The time "Now"
+                const formattedTime = date.toLocaleString('en-US', {
+                    hour12: true,
+                    hour: 'numeric',
+                    minute: 'numeric'
+                });
+
                 this.stg.solar.current.ionosphere = {
                     fof2: fof2.toFixed(2),
-                    hmf2: Math.round(hmf2),
+                    hmf2: Math.round(hmf2 * unit),
                     mufd: mufd.toFixed(2),
-                    timestamp: ts
+                    timestamp: formattedTime
                 };
 
                 console.log("Ionosphere updated:", this.stg.solar.current.ionosphere);
@@ -180,7 +361,7 @@ export default {
         },
 
         async fetchScales() {
-            const url = "https://services.swpc.noaa.gov/json/noaa-scales.json";
+            const url = "https://services.swpc.noaa.gov/products/noaa-scales.json";
             try {
                 const response = await fetch(url);
                 const data = await response.json();
@@ -206,8 +387,146 @@ export default {
             } catch (e) {
                 console.error("Scales fetch error:", e);
             }
+        },
+        getSFIColor(sFi) {
+            if (sFi <= 70) return '#C81F00';
+            if (sFi <= 90) return '#FD9600';
+            if (sFi <= 110) return '#FEC801';
+            if (sFi <= 150) return '#7fb3cf';
+            if (sFi <= 300) return '#92d050';
+
+            return 'red';
+        },
+        getKIndexColor(k) {
+            if (k <= 3) return '#92d050';
+            if (k <= 5) return 'yellow';
+            if (k <= 7) return 'orange';
+            if (k <= 9) return 'red';
+            return 'red';
+        },
+        getAIndexColor(a) {
+            if (a <= 10) return '#92d050';
+            if (a <= 20) return 'yellow';
+            if (a <= 30) return 'orange';
+            if (a <= 40) return 'red';
+            return 'red';
+        },
+        getScaleColor(value, isLabel = false) {
+            const val = parseInt(value);
+
+            // Default "None" (Green)
+            let color = '#92d050';
+
+            if (val >= 4) color = '#ff0000';      // Extreme (Red)
+            else if (val >= 3) color = '#ffc000'; // Strong (Orange)
+            else if (val >= 1) color = '#ffff00'; // Minor/Moderate (Yellow)
+
+            // Optional: Return a darker/different shade for the bottom label bar
+            return color;
         }
     },
 };
 
 </script>
+
+<style scoped>
+/* Find your card class */
+.solarCard {
+    background-color: var(--surface-color);
+    /* Automatically swaps! */
+    color: var(--text-primary);
+    border: 1px solid var(--text-secondary);
+}
+
+.border-white-op {
+    /* This specifically targets the top border created by 'border-t-lg' */
+    border-top-color: var(--divider-color) !important;
+
+    /* This makes the line thinner (1px instead of the 'lg' chunky 4px) */
+    border-top-width: 1px !important;
+
+    /* Ensures it doesn't try to draw borders on the other 3 sides */
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+}
+
+/* For your v-btn or custom buttons */
+.my-button {
+    background-color: var(--btn-bg);
+    color: var(--text-primary);
+}
+
+.stat-value {
+    color: var(--value-text);
+    font-weight: bold;
+}
+
+.label-caption {
+    color: var(--text-muted) !important;
+    font-size: 0.75rem;
+    font-weight: 500;
+    /* Makes them slightly bolder for better legibility */
+}
+
+/* For specific data text */
+.ionosphere-value {
+    color: var(--value-text) !important;
+    font-weight: bold;
+}
+
+/* Decompressed Grid: 10px padding for breathing room */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Keep your columns */
+}
+
+.metric-cell {
+    display: flex;
+    /* Turn on flexbox */
+    align-items: center;
+    /* Vertically center icon and text */
+    justify-content: flex-start;
+    /* Push everything to the left */
+    padding: 4px 8px;
+    /* Add some internal breathing room */
+    gap: 8px;
+    /* This is the MAGIC: fixed gap between icon and value */
+}
+
+.metric-cell .label {
+    display: flex;
+    min-width: 40px;
+    /* Ensures icons line up vertically regardless of width */
+    justify-content: center;
+}
+
+
+.val {
+    font-size: 0.80rem;
+    color: #D7CCC8;
+    font-weight: 600;
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* This targets the 'empty' track of the progress linear */
+.v-progress-linear {
+    background-color: var(--divider-color) !important;
+    overflow: hidden;
+}
+
+/* Ensure the probability labels use your muted variable */
+.prob-label {
+    color: var(--text-muted) !important;
+    font-weight: 600;
+    width: 65px;
+}
+
+/* The percentage numbers can use your primary text color */
+.prob-percent {
+    color: var(--text-primary) !important;
+    width: 35px;
+    text-align: right;
+}
+</style>

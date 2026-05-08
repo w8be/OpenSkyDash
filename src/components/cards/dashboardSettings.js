@@ -1,43 +1,39 @@
 import { reactive } from 'vue'
 
 const defaultSettings = reactive({
+  // NEW: GLOBAL UNIT PREFERENCES
+  // This is the single source of truth for the entire app
+  units: {
+    distance: 'mi', // 'mi' or 'km'
+    temperature: 'f', // 'f' or 'c'
+    pressure: 'inch', // 'inch' or 'mb'
+    wind: 'mph', // 'mph', 'kt', or 'kph'
+  },
+
   // LIGHTNING CONFIGURATION
   lightning: {
-    // User-adjustable values
     shouldConnect: true,
     searchRadius: 50,
     alertThreshold: 25,
-    unit: 'Mi',
-    homeLocation: { lat: 34.05, lon: -118.24 },
+    homeLocation: { lat: 34.05, lon: -118.24 }, // Shared by Solar/Weather
 
     // UI & Sync State
-    isSnapped: false,
+    // isSnapped: false,
     isMuted: false,
     showModal: false,
     ui: {
       activeTab: 'general',
-      expandedPanel: null, // Track the ID of the open expansion panel here
+      expandedPanel: null,
     },
 
-    // Chase Mode & Logic Tuning
     chaseMode: false,
-    sampleSize: 20,
-    resetTime: 30, // minutes
-    sensitivity: 5,
+    sampleSize: 20, // Modified logic from sensitivity
+    resetTime: 30,
 
-    // LIVE STATE (Data shared with the app)
-    currentStorm: {
-      distance: 0,
-      bearing: 0,
-      trend: 'Stationary',
-      frequency: 0,
-    },
-
-    // Buffer
+    currentStorm: { distance: 0, bearing: 0, trend: 'Stationary', frequency: 0 },
     history: [],
     lastStrikeTimestamp: 0,
 
-    // System/Backend Config
     authKey: null,
     wssServers: [8, 7, 2, 1],
     currentServerIndex: 0,
@@ -47,13 +43,7 @@ const defaultSettings = reactive({
 
   // WEATHER CONFIGURATION
   weather: {
-    tempUnit: 'fahrenheit',
-    windUnit: 'mph',
-    updateInterval: 300000, // 5 minutes,
-    pressureUnit: 'inch',
-    distanceUnit: 'mi',
-
-    // Live Data placeholders (Optional: keeping these here if you want App.vue to see them)
+    updateInterval: 300, // 5 minutes in seconds
     current: {
       temp: 0,
       feelsLike: 0,
@@ -78,60 +68,44 @@ const defaultSettings = reactive({
   solar: {
     shouldConnect: true,
     current: {
-      geoMagnetic: {
-        aIndex: 0,
-        kIndex: 0,
-        flux: 0,
-      },
+      geoMagnetic: { aIndex: 0, kIndex: 0, flux: 0 },
       ionosphere: {
-        fof2: 8.01, // Critical Frequency (MHz)
-        hmf2: 262.1, // Height of maximum density (km)
-        mufd: 24.7, // Maximum Usable Frequency (for a 3000km path)
-        timestamp: 1777562100, // Unix epoch
+        fof2: 8.01,
+        hmf2: 262,
+        mufd: 24.7,
+        timestamp: 1777562100,
       },
       scales: {
-        current: {
-          r: 0, // Radio Blackouts
-          s: 0, // Solar Radiation Storms
-          g: 0, // Geomagnetic Storms
-        },
-        probabilities: {
-          rMinor: 65, // M-Class flare probability
-          rMajor: 10, // X-Class flare probability
-          sStorm: 10, // Proton storm probability
-        },
+        current: { r: 0, s: 0, g: 0 },
+        probabilities: { rMinor: 65, rMajor: 10, sStorm: 10 },
       },
     },
   },
 
-  // GLOBAL UI
   ui: {
     theme: 'dark',
     showAttribution: true,
-    activeTab: 0, // for the main dashboard tabs
-    panel: null,
-    appName: 'Dashboard',
+    activeTab: 0,
+    panel: null, // Fixed auto-open bug by setting to null
+    appName: 'Station Dashboard',
   },
 })
 
+// 2. UPDATED HYDRATION
+const saved = localStorage.getItem('station_config_v1')
 let initialState = defaultSettings
 
-// 3. THE HYDRATION (Check the "Disk")
-const saved = localStorage.getItem('station_config_v1')
 if (saved) {
   try {
     const parsed = JSON.parse(saved)
-
-    // Specially merge the sub-objects to ensure nested properties (lat/lon) stick
+    // Merge new global units and deep nested objects
+    initialState.units = { ...defaultSettings.units, ...parsed.units }
     initialState.lightning = { ...defaultSettings.lightning, ...parsed.lightning }
     initialState.weather = { ...defaultSettings.weather, ...parsed.weather }
     initialState.ui = { ...defaultSettings.ui, ...parsed.ui }
-
-    console.log('System Config Deep-Hydrated:', initialState.lightning.homeLocation)
   } catch (e) {
     console.error('Hydration failed', e)
   }
 }
 
-// ... existing reactive settings object ...
 export const settings = reactive(initialState)

@@ -1,6 +1,6 @@
 <template>
-
-    <!-- <pre>data.current.time: {{ apiTime }}</pre> -->
+    <!-- 
+    <pre>Vcals: {{ stg.units.distance.toLowerCase() }}</pre> -->
     <v-sheet value="weather" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
         <div v-if="stg.weather.current">
@@ -9,26 +9,31 @@
                 class="d-flex justify-space-between align-start header-bg px-3 py-2 mt-2"
                 style="position: relative; z-index: 10;">
 
-                <div class="d-flex flex-column">
-                    <div class="d-flex align-start ga-2">
-                        <v-icon :icon="stg.weather.current.icon || 'mdi-weather-cloudy'" color="blue-lighten-3"
-                            size="x-large" class="mt-n1"></v-icon>
+                <div class="d-flex align-start ga-2">
+                    <!-- The Icon -->
+                    <v-icon :icon="stg.weather.current.icon || 'mdi-weather-cloudy'" color="blue-lighten-3"
+                        size="x-large" class="mt-n1"></v-icon>
 
-                        <span class="font-weight-bold text-brown-lighten-4" style="font-size: 1.5rem; line-height: 1;">
+                    <!-- Wrap both lines in a column div to stack them -->
+                    <div class="d-flex flex-column">
+                        <!-- Top Line: Condition -->
+                        <span class="text-subtitle-1 font-weight-bold text-brown-lighten-4"
+                            style="font-size: 1.2rem; line-height: 1.1;">
                             {{ stg.weather.current.conditionText }}
+                        </span>
 
+                        <!-- Bottom Line: Attribution -->
+                        <span class="text-grey-darken-1" style="font-size: 0.55rem; line-height: 1;">
+                            Open-Meteo.com {{ stg.weather.current.lastUpdate }}
                         </span>
                     </div>
-
-                    <span class="text-grey-darken-1" style="font-size: 0.55rem; padding-left: 1px;">
-                        Open-Meteo.com {{ stg.weather.current.lastUpdate }}
-                    </span>
                 </div>
 
                 <div class="font-weight-bold text-brown-lighten-4"
                     style="font-size: 2.0rem; line-height: 1; margin-top: -1px;">
-                    {{ Math.round(stg.weather.current.temp) }}°{{ stg.weather.tempUnit === 'fahrenheit' ? 'F' : 'C' }}
+                    {{ Math.round(stg.weather.current.temp) }}°{{ stg.units.temperature.toUpperCase() }}
                 </div>
+
             </div>
 
             <div v-else class="text-center py-4">
@@ -45,50 +50,50 @@
 
             <div class=" metrics-grid border-t border-white-op ml-7">
                 <div class="metric-cell border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-weather-windy-variant" color="blue-lighten-3"
-                            size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-weather-windy-variant" v-tooltip:top="'Current Wind'"
+                            color="blue-lighten-3" size="large"></v-icon></span>
                     <span class="val mr-2">{{ stg.weather.current.windDir }} <strong>{{ stg.weather.current.windSpeed }}
-                            {{
-                                stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
+                            {{ stg.units.distance === 'Mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell">
-                    <span class="label"><v-icon icon="mdi-water" color="cyan-lighten-3" size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-water" v-tooltip:top="'Current Humidity'"
+                            color="cyan-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.humidity }}%</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-windsock" color="teal-lighten-1" size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-windsock" v-tooltip:top="'Current Gusts'"
+                            color="teal-lighten-1" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.gusts }} {{
-                        stg.weather.distanceUnit === 'Mi' ? 'mph' : 'km' }}</strong></span>
+                        stg.units.distance === 'Mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
-                    <span class="label"><v-icon icon="mdi-water-thermometer" color="cyan-lighten-3"
-                            size="large"></v-icon></span>
-                    <span class="val"><strong>{{ Math.round(stg.weather.current.dewPoint) }}° {{ stg.weather.tempUnit
-                        ===
-                        'fahrenheit' ? 'F' : 'C'
-                            }}</strong></span>
+                    <span class="label"><v-icon icon="mdi-water-thermometer" v-tooltip:top="'Current Dew Point'"
+                            color="cyan-lighten-3" size="large"></v-icon></span>
+                    <span class="val"><strong>{{ Math.round(stg.weather.current.dewPoint) }}°{{
+                        stg.units.temperature.toUpperCase() }}</strong></span>
                 </div>
-
                 <div class="metric-cell border-t border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-gauge" color="green-accent-4" size="large"></v-icon></span>
-                    <span class="val"><strong>{{ stg.weather.current.pressure }}</strong> {{ stg.weather.pressureUnit
-                        ===
-                        'inch' ? 'in' : 'mb' }}</span>
+                    <span class="label"><v-icon icon="mdi-gauge" v-tooltip:top="'Current Air Pressure'"
+                            color="green-accent-4" size="large"></v-icon></span>
+                    <span class="val"><strong>{{ localPressure }}</strong> {{ stg.units.pressure
+                        === 'inch' ? 'in' : 'mb' }}</span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
-                    <span class="label"><v-icon icon="mdi-clouds" color="indigo-lighten-3" size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-clouds" v-tooltip:top="'Current Cloud Cover'"
+                            color="indigo-lighten-3" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.clouds }}%</strong></span>
                 </div>
 
                 <div class="metric-cell border-t border-r border-white-op">
-                    <span class="label"><v-icon icon="mdi-eye" color="brown-lighten-2" size="large"></v-icon></span>
-                    <span class="val"><strong>{{ stg.weather.current.visibility }} {{ stg.weather.distanceUnit
-                    }}</strong></span>
+                    <span class="label"><v-icon icon="mdi-eye" v-tooltip:top="'Current Visibility'"
+                            color="brown-lighten-2" size="large"></v-icon></span>
+                    <span class="val"><strong>{{ localVisability }} {{ stg.units.distance
+                            }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
-                    <span class="label"><v-icon icon="mdi-sun-wireless" color="amber-lighten-4"
-                            size="large"></v-icon></span>
+                    <span class="label"><v-icon icon="mdi-sun-wireless" v-tooltip:top="'Current UV Exposure'"
+                            color="amber-lighten-4" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.uv }} UV</strong></span>
                 </div>
             </div>
@@ -129,49 +134,78 @@ export default {
     },
     data() {
         return {
+            //     stg: settings,
             shared: window.G_STATE,
             panel: null,
             currentServerIndex: 0,
             alert: null,
             forecast: [],
             previousApiTime: null,
+            localPressure: 0,
+            localVisability: 0
         };
     },
     mounted() {
         // clean up
-        if (this.stg.weatherTimer) { clearInterval(this.stg.weatherTimer); }
+        if (this.stg.weather.updateInterval) { clearInterval(this.stg.weather.updateInterval); }
 
         // Load
 
+        const saved = localStorage.getItem('station_config_v1');
+        if (saved && saved !== "undefined") {
+            try {
+                const config = JSON.parse(saved);
+                // Apply your config logic here...
+            } catch (e) {
+                console.error("Weather Fetch failed:", error.message);
+                // Optional: clear the bad data so it doesn't crash next time
+                // localStorage.removeItem('station_config_v1');
+            }
+        } else {
+            console.log("No saved config found. Loading defaults.");
+        }
         // init
         this.fetchWeather();
 
         // schedule 
-        this.stg.weatherTimer = setInterval(() => {
-            console.log("Heartbeat: Refreshing weather data...");
-            this.fetchWeather();
-        }, 300000);
+        if (this.stg.weather.updateInterval) clearInterval(this.stg.weather.updateInterval);
+
+        const initialDelay = Math.random() * 15000;
+
+        setTimeout(() => {
+            // 3. NOW start the consistent 5-minute heartbeat
+            this.fetchWeather(); // Run once immediately
+
+            this.stg.weather.updateInterval = setInterval(() => {
+                console.log("Heartbeat: Refreshing weather data...");
+                this.fetchWeather();
+            }, 300000); // Back to a rock-solid 5 minutes (300,000ms)
+
+        }, initialDelay);
     },
 
     beforeUnmount() {
         // Clean up the timer when the component is destroyed
-        if (this.stg.weatherTimer) {
-            clearInterval(this.stg.weatherTimer);
+        if (this.stg.weather.updateInterval) {
+            clearInterval(this.stg.weather.updateInterval);
         }
     },
 
     watch: {
         // Only re-fetch if the location actually changes
-        'stg.lightning.homeLocation': {
-            handler() {
-                console.log("Location changed. Re-fetching Weather...");
+        'stg.units': {
+            handler(newVal) {
+                //  console.log("Units updated in prop:", newVal);
                 this.fetchWeather();
             },
             deep: true
         },
-        // Only re-fetch if the user toggles Celsius/Fahrenheit or Pressure units
-        'stg.weather.tempUnit': function () { this.fetchWeather(); },
-        'stg.weather.pressureUnit': function () { this.fetchWeather(); }
+        'stg.lightning.homeLocation': {
+            handler() {
+                this.fetchWeather();
+            },
+            deep: true
+        }
     },
 
     methods: {
@@ -179,7 +213,7 @@ export default {
         debouncedRefresh() {
             clearTimeout(this.refreshTimer);
             this.refreshTimer = setTimeout(() => {
-                console.log("Environment stabilized. Re-fetching Weather...");
+                //   console.log("Environment stabilized. Re-fetching Weather...");
                 this.fetchWeather();
             }, 1000); // Increased to 1s to be extra safe during high-strike bursts
         },
@@ -187,9 +221,9 @@ export default {
         async fetchWeather() {
             const lat = this.stg.lightning.homeLocation.lat;
             const lon = this.stg.lightning.homeLocation.lon;
-            const tUnit = this.stg.weather.tempUnit === 'celsius' ? 'celsius' : 'fahrenheit';
-            const pUnit = this.stg.weather.pressureUnit === 'inch' ? 'imperial' : 'hpa';
-            const dUnit = this.stg.weather.distanceUnit;
+            const tUnit = this.stg.units.temperature.toLowerCase() === 'c' ? 'celsius' : 'fahrenheit';
+            const pUnit = this.stg.units.pressure.toLowerCase() === 'in' ? 'inch' : 'hpa';
+            const wUnit = this.stg.units.distance.toLowerCase() === 'mi' ? 'mph' : 'kmh';
 
 
             const params = [
@@ -199,7 +233,7 @@ export default {
                 `current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,visibility,dew_point_2m,uv_index`,
                 `daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max`,
                 `temperature_unit=${tUnit}`,
-                `wind_speed_unit=${this.stg.weather.distanceUnit === 'mi' ? 'mph' : 'kmh'}`,
+                `wind_speed_unit=${wUnit}`,
                 `precipitation_unit=inch`,
                 `pressure_unit=${pUnit}`,
                 `timezone=auto`
@@ -208,13 +242,11 @@ export default {
             const url = `https://api.open-meteo.com/v1/forecast?${params}`;
 
             //  console.log("DEBUG: pUnit is:", pUnit);
-            //  console.log("DEBUG: URL is:", url);
+            console.log("Fetching Weather Data from:", url);
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-
-                // CHECKPOINT: If the API returned an error, stop here!
                 if (data.error || !data.current) {
                     console.error("Open-Meteo Error:", data.reason || "Malformed response");
                     return;
@@ -229,24 +261,30 @@ export default {
                 const rawVisibility = data.current.visibility;
                 let vCalc = 0;
 
-                if (this.stg.weather.distanceUnit.toLowerCase() === 'mi') {
+                if (this.stg.units.distance.toLowerCase() === 'mi') {
                     vCalc = (apiUnit === 'ft') ? (rawVisibility / 5280) : (rawVisibility / 1609.34);
                 } else {
                     vCalc = (apiUnit === 'ft') ? (rawVisibility / 3280.84) : (rawVisibility / 1000);
                 }
 
-                let pressureVal = data.current.pressure_msl;
-                const apiPressureUnit = data.current_units.pressure_msl; // e.g., "hPa"
+                this.localVisability = Math.round(vCalc * 100) / 100;
 
-                // 2. The Logic Gate: If we want 'inch' but got 'hPa', do the math
-                if (this.stg.weather.pressureUnit === 'inch' && apiPressureUnit === 'hPa') {
-                    // 1016.2 * 0.02953 = 30.01
-                    pressureVal = (pressureVal * 0.02953).toFixed(2);
-                } else {
-                    // If units already match, just handle the decimal rounding
-                    pressureVal = pressureVal.toFixed(this.stg.weather.pressureUnit === 'inch' ? 2 : 1);
-                }
 
+                let rawPressure = data.current.pressure_msl;
+                const pressureApiUnit = data.current_units.pressure_msl.toLowerCase(); // Ensure lowercase
+
+                const calculatedPressure = (this.stg.units.pressure.toLowerCase() === 'inch' && pressureApiUnit === 'hpa')
+                    ? (rawPressure * 0.02953).toFixed(2)
+                    : rawPressure.toFixed(1);
+                // console.log(calculatedPressure);
+                this.localPressure = calculatedPressure;
+                // Reassign the object using the spread operator to trigger Vue reactivity
+                this.stg.weather.current = {
+                    ...this.stg.weather.current,
+                    pressure: calculatedPressure,
+                };
+
+                //  console.log(`DEBUG: User wants: ${this.stg.units.pressure} | API sent: ${pressureApiUnit}`);
                 // Add lastUpdated time
                 // 1. Get the data from the API
                 const apiTime = data.current.time; // e.g., "2026-04-24T12:00"
@@ -277,7 +315,7 @@ export default {
                     ...this.stg.weather.current, // Keep existing structure
                     temp: Math.round(data.current.temperature_2m),
                     visibility: vCalc.toFixed(1), // Apply formatting here
-                    pressure: pressureVal,
+                    pressure: rawPressure,
                     feelsLike: Math.round(data.current.apparent_temperature),
                     humidity: data.current.relative_humidity_2m,
                     windSpeed: Math.round(data.current.wind_speed_10m),

@@ -1,7 +1,7 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
+  max-width: 1224px;
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
@@ -32,4 +32,32 @@ a,
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
+}
+
+:root {
+  /* Default: Light Mode */
+  --bg-color: #f8f9fa;
+  --surface-color: #ffffff;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --accent-color: #0d6efd; /* Saturated for light */
+  --btn-bg: #eeeeee;
+  --value-text: #5d4037; /* Dark Brown */
+  --label-text: #6c757d; /* Muted Gray */
+  --divider-color: rgba(0, 0, 0, 0.08);
+  --text-muted: #545b62;
+}
+
+[data-theme='dark'] {
+  /* Dark Mode Overrides */
+  --bg-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-primary: #a1887f;
+  --text-secondary: #b0b0b0;
+  --accent-color: #90caf9; /* Desaturated for dark */
+  --btn-bg: #333333;
+  --value-text: #a1887f; /* light-brown-2 equivalent */
+  --label-text: #b0b0b0; /* Light Gray */
+  --divider-color: rgba(255, 255, 255, 0.1);
+  --text-muted: #a0a0a0;
 }
