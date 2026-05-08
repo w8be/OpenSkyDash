@@ -1,26 +1,34 @@
 <template>
-    <!-- <pre>` stg.lighting.homelocation:  {{ stg.lightning.homeLocation }}`</pre> -->
+    <!-- <pre>` isDark:  {{ isDark }}`</pre> -->
 
-    <v-card flat class="mx-auto" bg-color="transparent">
-
+    <v-card flat class="mx-auto" style="display: block;" bg-color="transparent" variant="flat" height="fit-content">
+        <div class="d-flex flex-column ga-2 pb-2">
+        </div>
         <v-tabs v-model="stg.ui.activeTab" align-tabs="center">
             <v-tab color="#54b6b2" value="general">
                 <v-icon start icon="mdi-cog"></v-icon> General
             </v-tab>
-            <v-tab color="orange-darken-2" value="tuning">
-                <v-icon start icon="mdi-tune"></v-icon> Tuning
+            <v-tab color="orange-darken-2" value="lightning">
+                <v-icon start icon="mdi-tune"></v-icon> Lightning
             </v-tab>
-            <v-tab color="info" value="features">
+            <!-- <v-tab color="info" value="features">
                 <v-icon start icon="mdi-feature-search"></v-icon> Features
-            </v-tab>
+            </v-tab> -->
         </v-tabs>
 
         <v-divider></v-divider>
 
-        <v-card-text>
-            <v-window v-model="stg.ui.activeTab" style="width: 300px" ;>
+        <v-card-text class="pb-0 d-block">
+            <v-window v-model="stg.ui.activeTab" style="width: 300px" height="auto" continuous;>
 
-                <v-window-item value="general" style="height: 65vh; overflow-y: auto;">
+                <v-window-item value="general" style="overflow-y: auto;">
+
+                    <div>
+                        <v-btn class="text-brown-lighten-4 d-flex align-center mb-5 mt-2" variant="tonal"
+                            density="compact" @click="toggleTheme">
+                            {{ isDark ? 'Dark Mode' : 'Light Mode' }}
+                        </v-btn>
+                    </div>
 
                     <div class="text-brown-lighten-4 d-flex align-center mt-2">
                         <v-text-field label="Dashboard Name" density="compact" variant="outlined"
@@ -37,8 +45,8 @@
                             <span class="text-body-2 text-grey-lighten-1">Distance</span>
                         </v-col>
                         <v-col cols="4" class="d-flex justify-end">
-                            <v-btn-toggle v-model="stg.weather.distanceUnit" mandatory color="blue-darken-2"
-                                density="compact" class="unit-toggle-group">
+                            <v-btn-toggle v-model="stg.units.distance" mandatory color="blue-darken-2" density="compact"
+                                class="unit-toggle-group">
                                 <v-btn value="Mi" size="small" class="px-4">Mi</v-btn>
                                 <v-btn value="Km" size="small" class="px-4">Km</v-btn>
                             </v-btn-toggle>
@@ -50,8 +58,8 @@
                             <span class="text-body-2 text-grey-lighten-1">Pressure</span>
                         </v-col>
                         <v-col cols="4" class="d-flex justify-end">
-                            <v-btn-toggle v-model="stg.weather.pressureUnit" mandatory color="blue-darken-2"
-                                density="compact" @update:model-value="updateLocation" class="unit-toggle-group">
+                            <v-btn-toggle v-model="stg.units.pressure" mandatory color="blue-darken-2" density="compact"
+                                @update:model-value="updateLocation" class="unit-toggle-group">
                                 <v-btn value="mb" size="small" class="px-4">mb</v-btn>
                                 <v-btn value="inch" size="small" class="px-4">in</v-btn>
                             </v-btn-toggle>
@@ -63,10 +71,10 @@
                             <span class="text-body-2 text-grey-lighten-1">Temperature</span>
                         </v-col>
                         <v-col cols="4" class="d-flex justify-end">
-                            <v-btn-toggle v-model="stg.weather.tempUnit" mandatory color="blue-darken-2"
+                            <v-btn-toggle v-model="stg.units.temperature" mandatory color="blue-darken-2"
                                 density="compact" @update:model-value="updateLocation" class="unit-toggle-group">
-                                <v-btn value="fahrenheit" size="small" class="px-4">F</v-btn>
-                                <v-btn value="celsius" size="small" class="px-4">C</v-btn>
+                                <v-btn value="f" size="small" class="px-4">F</v-btn>
+                                <v-btn value="c" size="small" class="px-4">C</v-btn>
                             </v-btn-toggle>
                         </v-col>
                     </v-row>
@@ -113,7 +121,7 @@
                     </v-row>
                 </v-window-item>
 
-                <v-window-item value="tuning" style="height: 50vh; overflow-y: auto;">
+                <v-window-item value="lightning" style="max-height: 60vh; overflow-y: auto;">
                     <div class="text-overline text-orange mb-1">Calculation Method</div>
                     <v-select v-model="stg.lightning.selectedMethod" :items="stg.lightning.calculationMethods"
                         variant="outlined" density="compact"></v-select>
@@ -140,127 +148,20 @@
                     </v-btn>
                 </v-window-item>
 
-                <v-window-item value="features" class="text-caption text-grey mt-1"
-                    style="height: 50vh; overflow-y: auto;">
-                    <h2> Lightning Monitor Features</h2>
-                    <h3>📡 Data &amp; Connection</h3>
-                    <ul>
-                        <li><strong>Source:</strong> Real-time stream from <code>blitzortung.org</code>.
-                        </li>
-                        <li><strong>Dynamic WSS:</strong> Automatic server rotation and key extraction</li>
-                        <li><strong>Lempel–Ziv–Welch (LZW):</strong> Custom decompression algorithm to
-                            decode raw binary strike data.
-                        </li>
-                        <li><strong>State Management:</strong> Uses Browser Context to maintain persistent
-                            dashboard data across refreshes.</li>
-                    </ul>
-                    <h3>🧠 Logic Engine</h3>
-                    <ul>
-                        <li><strong>Haversine Formula:</strong> Precise distance calculation from your
-                            configured <code>homeLocation</code>.</li>
-                        <li><strong>Refined Trend Tracking:</strong> Compares the &quot;Near Distance&quot;
-                            (closest strike) of the first half of the buffer vs. the second half to
-                            determine movement.</li>
-                        <li><strong>Tunable Sensitivity:</strong> Uses a configurable &quot;Dead Zone&quot;
-                            (e.g., 2.0 units) to prevent the trend arrow from flickering during stationary
-                            storms.</li>
-                        <li><strong>Strikes/minute:</strong> Calculates a rolling strike frequency and
-                            tracks the <strong>Peak Frequency</strong> of the current event.</li>
-                        <li><strong>Auto Tune</strong> When selected applies the strike frequency to the
-                            sample size
-                            used in Trend tracking. This applies the trending to bursty strike data.</li>
 
-                        <li><strong>Auto-Reset:</strong> Sweeps strikes older than <code>resetTime</code>
-                            (Default: 30m) to ensure the UI returns to &quot;Clear&quot; once a storm
-                            passes.</li>
-                    </ul>
-                    <h3>🎨 Dashboard UI</h3>
-                    <ul>
-                        <li><strong>Strike Frequency</strong> Strikes per minute</li>
-                        <li><strong>Action Buttons</strong>
-                            <ul>
-                                <li><v-icon>mdi-radar</v-icon> Strikes per minute / Chase Mode. Chip
-                                    colors track strikes per minute (less than 10: Blue, up to 20 Orange,
-                                    Over 20
-                                    Red)
-                                </li>
-                                <li>🔇Mute Strike Alert Audio</li>
-                                <li><v-icon>mdi-trash-can</v-icon> Clearable Strike Buffer </li>
-                                <li>⚙️ Settings/Tuning Modals</li>
-                            </ul>
-                        </li>
-                        <li><strong>Status Banners:</strong>
-                            <ul>
-                                <li>🔴 <strong>DANGER:</strong> Strike detected within
-                                    <code>Alert Threshold</code>.
-                                </li>
-                                <li>🟠 <strong>ACTIVE:</strong> Strike detected within
-                                    <code>Search Radius</code>.
-                                </li>
-                                <li>🛡️ <strong>CLEAR:</strong> No active strikes in the buffer.</li>
-                            </ul>
-                        </li>
-                        <li><strong>Directional Compass:</strong> Rotates an <code>mdi-navigation</code>
-                            icon based on the calculated bearing (0° to 359°) of the most recent strike.
-                        </li>
-                        <li><strong>Trend Indicators:</strong> Textual Updates (Approaching, Receding,
-                            Stationary) based on processed history.</li>
-                        <li><strong>Tabular Settings:</strong> Organized modal interface separating
-                            <strong>General</strong> setup from <strong>Tuning</strong> parameters.
-                        </li>
-                    </ul>
-                    <h3>⚙️ Settings (General)</h3>
-                    <ul>
-                        <li><strong>Unit Toggle:</strong> Seamlessly switch between <strong>Miles
-                                (Mi)</strong> and <strong>Kilometers (Km)</strong>. All existing history and
-                            thresholds are mathematically converted on-the-fly.</li>
-                        <li><strong>Home Location:</strong> User-definable Latitude and Longitude for the
-                            monitoring center. </li>
-                        <li><strong>Reset Time:</strong> Selectable window [5, 10, 30, 60 mins] to determine
-                            how long a strike remains &quot;active&quot; in the system.</li>
-                        <li><strong>Search &amp; Alert Radii:</strong> Custom distance triggers for UI state
-                            changes and audible alerts.</li>
-                    </ul>
-                    <h3>🛠️ Tuning (Advanced)</h3>
-                    <ul>
-                        <li><strong>Calculation Mode:</strong> Choose the mathematical approach for trend
-                            analysis (<code>Closest</code>, <code>Average</code>, or
-                            <code>Percentile(20)</code>).
-                        </li>
-                        <li><strong>Trend Sensitivity:</strong> Adjust the movement threshold (e.g., 0.5 to
-                            5.0 units) required to trigger an &quot;Approaching&quot; or
-                            &quot;Receding&quot; status.</li>
-                        <li><strong>Sample Size:</strong> Set the minimum number of strikes required in the
-                            buffer before the system attempts to calculate a trend.</li>
-                        <li><strong>Chase Mode</strong> Sync the Sample Size value to strikes per minute
-                            value.</li>
-                    </ul>
-                    <h3>💾 Persistence</h3>
-                    <ul>
-                        <li><strong>File Storage:</strong> Backup <code>lightning_settings.json</code> to
-                            the
-                            local download directory. Restore <code>lightning_settings.json</code> from the
-                            local
-                            download directory</li>
-                        <li><strong>JSON Schema:</strong> Config and Strike Data Arrays</li>
-                    </ul>
-                </v-window-item>
             </v-window>
         </v-card-text>
 
-
-        <v-card-actions class="mt-n8">
+        <v-card-actions class="pt-0">
             <v-btn variant="outlined" color="blue" size="small" @click="exportToDisk">Backup</v-btn>
             <v-btn variant="outlined" color="green" size="small" @click="$refs.fileInput.click()">Restore</v-btn>
             <input type="file" ref="fileInput" style="display: none" @change="importFromDisk" accept=".json">
-            <v-spacer></v-spacer>
-            <v-btn color="primary" variant="elevated" @click="updateLocation">
+            <!-- <v-spacer></v-spacer> -->
+            <!-- <v-btn color="primary" variant="elevated" @click="updateLocation">
                 Update
-            </v-btn>
+            </v-btn> -->
         </v-card-actions>
     </v-card>
-
-
 </template>
 
 <script>
@@ -275,42 +176,39 @@ export default {
     data() {
         return {
             // Keep your WebSockets and Timers here local
+            isDark: localStorage.getItem('theme') === 'dark',
             socket: null,
             timer: null,
             localLat: this.stg?.lightning?.homeLocation?.lat,
-            localLon: this.stg?.lightning?.homeLocation?.lon
+            localLon: this.stg?.lightning?.homeLocation?.lon,
+            localDistanceUnit: this.stg?.units?.distance,
+            localTempUnit: this.stg?.units?.temperature,
+            localPressureUnit: this.stg?.units?.pressure,
+            appName: this.stg?.ui.appName
         };
     },
     methods: {
         updateLocation() {
-            // 1. Validate the inputs before converting
             const newLat = parseFloat(this.localLat);
             const newLon = parseFloat(this.localLon);
-            const newAppName = this.appName;
 
-            // 2. Safety Check: If either is Not a Number, stop the bus!
             if (isNaN(newLat) || isNaN(newLon)) {
-                console.error("Invalid coordinates entered. Aborting save.");
-                alert("Please enter valid numeric coordinates.");
+                console.error("Invalid coordinates. Aborting save.");
                 return;
             }
 
-            // 3. Write to the shared reactive object
+            // 1. Update Home Location (The source of truth for all cards)
             settings.lightning.homeLocation.lat = newLat;
             settings.lightning.homeLocation.lon = newLon;
 
-            // 4. Update the Weather settings too
-            settings.weather.current.lat = newLat;
-            settings.weather.current.lon = newLon;
+            // 3. Update UI settings
+            settings.ui.appName = this.appName;
 
-            // update UI settings
-            //  settings.ui.appName = newAppName;
-
-            // 5. Commit to LocalStorage
+            // 4. Commit the entire reactive object to LocalStorage
             localStorage.setItem('station_config_v1', JSON.stringify(settings));
 
-            // 6. Final confirmation
-            console.log("Station updated successfully:", newLat, newLon, newAppName);
+            console.log("Station updated successfully:",
+                newLat, newLon, settings.units.distance, settings.units.temperature);
         },
 
         saveSettings() {
@@ -366,6 +264,12 @@ export default {
                 }
             };
             reader.readAsText(file);
+        },
+        toggleTheme() {
+            this.isDark = !this.isDark;
+            // Directly update your global settings object
+            this.stg.ui.theme = this.isDark ? 'dark' : 'light';
+            localStorage.setItem('theme', this.stg.ui.theme);
         }
     },
     computed: {
@@ -381,6 +285,22 @@ export default {
 </script>
 
 <style scoped>
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+}
+
+html.dark {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
 /* Gives the toggle group a solid container look */
 .unit-toggle-group {
     background-color: rgba(255, 255, 255, 0.05) !important;
