@@ -1,18 +1,20 @@
 <template>
-  <!-- <pre>{{ shared.lightning.frequency }} </pre> -->
-  <v-app :theme="stg.ui.theme">
+  <v-app>
     <v-app-bar color="#1e3838" density="compact">
       <v-app-bar-title class="text-brown-lighten-4"><v-icon icon="mdi-monitor-dashboard" color="primary"
-          size="small"></v-icon> {{ stg.ui.appName }}</v-app-bar-title>
+          size="small"></v-icon> {{ stg?.ui?.appName || 'Dashboard' }}</v-app-bar-title>
       <v-spacer></v-spacer>
       <div class="pa-4 text-h6 text-brown-lighten-4">{{ currentTime }}</div>
     </v-app-bar>
+
     <v-main class="d-flex align-start justify-center bg-grey-darken-5 rounded-lg mt-4">
       <v-card minwidth="300" maxwidth="300" class="mx-auto border-sm" elevation="24">
 
-        <v-tabs v-model="activeTab" bg-color="#1a1a1a" color="grey-darken-1" grow density="compact">
+        <v-tabs v-model="stg.ui.activeTab" bg-color="#1a1a1a" color="grey-darken-1" grow density="compact">
           <v-tab value="weather">
-            <v-icon :icon="shared.weather.icon" color="blue" size="small" class="mr-1"></v-icon>
+            <template v-slot:prepend>
+              <v-icon :icon="shared.weather.icon" color="blue" size="small" class="mr-1"></v-icon>
+            </template>
           </v-tab>
           <v-tab value="lightning"><v-icon icon="mdi-flash" color="amber" size="small" class="mr-1"
               :class="{ 'pulsing-icon': (shared.lightning.frequency > 0) }">
@@ -22,24 +24,20 @@
           <v-tab value="settings"><v-icon icon="mdi-cog" color="grey" size="small">
             </v-icon></v-tab>
         </v-tabs>
-
         <v-divider></v-divider>
-
-        <v-window v-model="activeTab">
-
-          <v-window-item value="weather">
-            <WeatherCard :stg="stg" />
+        <v-window v-model="stg.ui.activeTab" :touch="false" :transition="false">
+          <v-window-item value="weather" eager>
+            <WeatherCard v-show="stg.ui.activeTab === 'weather'" :stg="stg" />
           </v-window-item>
           <v-window-item value="lightning" eager>
             <LightningCard :stg="stg" />
           </v-window-item>
           <v-window-item value="solar" eager>
-            <SolarCard :stg="stg" />
+            <SolarCard v-show="stg.ui.activeTab === 'solar'" :stg="stg" />
           </v-window-item>
-          <v-window-item value="settings">
-            <SettingsCard v-if="activeTab === 'settings'" :stg="stg" />
+          <v-window-item value="settings" eager>
+            <SettingsCard v-if="stg.ui.activeTab === 'settings'" :stg="stg" />
           </v-window-item>
-
         </v-window>
       </v-card>
     </v-main>
@@ -47,14 +45,12 @@
 </template>
 
 <script>
-// 1. Import your existing state and the NEW dashboard settings
 import { useTheme } from 'vuetify';
 import { reactive } from 'vue';
 import { globalState } from './state.js';
-import { settings } from './components/cards/dashboardSettings.js'; // Import the new master file
+import { settings } from './components/cards/dashboardSettings.js';
 import '@mdi/font/css/materialdesignicons.css';
 
-// 2. Import .vue files
 import LightningCard from './components/cards/LightningCard.vue';
 import SolarCard from './components/cards/SolarCard.vue';
 import WeatherCard from './components/cards/WeatherCard.vue';
@@ -74,9 +70,9 @@ export default {
   },
   data() {
     return {
-      // MASTER SETTINGS LINK
-      isDark: localStorage.getItem('theme') === 'dark' || true, // Default to dark for that station look
-      stg: settings,
+      // isDark: true, // Default to dark for that station look
+      stg: globalState,
+      cfg: settings,
       activeTab: 'weather',
       shared: reactive(window.G_STATE || globalState),
       currentTime: '',
@@ -89,24 +85,26 @@ export default {
   },
 
   watch: {
-    // Watch the theme property inside your global settings object
-    'stg.ui.theme': {
-      handler(newTheme) {
-        const isDark = newTheme === 'dark';
+    // 'stg.ui.theme': {
+    //   handler(newTheme) {
+    //     const isDark = newTheme === 'dark';
 
-        // 1. Tell Vuetify to switch its internal engine
-        this.theme.global.name = newTheme;
+    //     // 1. Tell Vuetify to switch its internal engine
+    //     this.theme.global.name = newTheme;
 
-        // 2. Toggle the CSS class for any custom non-Vuetify styles
-        document.documentElement.classList.toggle('dark', isDark);
+    //     // 2. Toggle the CSS class for any custom non-Vuetify styles
+    //     document.documentElement.classList.toggle('dark', isDark);
 
-        // 3. Persist to localStorage
-        localStorage.setItem('theme', newTheme);
+    //     // 3. Persist to localStorage
+    //     localStorage.setItem('theme', newTheme);
 
-        console.log("Theme switched to:", newTheme);
-      },
-      immediate: true,
-    },
+    //     console.log("Theme switched to:", newTheme);
+    //   },
+    //   immediate: true,
+    // },
+    'stg.ui.activeTab'(newVal) {
+      console.log('Tab Changed to:', newVal);
+    }
   },
 
   methods: {

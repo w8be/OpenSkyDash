@@ -1,9 +1,7 @@
 <template>
 
-    <v-sheet value="lightning" transition="fade-transition" flat class="mx-auto lightning-card bg-grey-darken-4"
-        style="max-width: 300px; min-width:300px">
-        <!-- <pre>{{ stg.lightning.resetTime }}</pre> -->
-
+    <v-sheet class="mx-auto lightning-card bg-grey-darken-4" style="max-width: 300px; min-width:300px">
+        <!-- <pre>freq: {{ stg.lightning.currentStorm.frequency }} radius: {{ stg.lightning.searchRadius }}</pre> -->
         <div class="d-flex justify-space-between align-center header-bg px-3 py-2"
             style="position: relative; z-index: 10; ">
             <div class="d-flex align-center">
@@ -23,13 +21,6 @@
                     style="font-size: 0.90rem; font-weight: bold; min-width: 70px;">
                     {{ stg.lightning.currentStorm.frequency || 0 }}/min
 
-                    <!-- <template v-slot:append>
-                        <v-btn v-tooltip:top="'Chase Mode'" icon="mdi-radar" variant="text" size="x-small"
-                            class="ml-2 ma-0" density="compact"
-                            :color="stg?.lightning.isSnapped ? 'cyan-accent-2' : 'grey-lighten-1'"
-                            :class="{ 'ml-2 ma-0, pulse-animation': stg?.lightning.isSnapped }"
-                            @click="setThresholdFromCurrent"></v-btn>
-                    </template> -->
                 </v-chip>
 
                 <div class="d-flex align-center">
@@ -50,32 +41,40 @@
             </div>
         </div>
 
+        <!-- SECTION 1: STATUS BANNERS -->
         <template v-if="stg?.lightning">
-            <div v-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <= stg.lightning.alertThreshold"
-                class="danger-banner text-center py-1 font-weight-bold text-white bg-red-darken-4">
+            <div v-if="stg.lightning.currentStorm?.distance > 0 && stg.lightning.currentStorm?.distance <= stg.lightning.alertThreshold"
+                class="text-center py-1 font-weight-bold text-white bg-red-darken-4">
                 <v-icon icon="mdi-alert-octagon" size="x-small" class="mr-1"></v-icon>
                 TAKE ACTION: Immediate Danger
             </div>
-
-            <div v-else-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <= stg.lightning.searchRadius"
+            <div v-else-if="stg.lightning.currentStorm?.distance > 0 && stg.lightning.currentStorm?.distance <= stg.lightning.searchRadius"
                 class="text-center py-1 font-weight-bold text-white bg-orange-darken-3">
                 <v-icon icon="mdi-eye-check" size="x-small" class="mr-1"></v-icon>
                 CAUTION: Strikes In Area
             </div>
-
-            <div v-else class="text-center font-weight-bold text-white bg-green-darken-3">
+            <div v-else class="text-center py-1 font-weight-bold text-white bg-green-darken-3">
                 <v-icon icon="mdi-shield-check" size="x-small" class="mr-1"></v-icon>
                 STATUS: Clear / Monitoring
             </div>
         </template>
-
+        <!-- SECTION 2: MAIN CONTENT AREA -->
         <v-card-text class="pa-4">
+            <div v-if="stg.lightning.history.length > 0">
+            </div>
+
+            <div v-else class="text-center text-grey-darken-1 py-6">
+                <v-icon icon="mdi-shield-check-outline" size="48" class="mb-2"></v-icon>
+                <div class="text-caption font-weight-bold text-uppercase" style="letter-spacing: 0.1rem;">
+                    Quiet
+                </div>
+            </div>
             <div
                 v-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <= stg.lightning.searchRadius">
                 <div class="d-flex justify-space-between align-end mb-4">
                     <div class="d-flex align-baseline">
                         <div class="display-value text-brown-lighten-4">{{ convertedDistance }}</div>
-                        <div class="unit-text ml-1">{{ stg.lightning?.unit }}</div>
+                        <div class="unit-text ml-1">{{ stg.units.distance }}</div>
                     </div>
                     <div class="text-right d-flex flex-column align-center" style="min-width: 100px;">
                         <v-icon icon="mdi-navigation"
@@ -91,21 +90,11 @@
                 </div>
             </div>
 
-            <div v-else-if="stg.lightning.history.length === 0" class="text-center text-grey-darken-1 py-6">
-                <v-icon icon="mdi-shield-check-outline" size="48"></v-icon>
-                <div class="text-caption font-weight-bold text-uppercase">Quiet</div>
-            </div>
-
-            <!-- <div v-if="hasActiveAlert"> -->
-            <div v-if="stg.lightning.history.length && stg.lightning.history.length > 0">
-                <!-- <pre>{{ stg.lightning.history.length }}</pre> -->
-                <div class="sparkline-container mt-2" style="position: relative;">
-
-                    <template v-if="stg.lightning.history.length > 0">
-                        <!-- <pre>{{ stg.lightning.currentStorm.distance }}  {{ stg.lightning.searchRadius }}</pre> -->
-                        <v-sparkline :model-value="sparklineValues" :gradient="['#4caf50', '#ffeb3b', '#f44336']"
-                            smooth="100" line-width="2" height="75" fill padding="3"></v-sparkline>
-                        <div style="
+            <!-- 2. Sparkline (Always visible if history exists) -->
+            <div v-if="stg.lightning.history.length > 0" class="sparkline-container mt-2" style="position: relative;">
+                <v-sparkline :model-value="sparklineValues" :gradient="['#4caf50', '#ffeb3b', '#f44336']" smooth="100"
+                    line-width="2" height="75" fill padding="3"></v-sparkline>
+                <div style="
                     position: absolute; 
                     bottom: 5px; 
                     left: 10px; 
@@ -120,17 +109,16 @@
                     color: sparklineValues.some(v => v > 0) ? '#FFFFFF' : '#757575',
                     opacity: sparklineValues.some(v => v > 0) ? '1.0' : '0.5'
                 }" class="text-caption font-weight-bold">
-                            <span>-{{ stg.lightning.resetTime }}m</span>
-                            <span class="text-grey-darken-1 ml-2 mt-1" style="font-size: 0.65rem;">Closer strikes peak
-                                higher
-                            </span>
-                            <span>NOW</span>
-                        </div>
-
-                    </template>
+                    <span>-{{ stg.lightning.resetTime }}m</span>
+                    <span class="text-grey-darken-1 ml-2 mt-1" style="font-size: 0.65rem;">Closer strikes peak
+                        higher
+                    </span>
+                    <span>NOW</span>
                 </div>
-
-                <v-expansion-panels v-model="stg.lightning.ui.panel" flat class="mt-2">
+            </div>
+            <div>
+                <v-expansion-panels v-if="stg.lightning.history.length > 0" v-model="stg.lightning.ui.panel" flat
+                    class="mt-2">
                     <v-expansion-panel value="strikes" bg-color="transparent">
                         <v-expansion-panel-title :ripple="false"
                             class="text-capitalize text-caption font-weight-bold text-brown-lighten-4"
@@ -139,13 +127,15 @@
                         </v-expansion-panel-title>
                         <v-expansion-panel-text>
                             <div v-for="(strike, index) in recentStrikes" :key="index">
-                                <v-row no-gutters align="center" class="text-caption">
+                                <v-row no-gutters align="center"
+                                    :class="strike.dist > stg.lightning.searchRadius ? 'text-disabled' : ''">
                                     <v-col cols="4" class="text-left text-grey-lighten-1 time-col"
                                         style="white-space: nowrap;">
                                         {{ formatTime(strike.time) }}
                                     </v-col>
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
-                                        {{ strike.dist }}<span class="text-caption ml-1">{{ stg.lightning.unit }}</span>
+                                        {{ convertedDistance }}<span class="text-caption ml-1">{{ stg.units.distance
+                                            }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -161,18 +151,17 @@
 
         </v-card-text>
 
-
         <div class="px-5 py-1 footer-bg border-top-dim rounded-b-lg">
             <div class="d-flex justify-space-between align-center text-caption font-weight-bold">
                 <span class="text-orange" style="font-size: 0.7rem;">Area: {{ stg?.lightning.searchRadius }}{{
-                    stg?.lightning.unit }}</span>
+                    stg.units.distance }}</span>
                 <div :class="[(stg?.lightning.history.length > 0) ? 'text-green-accent-2' : 'text-grey-darken-1',
                     'd-flex align-center align-center justify-center mr-3']" style="font-size: 0.65rem;">
                     <v-icon icon="mdi-pulse" size="10" class="pulse-icon"></v-icon>
                     {{ lastUpdated }}
                 </div>
                 <span class="text-orange" style="font-size: 0.7rem;">Alert: {{ stg?.lightning.alertThreshold }}{{
-                    stg?.lightning.unit }}</span>
+                    stg.units.distance }}</span>
             </div>
         </div>
 
@@ -180,26 +169,23 @@
 </template>
 
 <script>
-// import { globalState } from '../../state.js';
+import { globalState } from '../../state.js';
 import { settings } from './dashboardSettings.js';
 export default {
     name: 'LightningCard',
     inheritAttrs: false,
-    props: {
-        stg: {
-            type: Object,
-            required: true
-        }
-    },
     data() {
         return {
+            stg: globalState,
             shared: window.G_STATE,
+            settings: settings,
             currentServerIndex: 0,
             connection: null,
             reconnectTimer: null,
             heartbeat: null,
             panel: null,
-            instanceId: null
+            instanceId: null,
+            // lightningTimeout: null,
         };
     },
     created() {
@@ -221,9 +207,7 @@ export default {
     mounted() {
         // 1. Cleanup
         if (this.freqTimer) clearInterval(this.freqTimer);
-        if (this.expiryTimer) clearInterval(this.expiryTimer);
 
-        // Load
         const saved = localStorage.getItem('station_config_v1');
         if (saved && saved !== "undefined") {
             try {
@@ -243,7 +227,9 @@ export default {
         this.thunderPlayer = new Audio('/sounds/thunder.mp3');
         this.thunderPlayer.load();
         this.updateFrequency();
-        this.startExpiryTimer();
+        // this.startExpiryTimer();
+        console.log("LIGHTNING CARD MOUNTED - (Should only happen once!)");
+        this.establishConnection();
 
         // Schedule
         this.freqTimer = setInterval(() => {
@@ -251,7 +237,7 @@ export default {
         }, 10000);
     },
     unmounted() {
-        if (this.expiryTimer) clearInterval(this.expiryTimer);
+        // if (this.expiryTimer) clearInterval(this.expiryTimer);
         if (this.connection) this.connection.close();
     },
     watch: {
@@ -287,6 +273,7 @@ export default {
                 code++;
                 oldPhrase = phrase;
             }
+            // console.log("LZW decoding a string of length:", s.length);
             return out.join("");
         },
 
@@ -372,7 +359,7 @@ export default {
 
             this.connection.onclose = () => {
                 if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
-
+                console.log(`WebSocket Closed: Code ${event.code}, Reason: ${event.reason}`);
                 this.currentServerIndex = (this.currentServerIndex + 1) % this.lightning.wssServers.length;
 
                 console.log(`Server ${serverNum} closed. Rotating to next server in 5s...`);
@@ -391,13 +378,15 @@ export default {
             const now = Date.now();
             const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
             const toRad = (v) => (v * Math.PI) / 180;
-            const R = this.stg.lightning?.unit?.toLowerCase() === 'km' ? 6371 : 3958.8;
+            const isMi = this.stg.units.distance.toLowerCase() === 'mi';
+            const R = isMi ? 3958.8 : 6371;
 
             // 1. Calculate Distance
             const dLat = toRad(data.lat - home.lat);
             const dLon = toRad(data.lon - home.lon);
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            // console.log("Strike Decoded:", data.lat, data.lon);
             const dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 
             // 2. THE GATEKEEPER
@@ -413,8 +402,8 @@ export default {
                 // Record the strike
                 this.stg.lightning.history.push({
                     time: data.time || now,
-                    dist,
-                    bearing
+                    distance: dist,
+                    bearing: bearing
                 });
 
                 // 3. Update UI State
@@ -426,14 +415,78 @@ export default {
                 this.playThunder();
                 this.calculateTrend();
 
-                // Auto-snap sample size logic
-                // if (this.stg.lightning.isSnapped) {
-                //     this.stg.lightning.sampleSize = Math.max(0.5, this.stg.lightning.history.length);
-                // }
-
                 console.log(`Local Strike: ${dist}mi @ ${bearing}°`);
             }
         },
+        // rateLimitIncomingStrikes(data) {
+        //     if (!data || data.lat === undefined || data.lon === undefined) return;
+
+        //     this.temporaryBuffer.push({
+        //         lat: data.lat,
+        //         lon: data.lon,
+        //         time: data.time || Date.now()
+        //     });
+
+        //     // If a timer is already running, don't do anything.
+        //     // This allows the buffer to fill up and process every 500ms 
+        //     // instead of waiting for a "pause" in the storm that may never come.
+        //     if (!this.lightningTimeout) {
+        //         this.lightningTimeout = setTimeout(() => {
+        //             this.processIncomingStrike();
+        //             this.lightningTimeout = null; // Reset the gatekeeper
+        //         }, 500);
+        //     }
+        // },
+
+        // processIncomingStrike() { // Remove the 'data' argument here
+        //     if (this.temporaryBuffer.length === 0) return;
+
+        //     const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
+        //     const toRad = (v) => (v * Math.PI) / 180;
+        //     const isMi = this.stg.units.distance.toLowerCase() === 'mi';
+        //     const R = isMi ? 3958.8 : 6371;
+
+        //     // --- NEW: LOOP THROUGH THE BUFFER ---
+        //     this.temporaryBuffer.forEach(data => {
+        //         // 1. Calculate Distance
+        //         const dLat = toRad(data.lat - home.lat);
+        //         const dLon = toRad(data.lon - home.lon);
+        //         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        //             Math.cos(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        //         const dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+
+        //         // 2. THE GATEKEEPER
+        //         if (dist <= this.stg.lightning.searchRadius) {
+        //             const y = Math.sin(toRad(data.lon - home.lon)) * Math.cos(toRad(data.lat));
+        //             const x = Math.cos(toRad(home.lat)) * Math.sin(toRad(data.lat)) -
+        //                 Math.sin(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.cos(toRad(data.lon - home.lon));
+        //             const bearing = Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360);
+
+        //             // Record the strike
+        //             this.stg.lightning.history.push({
+        //                 time: data.time || Date.now(),
+        //                 distance: dist,
+        //                 bearing: bearing
+        //             });
+
+        //             // Update UI State for the most recent one in the batch
+        //             this.stg.lightning.currentStorm.distance = dist;
+        //             this.stg.lightning.currentStorm.bearing = bearing;
+        //         }
+        //     });
+
+        //     // 3. RUN THESE ONCE PER BATCH (Outside the loop)
+        //     if (this.temporaryBuffer.length > 0) {
+        //         this.updateFrequency();
+        //         this.playThunder();
+        //         this.calculateTrend();
+        //     }
+
+        //     // --- IMPORTANT: CLEAR THE BUFFER FOR THE NEXT BURST ---
+        //     this.temporaryBuffer = [];
+        // },
+
 
         startExpiryTimer() {
             if (this.expiryTimer) clearInterval(this.expiryTimer);
@@ -496,7 +549,7 @@ export default {
                 hour: 'numeric',
                 minute: '2-digit',
                 second: '2-digit'
-            });  //.replace(/\s/g, ''); // Removes the space before AM/PM for high density
+            });
         },
 
         getDir(b) {
@@ -565,23 +618,69 @@ export default {
 
 
 
-        updateFrequency() {
-            const oneMinuteAgo = Date.now() - 60000;
-            const radius = Number(this.stg.lightning.searchRadius || 1000);
+        // updateFrequency() {
+        //     console.log("Total History Count:", this.stg.lightning.history.length);
+        //     console.log("Sample Strike Time:", this.stg.lightning.history[0]?.time);
+        //     console.log("Comparison Time (One Min Ago):", Date.now() - 60000);
+        //     console.log("Current Search Radius:", radius);
+        //     console.log("First 5 Distances in History:", this.stg.lightning.history.slice(0, 5).map(s => s.distance));
+        //     const oneMinuteAgo = Date.now() - 60000;
+        //     const tenMinutesAgo = Date.now() - (60000 * 10);
+        //     const radius = Number(this.stg.lightning?.searchRadius || 50);
 
-            // We define 'localStrikes' here so the browser knows what it is
+        //     // We define 'localStrikes' here so the browser knows what it is
+        //     const localStrikes = this.stg.lightning.history.filter(s => {
+        //         return s.time > tenMinutesAgo && Number(s.distance) <= radius;
+        //     });
+
+        //     const freq = localStrikes.length;
+
+        //     // Update the UI state
+        //     this.stg.lightning.currentStorm.frequency = freq;
+
+        //     // If you use a shared state object:
+        //     if (this.shared?.lightning) {
+        //         this.shared.lightning.frequency = freq;
+        //     }
+        // },
+
+        updateFrequency() {
+            const now = Date.now();
+            const radius = Number(this.stg.lightning?.searchRadius || 50);
+
+            // 1. DYNAMIC CLEANUP (Replaces startExpiryTimer)
+            // Uses your resetTime (minutes) or defaults to 10
+            const resetMinutes = this.stg.lightning.resetTime || 10;
+            const cutoff = now - (resetMinutes * 60 * 1000);
+
+            // Prune the history array immediately
+            this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
+
+            // 2. FREQUENCY CALCULATION
+            const oneMinuteAgo = now - 60000;
             const localStrikes = this.stg.lightning.history.filter(s => {
-                return s.time > oneMinuteAgo && Number(s.dist) <= radius;
+                const isRecent = s.time > oneMinuteAgo;
+                const d = typeof s.distance === 'number' ? s.distance : parseFloat(s.distance);
+                const isClose = Number(s.distance) <= radius;
+
+                return s.time > oneMinuteAgo && Number(s.distance) <= radius;
             });
 
+
+
+            // 3. UPDATE UI
             const freq = localStrikes.length;
-
-            // Update the UI state
             this.stg.lightning.currentStorm.frequency = freq;
+            this.shared.lightning.frequency = freq;
 
-            // If you use a shared state object:
-            if (this.shared?.lightning) {
-                this.shared.lightning.frequency = freq;
+            // Reset dashboard if no data remains in the reset window
+            if (this.stg.lightning.history.length === 0) {
+                this.stg.lightning.currentStorm = {
+                    distance: 0,
+                    bearing: 0,
+                    trend: 'Stationary',
+                    frequency: 0
+                };
             }
         },
 
@@ -648,29 +747,6 @@ export default {
             };
             reader.readAsText(file);
         },
-
-        /* setThresholdFromCurrent() {
-             if (this.stg.lightning.isSnapped) {
-                 // RESTORE: Go back to exactly what we saved in the buffer
-                 this.stg.lightning.sampleSize = this.stg.lightning.previousValue;
- 
-                 // --- ADD THIS LINE ---
-                 this.stg.lightning.sampleSize = this.stg.lightning.sampleSize;
-                 // ---------------------
- 
-                 this.stg.lightning.isSnapped = false;
-             } else {
-                 // SAVE: Store the current 2 (or whatever it is) before we snap
-                 this.stg.lightning.previousValue = this.stg.lightning.sampleSize;
- 
-                 // SNAP: Set it to the current storm frequency
-                 const currentFreq = this.stg?.lightning.currentStorm.frequency || 0;
-                 this.stg.lightning.sampleSize = currentFreq;
-                 this.stg.lightning.isSnapped = true;
- 
-                 this.stg.lightning.sampleSize = this.stg.lightning.sampleSize;
-             }
-         } */
     },
     computed: {
         // 1. Helper to make template code cleaner
@@ -683,24 +759,33 @@ export default {
             const resetMinutes = this.stg.lightning.resetTime || 10;
             const now = Date.now();
             const windowMs = resetMinutes * 60 * 1000;
-            const searchRadius = this.stg.lightning.searchRadius || 1000;
+
+            // We use a fixed 1000 mile ceiling for the graph scale
+            const graphMax = 1000;
 
             const bucketCount = 60;
             const buckets = new Array(bucketCount).fill(0);
 
+            // Use stg.lightning.history directly to ensure we see everything in memory
             if (this.stg.lightning.history && this.stg.lightning.history.length > 0) {
                 this.stg.lightning.history.forEach(strike => {
+
                     let strikeTime = Number(strike.time);
                     if (strikeTime < 10000000000) strikeTime *= 1000;
 
                     const ageMs = now - strikeTime;
 
+                    // Only filter by TIME (the "Janitor" logic)
                     if (ageMs <= windowMs && ageMs >= -5000) {
                         const bucketIndex = Math.floor(((windowMs - ageMs) / windowMs) * (bucketCount - 1));
 
                         if (bucketIndex >= 0 && bucketIndex < bucketCount) {
-                            let intensity = ((searchRadius - strike.dist) / searchRadius) * 100;
-                            intensity = Math.max(20, intensity);
+                            // Calculate intensity: Closer = Higher
+                            // Formula: ((Max - Distance) / Max) * 100
+                            let intensity = Math.max(5, ((1000 - strike.distance) / 1000) * 100);
+
+                            // Ensure a minimum visibility bump of 5% even for far strikes
+                            intensity = Math.max(5, intensity);
 
                             if (intensity > buckets[bucketIndex]) {
                                 buckets[bucketIndex] = intensity;
@@ -714,32 +799,24 @@ export default {
 
         recentStrikes() {
             const history = this.lightning.history || [];
-            const radius = this.lightning.searchRadius || 50;
+            const radius = this.stg.lightning.searchRadius || 100;
             return [...history]
-                .filter(strike => strike.dist <= radius)
                 .reverse()
                 .slice(0, 5);
         },
-
-        // lastUpdated() {
-        //     const history = this.lightning.history || [];
-        //     const radius = this.lightning.searchRadius || 50;
-        //     const localHistory = history.filter(h => h.dist <= radius);
-        //     if (localHistory.length === 0) return 'No Local Strikes';
-        //     const lastStrike = localHistory[localHistory.length - 1];
-        //     return this.getTimeAgo(lastStrike.time);
-
-        // },
 
         lastUpdated() {
             if (!this.lightning.history.length) return 'No Data';
             return this.getTimeAgo(this.lightning.history[this.lightning.history.length - 1].time);
         },
 
+        // convertedDistance() {
+        //     const d = parseFloat(this.lightning.currentStorm?.distance);
+        //     if (isNaN(d) || d === 0) return '0';
+        //     return this.stg.units.distance.toLowerCase() === 'mi' ? Math.round(d) : Math.round(d * 1.60934);
+        // },
         convertedDistance() {
-            const d = parseFloat(this.lightning.currentStorm?.distance);
-            if (isNaN(d) || d === 0) return '0';
-            return this.lightning.unit === 'Mi' ? Math.round(d) : Math.round(d * 1.60934);
+            return this.lightning.currentStorm?.distance || '0';
         },
 
         trendColor() {
@@ -763,29 +840,6 @@ export default {
                 prev.dist < curr.dist ? prev : curr
             );
         },
-        // // Everything currently being tracked (The 1500mi net)
-        // strikesInSearchRadius() {
-        //     const radius = this.stg.lightning.searchRadius; // 1500
-        //     return this.stg.lightning.buffer.filter(s => s.distance <= radius);
-        // },
-
-        // // Only the strikes that trigger the orange 'Caution' bar (The 25mi circle)
-        // strikesInAlertRadius() {
-        //     const threshold = this.stg.lightning.alertThreshold; // 25
-        //     return this.strikesInSearchRadius.filter(s => s.distance <= threshold);
-        // },
-
-        // // This property controls if the Card Body is visible
-        // hasDataToShow() {
-        //     return this.strikesInSearchRadius.length > 0;
-        // },
-
-        // // This property controls if the Status Bar says 'Caution' or 'Clear'
-        // isAlertActive() {
-        //     return this.strikesInAlertRadius.length > 0;
-        // }
-
-
     } // End of computed
 };
 </script>
