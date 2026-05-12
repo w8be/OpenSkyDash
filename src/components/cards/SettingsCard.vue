@@ -1,38 +1,25 @@
 <template>
-    <!-- <pre>` isDark:  {{ isDark }}`</pre> -->
-
     <v-card flat class="mx-auto" style="display: block;" bg-color="transparent" variant="flat" height="fit-content">
         <div class="d-flex flex-column ga-2 pb-2">
         </div>
-        <v-tabs v-model="stg.ui.activeTab" align-tabs="center">
-            <v-tab color="#54b6b2" value="general">
+        <v-tabs v-model="settingsView" align-tabs="center">
+            <v-tab color="#54b6b2" value="innerTab">
                 <v-icon start icon="mdi-cog"></v-icon> General
             </v-tab>
             <v-tab color="orange-darken-2" value="lightning">
                 <v-icon start icon="mdi-tune"></v-icon> Lightning
             </v-tab>
-            <!-- <v-tab color="info" value="features">
-                <v-icon start icon="mdi-feature-search"></v-icon> Features
-            </v-tab> -->
         </v-tabs>
 
         <v-divider></v-divider>
 
         <v-card-text class="pb-0 d-block">
-            <v-window v-model="stg.ui.activeTab" style="width: 300px" height="auto" continuous;>
+            <v-window v-model="settingsView" style="width: 300px" height="auto" continuous;>
 
-                <v-window-item value="general" style="overflow-y: auto;">
-
-                    <div>
-                        <v-btn class="text-brown-lighten-4 d-flex align-center mb-5 mt-2" variant="tonal"
-                            density="compact" @click="toggleTheme">
-                            {{ isDark ? 'Dark Mode' : 'Light Mode' }}
-                        </v-btn>
-                    </div>
-
+                <v-window-item value="innerTab" style="overflow-y: auto;">
                     <div class="text-brown-lighten-4 d-flex align-center mt-2">
                         <v-text-field label="Dashboard Name" density="compact" variant="outlined"
-                            v-model="stg.ui.appName"></v-text-field>
+                            prepend-inner-icon="mdi-rename-box" v-model="stg.ui.appName"></v-text-field>
                     </div>
 
                     <div class="text-subtitle-2 mb-1 text-secondary d-flex align-center">
@@ -45,8 +32,9 @@
                             <span class="text-body-2 text-grey-lighten-1">Distance</span>
                         </v-col>
                         <v-col cols="4" class="d-flex justify-end">
-                            <v-btn-toggle v-model="stg.units.distance" mandatory color="blue-darken-2" density="compact"
-                                class="unit-toggle-group">
+                            <v-btn-toggle v-model="stg.units.distance"
+                                @update:model-value="$emit('update:settings', { ...stg, units: { ...stg.units, distance: $event } })"
+                                mandatory color="blue-darken-2" density="compact" class="unit-toggle-group">
                                 <v-btn value="Mi" size="small" class="px-4">Mi</v-btn>
                                 <v-btn value="Km" size="small" class="px-4">Km</v-btn>
                             </v-btn-toggle>
@@ -121,7 +109,7 @@
                     </v-row>
                 </v-window-item>
 
-                <v-window-item value="lightning" style="max-height: 60vh; overflow-y: auto;">
+                <v-window-item class="pb-2 d-block" value="lightning" style="max-height: 60vh; overflow-y: auto;">
                     <div class="text-overline text-orange mb-1">Calculation Method</div>
                     <v-select v-model="stg.lightning.selectedMethod" :items="stg.lightning.calculationMethods"
                         variant="outlined" density="compact"></v-select>
@@ -136,30 +124,20 @@
                         </template>
                     </v-slider>
 
-                    <div class="text-overline text-orange mt-2">Sample Size</div>
+                    <div class="text-overline text-orange mt-2 mb-1">Sample Size</div>
                     <v-text-field v-model.number="stg.lightning.sampleSize" density="compact" variant="outlined"
                         hide-details></v-text-field>
 
-                    <div class="text-overline text-orange mt-6">Chase Mode</div>
-                    <v-btn icon="mdi-radar" variant="text" size="x-large" density="compact"
-                        :color="stg.lightning.chaseMode ? 'cyan-accent-2' : 'grey-darken-1'"
-                        :class="['ml-2', { 'pulse-animation': stg.lightning.chaseMode }]"
-                        @click="stg.lightning.chaseMode = !stg.lightning.chaseMode">
-                    </v-btn>
                 </v-window-item>
-
 
             </v-window>
         </v-card-text>
 
-        <v-card-actions class="pt-0">
+        <v-card-actions class="pt-4">
             <v-btn variant="outlined" color="blue" size="small" @click="exportToDisk">Backup</v-btn>
             <v-btn variant="outlined" color="green" size="small" @click="$refs.fileInput.click()">Restore</v-btn>
             <input type="file" ref="fileInput" style="display: none" @change="importFromDisk" accept=".json">
-            <!-- <v-spacer></v-spacer> -->
-            <!-- <v-btn color="primary" variant="elevated" @click="updateLocation">
-                Update
-            </v-btn> -->
+
         </v-card-actions>
     </v-card>
 </template>
@@ -167,15 +145,11 @@
 <script>
 import { settings } from './dashboardSettings.js';
 export default {
-    props: {
-        stg: {
-            type: Object,
-            required: true
-        }
-    },
+    props: ['stg'],
     data() {
         return {
             // Keep your WebSockets and Timers here local
+            shared: window.G_STATE,
             isDark: localStorage.getItem('theme') === 'dark',
             socket: null,
             timer: null,
@@ -184,7 +158,8 @@ export default {
             localDistanceUnit: this.stg?.units?.distance,
             localTempUnit: this.stg?.units?.temperature,
             localPressureUnit: this.stg?.units?.pressure,
-            appName: this.stg?.ui.appName
+            appName: this.stg?.ui.appName,
+            settingsView: 'general'
         };
     },
     methods: {

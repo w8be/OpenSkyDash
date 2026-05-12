@@ -26,7 +26,7 @@ const defaultSettings = reactive({
       expandedPanel: null,
     },
 
-    chaseMode: false,
+    // chaseMode: false,
     sampleSize: 20, // Modified logic from sensitivity
     resetTime: 30,
 
@@ -39,6 +39,7 @@ const defaultSettings = reactive({
     currentServerIndex: 0,
     calculationMethods: ['Closest Strike (Fastest)', 'Average (Smoother)', 'Percentile (Balanced)'],
     selectedMethod: 'Closest Strike (Fastest)',
+    sensitivity: 5,
   },
 
   // WEATHER CONFIGURATION
@@ -85,8 +86,8 @@ const defaultSettings = reactive({
   ui: {
     theme: 'dark',
     showAttribution: true,
-    activeTab: 0,
-    panel: null, // Fixed auto-open bug by setting to null
+    activeTab: 'settings',
+    // panel: null, // Fixed auto-open bug by setting to null
     appName: 'Station Dashboard',
   },
 })

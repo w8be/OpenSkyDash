@@ -82,7 +82,8 @@
                 <v-icon icon="mdi-arrow-up-bold-box-outline" v-tooltip:top="'F2 Max Altitude'" color="amber-lighten-3"
                     size="small" class="mb-1"></v-icon>
                 <div class="text-body-2 font-weight-bold  stat-value" style="line-height: 1;">
-                    {{ stg.solar.current.ionosphere.hmf2 }} {{ stg.units.distance === 'Mi' ? 'mi' : 'km' }}
+                    {{ convertedHmf2 }} {{ stg.units.distance.toLowerCase() === 'mi' ? 'mi' : 'km'
+                    }}
                 </div>
                 <div class="text-grey-darken-1 mt-1"
                     style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -147,68 +148,61 @@
                 </v-expansion-panel>
             </v-expansion-panels>
         </div>
-
-        <!-- <pre>ionosphere: {{ stg.solar.current.ionosphere }}, solarScales: {{ stg.solar.current.scales }}</pre> -->
-
     </v-sheet>
-
 </template>
-
 
 <script>
 
 
 // import {globalState} from '../../state.js';
 import { settings } from './dashboardSettings.js';
+import { reactive } from 'vue';
 export default {
     name: 'LightningCard',
     inheritAttrs: false,
+    props: {
+        stg: {
+            type: Object,
+            required: true
+        }
+    },
 
     data() {
         return {
-            stg: settings,
+            // stg: reactive(settings),
             shared: window.G_STATE,
             currentServerIndex: 0,
             connection: null,
             reconnectTimer: null,
             heartbeat: null,
-            panel: null,
+            panel: null
         };
     },
     beforeUnmount() {
         if (this.solarTimer) {
             clearInterval(this.solarTimer);
-            console.log("Solar timer cleared.");
         }
     },
     mounted() {
-        // 1. CLEANUP (If you add a timer later)
+
         if (this.solarTimer) clearInterval(this.solarTimer);
 
-        // 2. LOAD CONFIG
-        // Load
         const saved = localStorage.getItem('station_config_v1');
         if (saved && saved !== "undefined") {
             try {
                 const config = JSON.parse(saved);
                 // Apply your config logic here...
             } catch (e) {
-                console.error("Config Sysgen Failure: Malformed JSON in localStorage", e);
-                // Optional: clear the bad data so it doesn't crash next time
-                // localStorage.removeItem('station_config_v1');
             }
         } else {
-            console.log("No saved config found. Loading defaults.");
         }
 
-        // 3. INITIAL FETCH
         this.fetchSolarData();
         this.fetchGeomagneticIndices();
         this.fetchSolarFlux();
         this.fetchIonosphere();
         this.fetchScales();
 
-        // 4. SCHEDULE (Solar data doesn't change fast, maybe every 15-30 mins)
         this.solarTimer = setInterval(() => {
             this.fetchSolarData();
             this.fetchSolarFlux();
@@ -219,15 +213,33 @@ export default {
     },
     unmounted() { },
     watch: {
-        // Watch for unit changes to re-calculate distance
         'stg.units.distance': {
             handler() {
-                console.log("Distance unit changed, refreshing Ionosphere...");
                 this.fetchIonosphere();
-            }
+            },
+            deep: true,
+            immediate: true
         }
     },
-    computed: {},
+
+    computed: {
+        convertedHmf2() {
+            // Safe navigation: ensure every level exists before checking hmf2
+            const solar = this.stg?.solar;
+            const iono = solar?.current?.ionosphere;
+            const raw = iono?.hmf2;
+
+            if (raw === undefined || raw === null) return '--';
+
+            const unit = String(this.stg.units.distance || 'Mi').trim().toLowerCase();
+            const isMi = unit === 'mi';
+
+            return isMi
+                ? Math.round(raw * 0.621371)
+                : Math.round(raw);
+        }
+    },
+
     methods: {
         async fetchSolarData() {
             const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
@@ -241,17 +253,8 @@ export default {
             };
 
             try {
-                // Since these are independent, you can eventually use Promise.all 
-                // to fetch them in parallel for better performance
-                console.log("Fetching Solar Data from:", urls.fof2);
-                console.log("Fetching Solar Data from:", urls.flux);
-                console.log("Fetching Solar Data from:", urls.scales);
-                console.log("Fetching Solar Data from:", urls.indices);
-
-                // Your fetch logic goes here...
 
             } catch (error) {
-                console.error("Solar  Error:", error);
             }
         },
 
@@ -286,14 +289,10 @@ export default {
                     }
                 }
 
-                // 3. Save to your shared state
                 this.stg.solar.current.geoMagnetic.aIndex = aIndex;
                 this.stg.solar.current.geoMagnetic.kIndex = kIndex;
 
-                console.log(`Solar: A-Index ${aIndex}, K-Index ${kIndex}`);
-
             } catch (error) {
-                console.error("Geomagnetic fetch failed:", error);
             }
         },
 
@@ -308,7 +307,6 @@ export default {
                 // NOAA returns an array of objects. We want the latest one (index 0).
                 if (data && data.length > 0) {
                     const currentFlux = parseFloat(data[0].flux);
-                    console.log(`Solar: Flux ${typeof (currentFlux)}`);
 
                     // Save to state - make sure the variable name matches (currentFlux)
                     this.stg.solar.current.geoMagnetic.flux = currentFlux;
@@ -317,22 +315,22 @@ export default {
 
 
             } catch (error) {
-                console.error("SolarFlux fetch failed:", error);
+
             }
         },
         async fetchIonosphere() {
             const home = this.stg.lightning.homeLocation;
 
             if (!home || !home.lat || !home.lon) {
-                console.warn("Ionosphere fetch skipped: homeLocation undefined.");
+
                 return;
             }
 
             const url = `/api-kc2g/api/point_prediction.json?grid=${home.lat},${home.lon}`;
             const unit = this.stg.units.distance.toLowerCase() === 'km' ? 1 : 0.621371;
-            // console.log(unit);
+
             try {
-                console.log(url);
+
                 const response = await fetch(url);
                 const data = await response.json();
 
@@ -349,14 +347,11 @@ export default {
 
                 this.stg.solar.current.ionosphere = {
                     fof2: fof2.toFixed(2),
-                    hmf2: Math.round(hmf2 * unit),
+                    hmf2: hmf2.toFixed(1),
                     mufd: mufd.toFixed(2),
                     timestamp: formattedTime
                 };
-
-                console.log("Ionosphere updated:", this.stg.solar.current.ionosphere);
             } catch (e) {
-                console.error("Ionosphere fetch error:", e);
             }
         },
 
@@ -385,7 +380,7 @@ export default {
                     }
                 };
             } catch (e) {
-                console.error("Scales fetch error:", e);
+
             }
         },
         getSFIColor(sFi) {
@@ -430,28 +425,21 @@ export default {
 </script>
 
 <style scoped>
-/* Find your card class */
 .solarCard {
     background-color: var(--surface-color);
-    /* Automatically swaps! */
+
     color: var(--text-primary);
     border: 1px solid var(--text-secondary);
 }
 
 .border-white-op {
-    /* This specifically targets the top border created by 'border-t-lg' */
     border-top-color: var(--divider-color) !important;
-
-    /* This makes the line thinner (1px instead of the 'lg' chunky 4px) */
     border-top-width: 1px !important;
-
-    /* Ensures it doesn't try to draw borders on the other 3 sides */
     border-left: none;
     border-right: none;
     border-bottom: none;
 }
 
-/* For your v-btn or custom buttons */
 .my-button {
     background-color: var(--btn-bg);
     color: var(--text-primary);
@@ -466,39 +454,29 @@ export default {
     color: var(--text-muted) !important;
     font-size: 0.75rem;
     font-weight: 500;
-    /* Makes them slightly bolder for better legibility */
 }
 
-/* For specific data text */
 .ionosphere-value {
     color: var(--value-text) !important;
     font-weight: bold;
 }
 
-/* Decompressed Grid: 10px padding for breathing room */
 .metrics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    /* Keep your columns */
 }
 
 .metric-cell {
     display: flex;
-    /* Turn on flexbox */
     align-items: center;
-    /* Vertically center icon and text */
     justify-content: flex-start;
-    /* Push everything to the left */
     padding: 4px 8px;
-    /* Add some internal breathing room */
     gap: 8px;
-    /* This is the MAGIC: fixed gap between icon and value */
 }
 
 .metric-cell .label {
     display: flex;
     min-width: 40px;
-    /* Ensures icons line up vertically regardless of width */
     justify-content: center;
 }
 
@@ -510,20 +488,17 @@ export default {
     font-family: 'Roboto Mono', monospace;
 }
 
-/* This targets the 'empty' track of the progress linear */
 .v-progress-linear {
     background-color: var(--divider-color) !important;
     overflow: hidden;
 }
 
-/* Ensure the probability labels use your muted variable */
 .prob-label {
     color: var(--text-muted) !important;
     font-weight: 600;
     width: 65px;
 }
 
-/* The percentage numbers can use your primary text color */
 .prob-percent {
     color: var(--text-primary) !important;
     width: 35px;
