@@ -11,10 +11,6 @@ export default defineConfig({
     }),
     Vuetify({
       autoImport: true,
-      // NOTE: Ensure src/styles/settings.scss actually exists!
-      /*   styles: {
-        configFile: 'src/styles/settings.scss',
-      },*/
     }),
     Fonts({
       fontsource: {
@@ -27,7 +23,10 @@ export default defineConfig({
         ],
       },
     }),
-  ],
+  ], // This ends the plugins array
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
   define: { 'process.env': {} },
   resolve: {
     alias: {
@@ -38,7 +37,6 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // This is the "bridge" to the lightning data
       '/blitz-js': {
         target: 'https://www.blitzortung.org/en/JS/live_lightning_maps.js',
         changeOrigin: true,
@@ -49,7 +47,7 @@ export default defineConfig({
         target: 'https://prop.kc2g.com',
         changeOrigin: true,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) YourAppName/1.0',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) StationDashboard/1.0',
           Referer: 'https://prop.kc2g.com/',
         },
         rewrite: (path) => path.replace(/^\/api-kc2g/, ''),
