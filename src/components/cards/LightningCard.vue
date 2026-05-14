@@ -93,7 +93,7 @@
             <!-- 2. Sparkline (Always visible if history exists) -->
             <div v-if="stg.lightning.history.length > 0" class="sparkline-container mt-2" style="position: relative;">
                 <v-sparkline :model-value="sparklineValues" :gradient="['#4caf50', '#ffeb3b', '#f44336']" smooth="100"
-                    line-width="2" height="75" fill padding="3"></v-sparkline>
+                    line-width=" 2" height="100" fill padding="3" :min="0"></v-sparkline>
                 <div style="
                     position: absolute; 
                     bottom: 5px; 
@@ -135,7 +135,7 @@
                                     </v-col>
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ convertedDistance }}<span class="text-caption ml-1">{{ stg.units.distance
-                                            }}</span>
+                                        }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -185,6 +185,7 @@ export default {
             heartbeat: null,
             panel: null,
             instanceId: null,
+            isConnecting: false,
             // lightningTimeout: null,
         };
     },
@@ -201,7 +202,11 @@ export default {
     beforeUnmount() {
         if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
         if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+        this.connection.onclose = null; // Prevent the 5s reconnection loop
         if (this.connection) this.connection.close();
+        if (this.trendTimer) {
+            clearInterval(this.trendTimer);
+        }
     },
 
     mounted() {
@@ -227,6 +232,10 @@ export default {
         this.thunderPlayer = new Audio('/sounds/thunder.mp3');
         this.thunderPlayer.load();
         this.updateFrequency();
+        this.trendTimer = setInterval(() => {
+            this.calculateTrend();
+        }, 5000);
+
         // this.startExpiryTimer();
         console.log("LIGHTNING CARD MOUNTED - (Should only happen once!)");
         this.establishConnection();
@@ -278,6 +287,10 @@ export default {
         },
 
         async connect() {
+            if (this.isConnecting) return;
+
+            this.isConnecting = true;
+
             try {
 
                 const response = await fetch('/blitz-js');
@@ -304,13 +317,15 @@ export default {
         establishConnection() {
 
             if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
+
             if (this.connection) {
                 this.connection.onclose = null; // Prevent recursion
                 this.connection.close();
             }
             const { lightning } = this.stg;
+
+            this.stg.lightning.currentServerIndex = (this.stg.lightning.currentServerIndex + 1) % lightning.wssServers.length;
             const serverNum = lightning.wssServers[this.stg.lightning.currentServerIndex];
-            // const wssUrl = `wss://ws${serverNum}.blitzortung.org`;
             const wssUrl = `wss://ws${serverNum}.blitzortung.org`;
 
             console.log(`Connecting to: ${wssUrl}`);
@@ -323,7 +338,6 @@ export default {
                     if (this.connection.readyState === WebSocket.OPEN) {
                         const payload = JSON.stringify({ a: this.authKey });
                         this.connection.send(payload);
-                        console.log(`Handshake SENT at ${new Date().toLocaleTimeString()}: ${payload}`);
                     }
                 }, 1000);
 
@@ -350,6 +364,7 @@ export default {
 
                     if (strike.lat !== undefined && strike.lon !== undefined) {
                         // PASS TO THE GATEKEEPER
+                        //   console.log(strike);
                         this.processIncomingStrike(strike);
                     }
                 } catch (e) {
@@ -357,17 +372,26 @@ export default {
                 }
             };
 
-            this.connection.onclose = () => {
+            this.connection.onclose = (event) => { // Added 'event' here
                 if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
-                console.log(`WebSocket Closed: Code ${event.code}, Reason: ${event.reason}`);
-                this.currentServerIndex = (this.currentServerIndex + 1) % this.lightning.wssServers.length;
 
-                console.log(`Server ${serverNum} closed. Rotating to next server in 5s...`);
+                // 1. Fix: event was undefined
+                console.log(`WebSocket Closed: Code ${event.code}, Reason: ${event.reason}`);
+
+                // 2. Fix: Use the full path to your reactive state
+                const { lightning } = this.stg;
+                this.stg.lightning.currentServerIndex = (this.stg.lightning.currentServerIndex + 1) % lightning.wssServers.length;
+
+                // 3. Fix: serverNum was local to establishConnection, pull it from state instead
+                const currentServer = lightning.wssServers[this.stg.lightning.currentServerIndex];
+                console.log(`Connection lost. Rotating to next server (Index: ${this.stg.lightning.currentServerIndex}) in 5s...`);
+
                 setTimeout(() => this.establishConnection(), 5000);
             };
 
             this.connection.onerror = (err) => {
-                console.error("WebSocket Error:", err);
+                // This looks good, but close() will trigger the onclose above
+                console.error("WebSocket Error detected. Closing for rotation.");
                 this.connection.close();
             };
         },
@@ -388,7 +412,7 @@ export default {
                 Math.cos(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
             // console.log("Strike Decoded:", data.lat, data.lon);
             const dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-
+            //  console.log(dist);
             // 2. THE GATEKEEPER
             // Only strikes within the Area (50Mi in your screenshot) get recorded
             if (dist <= this.stg.lightning.searchRadius) {
@@ -414,78 +438,8 @@ export default {
                 this.updateFrequency();
                 this.playThunder();
                 this.calculateTrend();
-
-                console.log(`Local Strike: ${dist}mi @ ${bearing}°`);
             }
         },
-        // rateLimitIncomingStrikes(data) {
-        //     if (!data || data.lat === undefined || data.lon === undefined) return;
-
-        //     this.temporaryBuffer.push({
-        //         lat: data.lat,
-        //         lon: data.lon,
-        //         time: data.time || Date.now()
-        //     });
-
-        //     // If a timer is already running, don't do anything.
-        //     // This allows the buffer to fill up and process every 500ms 
-        //     // instead of waiting for a "pause" in the storm that may never come.
-        //     if (!this.lightningTimeout) {
-        //         this.lightningTimeout = setTimeout(() => {
-        //             this.processIncomingStrike();
-        //             this.lightningTimeout = null; // Reset the gatekeeper
-        //         }, 500);
-        //     }
-        // },
-
-        // processIncomingStrike() { // Remove the 'data' argument here
-        //     if (this.temporaryBuffer.length === 0) return;
-
-        //     const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
-        //     const toRad = (v) => (v * Math.PI) / 180;
-        //     const isMi = this.stg.units.distance.toLowerCase() === 'mi';
-        //     const R = isMi ? 3958.8 : 6371;
-
-        //     // --- NEW: LOOP THROUGH THE BUFFER ---
-        //     this.temporaryBuffer.forEach(data => {
-        //         // 1. Calculate Distance
-        //         const dLat = toRad(data.lat - home.lat);
-        //         const dLon = toRad(data.lon - home.lon);
-        //         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        //             Math.cos(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-        //         const dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-
-        //         // 2. THE GATEKEEPER
-        //         if (dist <= this.stg.lightning.searchRadius) {
-        //             const y = Math.sin(toRad(data.lon - home.lon)) * Math.cos(toRad(data.lat));
-        //             const x = Math.cos(toRad(home.lat)) * Math.sin(toRad(data.lat)) -
-        //                 Math.sin(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.cos(toRad(data.lon - home.lon));
-        //             const bearing = Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360);
-
-        //             // Record the strike
-        //             this.stg.lightning.history.push({
-        //                 time: data.time || Date.now(),
-        //                 distance: dist,
-        //                 bearing: bearing
-        //             });
-
-        //             // Update UI State for the most recent one in the batch
-        //             this.stg.lightning.currentStorm.distance = dist;
-        //             this.stg.lightning.currentStorm.bearing = bearing;
-        //         }
-        //     });
-
-        //     // 3. RUN THESE ONCE PER BATCH (Outside the loop)
-        //     if (this.temporaryBuffer.length > 0) {
-        //         this.updateFrequency();
-        //         this.playThunder();
-        //         this.calculateTrend();
-        //     }
-
-        //     // --- IMPORTANT: CLEAR THE BUFFER FOR THE NEXT BURST ---
-        //     this.temporaryBuffer = [];
-        // },
 
 
         startExpiryTimer() {
@@ -565,44 +519,51 @@ export default {
         },
 
         calculateTrend() {
-            const h = this.stg.history;
-            const config = this.stg.config;
-            const sampleSize = Number(this.stg.lightning.sampleSize) || 20;
-            const sensitivity = Number(this.lightning.sensitivity) || 2;
-
-            if (h.length < sampleSize) {
-                this.stg.lightning.currentStorm.trend = 'Stationary';
+            // 1. Guard against the entire state object being missing
+            if (!this.stg || !this.stg.lightning || !Array.isArray(this.stg.lightning.history)) {
                 return;
             }
 
+            const lightning = this.stg.lightning;
+            const h = this.stg.lightning.history;
+            const config = this.stg.config || {};
+            const sampleSize = Number(lightning.sampleSize) || 20;
+            const sensitivity = Number(lightning.sensitivity) || 5;
+
+            if (h.length < sampleSize) {
+                lightning.currentStorm.trend = 'Stationary';
+                return;
+            }
+
+            // 3. Define the window BEFORE logging it
             const window = h.slice(-sampleSize);
             let diff = 0;
 
             if (config.algorithm === 'Percentile (Balanced)') {
                 // 1. Sort the current window by distance
-                const sorted = [...window].sort((a, b) => a.dist - b.dist);
+                const sorted = [...window].sort((a, b) => a.distance - b.distance);
                 // 2. Calculate the 20th percentile index
                 const idx = Math.floor(0.2 * (sorted.length - 1));
-                const currentRefDist = sorted[idx].dist;
+                const currentRefDist = sorted[idx].distance;
 
                 // 3. To find the trend, we compare this percentile to the previous one
                 // (or compare the first half of the window vs the second half using percentiles)
                 const mid = Math.floor(window.length / 2);
-                const oldSorted = [...window.slice(0, mid)].sort((a, b) => a.dist - b.dist);
-                const newSorted = [...window.slice(-mid)].sort((a, b) => a.dist - b.dist);
+                const oldSorted = [...window.slice(0, mid)].sort((a, b) => a.distance - b.distance);
+                const newSorted = [...window.slice(-mid)].sort((a, b) => a.distance - b.distance);
 
                 const oldIdx = Math.floor(0.2 * (oldSorted.length - 1));
                 const newIdx = Math.floor(0.2 * (newSorted.length - 1));
 
-                diff = oldSorted[oldIdx].dist - newSorted[newIdx].dist;
+                diff = oldSorted[oldIdx].distance - newSorted[newIdx].distance;
 
             } else if (config.algorithm === 'Closest Strike (Fastest)') {
-                diff = window[0].dist - window[window.length - 1].dist;
+                diff = window[0].distance - window[window.length - 1].distance;
             } else {
                 // Average (Smoother)
                 const mid = Math.floor(window.length / 2);
-                const oldAvg = window.slice(0, mid).reduce((a, b) => a + b.dist, 0) / mid;
-                const newAvg = window.slice(-mid).reduce((a, b) => a + b.dist, 0) / mid;
+                const oldAvg = window.slice(0, mid).reduce((a, b) => a + b.distance, 0) / mid;
+                const newAvg = window.slice(-mid).reduce((a, b) => a + b.distance, 0) / mid;
                 diff = oldAvg - newAvg;
             }
 
@@ -616,33 +577,6 @@ export default {
             }
         },
 
-
-
-        // updateFrequency() {
-        //     console.log("Total History Count:", this.stg.lightning.history.length);
-        //     console.log("Sample Strike Time:", this.stg.lightning.history[0]?.time);
-        //     console.log("Comparison Time (One Min Ago):", Date.now() - 60000);
-        //     console.log("Current Search Radius:", radius);
-        //     console.log("First 5 Distances in History:", this.stg.lightning.history.slice(0, 5).map(s => s.distance));
-        //     const oneMinuteAgo = Date.now() - 60000;
-        //     const tenMinutesAgo = Date.now() - (60000 * 10);
-        //     const radius = Number(this.stg.lightning?.searchRadius || 50);
-
-        //     // We define 'localStrikes' here so the browser knows what it is
-        //     const localStrikes = this.stg.lightning.history.filter(s => {
-        //         return s.time > tenMinutesAgo && Number(s.distance) <= radius;
-        //     });
-
-        //     const freq = localStrikes.length;
-
-        //     // Update the UI state
-        //     this.stg.lightning.currentStorm.frequency = freq;
-
-        //     // If you use a shared state object:
-        //     if (this.shared?.lightning) {
-        //         this.shared.lightning.frequency = freq;
-        //     }
-        // },
 
         updateFrequency() {
             const now = Date.now();
@@ -687,7 +621,6 @@ export default {
         playThunder() {
             // Check the Gatekeeper
             if (this.stg.lightning.isMuted) {
-                console.log("🔇 Mute is ON - skipping audio");
                 return;
             }
 
@@ -759,12 +692,9 @@ export default {
             const resetMinutes = this.stg.lightning.resetTime || 10;
             const now = Date.now();
             const windowMs = resetMinutes * 60 * 1000;
-
-            // We use a fixed 1000 mile ceiling for the graph scale
-            const graphMax = 1000;
-
-            const bucketCount = 60;
+            const bucketCount = 120;
             const buckets = new Array(bucketCount).fill(0);
+            const maxDist = this.stg.lightning.searchRadius || 100;
 
             // Use stg.lightning.history directly to ensure we see everything in memory
             if (this.stg.lightning.history && this.stg.lightning.history.length > 0) {
@@ -782,9 +712,8 @@ export default {
                         if (bucketIndex >= 0 && bucketIndex < bucketCount) {
                             // Calculate intensity: Closer = Higher
                             // Formula: ((Max - Distance) / Max) * 100
-                            let intensity = Math.max(5, ((1000 - strike.distance) / 1000) * 100);
-
-                            // Ensure a minimum visibility bump of 5% even for far strikes
+                            let intensity = Math.max(5, ((maxDist - strike.distance) / maxDist) * 100);
+                            // let intensity = 20 + (((maxDist - strike.distance) / maxDist) * 80);
                             intensity = Math.max(5, intensity);
 
                             if (intensity > buckets[bucketIndex]) {

@@ -116,7 +116,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-INSTALL_DIR="$HOME/openhamclock"
+INSTALL_DIR="$HOME/skycard"
 SERVICE_NAME="Station-Dashboard"
 NODE_VERSION="22"
 

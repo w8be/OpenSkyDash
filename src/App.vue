@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar color="#1e3838" density="compact">
       <v-app-bar-title class="text-brown-lighten-4"><v-icon icon="mdi-monitor-dashboard" color="primary"
-          size="small"></v-icon> {{ stg?.ui?.appName || 'Dashboard' }}</v-app-bar-title>
+          size="small"></v-icon> {{ stg?.ui?.appName || 'SkyDash' }}</v-app-bar-title>
       <v-spacer></v-spacer>
       <div class="pa-4 text-h6 text-brown-lighten-4">{{ currentTime }}</div>
     </v-app-bar>
@@ -19,7 +19,8 @@
           <v-tab value="lightning"><v-icon icon="mdi-flash" color="amber" size="small" class="mr-1"
               :class="{ 'pulsing-icon': (shared.lightning.frequency > 0) }">
             </v-icon></v-tab>
-          <v-tab value="solar"><v-icon icon="mdi-white-balance-sunny" color="error" size="small" class="mr-1">
+          <v-tab value="solar"><v-icon icon="mdi-sun-wireless" color="error" size="small" class="mr-1"
+              :class="{ 'pulsing-icon': (shared.solar.current.scales.current.g > 0) }">
             </v-icon></v-tab>
           <v-tab value="settings"><v-icon icon="mdi-cog" color="grey" size="small">
             </v-icon></v-tab>
@@ -75,8 +76,7 @@ export default {
       cfg: settings,
       activeTab: 'weather',
       shared: reactive(window.G_STATE || globalState),
-      currentTime: '',
-
+      currentTime: ''
     };
   },
   mounted() {
@@ -85,25 +85,8 @@ export default {
   },
 
   watch: {
-    // 'stg.ui.theme': {
-    //   handler(newTheme) {
-    //     const isDark = newTheme === 'dark';
-
-    //     // 1. Tell Vuetify to switch its internal engine
-    //     this.theme.global.name = newTheme;
-
-    //     // 2. Toggle the CSS class for any custom non-Vuetify styles
-    //     document.documentElement.classList.toggle('dark', isDark);
-
-    //     // 3. Persist to localStorage
-    //     localStorage.setItem('theme', newTheme);
-
-    //     console.log("Theme switched to:", newTheme);
-    //   },
-    //   immediate: true,
-    // },
     'stg.ui.activeTab'(newVal) {
-      console.log('Tab Changed to:', newVal);
+      //   console.log('Tab Changed to:', newVal);
     }
   },
 

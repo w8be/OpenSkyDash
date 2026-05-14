@@ -5,13 +5,13 @@
         <div class="d-flex justify-space-between align-center header-bg px-3 py-2"
             style="position: relative; z-index: 10;">
             <div class="d-flex align-center">
-                <v-icon icon="mdi-white-balance-sunny" color="error" size="large" </v-icon>
-                    <div class="d-flex flex-column align-start ml-2">
-                        <span class="text-subtitle-1 font-weight-bold stat-value"
-                            style="line-height: 1.0rem; font-size: 1.2rem;">Solar</span>
-                        <span class="text-grey-darken-1" style="font-size: 0.55rem;">NOAA.org / KC2G.com {{
-                            stg.solar.current.ionosphere.timestamp }}</span>
-                    </div>
+                <v-icon icon="mdi-sun-wireless" color="error" size="large"> </v-icon>
+                <div class="d-flex flex-column align-start ml-2">
+                    <span class="text-subtitle-1 font-weight-bold stat-value"
+                        style="line-height: 1.0rem; font-size: 1.2rem;">Solar</span>
+                    <span class="text-grey-darken-1" style="font-size: 0.55rem;">NOAA.org / KC2G.com {{
+                        stg.solar.current.ionosphere.timestamp }}</span>
+                </div>
             </div>
         </div>
         <div>
@@ -34,7 +34,7 @@
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.aIndex }}</span>
                     </v-progress-circular>
-                    <div class="text-subtitle-2 mt-1  stat-value">A</div>
+                    <div class="text-subtitle-2 mt-1 stat-value" v-tooltip:bottom="'Planetary Ap'">A</div>
                 </v-col>
 
                 <!-- K-Index Gauge: Max 9 -->
@@ -44,7 +44,7 @@
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.kIndex }}</span>
                     </v-progress-circular>
-                    <div class="text-subtitle-2 mt-1  stat-value">K</div>
+                    <div class="text-subtitle-2 mt-1 stat-value" v-tooltip:bottom="'Planetary Kp'">K</div>
                 </v-col>
             </v-row>
         </div>
@@ -95,15 +95,15 @@
 
         <div><v-row no-gutters justify="center" class="mt-2 mb-2">
                 <v-col v-for="(val, key) in stg.solar.current.scales.current" :key="key" cols="3" class="mx-1">
-                    <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val)" theme="light">
+                    <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)" theme="light">
                         <!-- The Big Letter -->
                         <div class="text-h4 font-weight-black pt-1" style="line-height: 1;">
-                            {{ key.toUpperCase() }}
+                            {{ key.toUpperCase() }} {{ val > 0 ? val : '' }}
                         </div>
 
                         <!-- The Status Text -->
-                        <v-sheet class="mt-1 py-0 text-caption font-weight-bold" :color="getScaleColor(val, true)">
-                            {{ val > 0 ? val : 'none' }}
+                        <v-sheet class="mt-1 py-0  font-weight-bold" :color="getScaleColor(val, true)">
+                            {{ getScaleCondition(val) }}
                         </v-sheet>
                     </v-card>
                 </v-col>
@@ -120,7 +120,7 @@
                     <v-expansion-panel-text class="px-4 pb-4">
                         <!-- R1-R2 Probability -->
                         <div class="d-flex align-center mb-2">
-                            <span class="text-caption mr-2 prob-label">R1-R2</span>
+                            <span class="mr-2 prob-label">R1-R2</span>
                             <v-progress-linear :model-value="stg.solar.current.scales.probabilities.rMinor"
                                 color="yellow-darken-2" height="8" rounded></v-progress-linear>
                             <span class="text-caption ml-2 prob-percent">{{
@@ -129,7 +129,7 @@
 
                         <!-- R3-R5 Probability -->
                         <div class="d-flex align-center mb-2">
-                            <span class="text-caption mr-2 prob-label">R3-R5</span>
+                            <span class=" mr-2 prob-label">R3-R5</span>
                             <v-progress-linear :model-value="stg.solar.current.scales.probabilities.rMajor"
                                 color="orange-darken-2" height="8" rounded></v-progress-linear>
                             <span class="text-caption ml-2 prob-percent">{{
@@ -138,7 +138,7 @@
 
                         <!-- S1+ Probability -->
                         <div class="d-flex align-center mb-1">
-                            <span class="text-caption mr-2 prob-label">S1+</span>
+                            <span class="mr-2 prob-label">S1+</span>
                             <v-progress-linear :model-value="stg.solar.current.scales.probabilities.sStorm"
                                 color="red-darken-2" height="8" rounded></v-progress-linear>
                             <span class="text-caption ml-2 prob-percent">{{
@@ -185,6 +185,9 @@ export default {
     },
     mounted() {
 
+        window.dashboard = this.stg;
+        console.log("Dashboard state exposed to console as 'window.dashboard'");
+
         if (this.solarTimer) clearInterval(this.solarTimer);
 
         const saved = localStorage.getItem('station_config_v1');
@@ -196,6 +199,7 @@ export default {
             }
         } else {
         }
+
 
         this.fetchSolarData();
         this.fetchGeomagneticIndices();
@@ -412,12 +416,28 @@ export default {
             // Default "None" (Green)
             let color = '#92d050';
 
-            if (val >= 4) color = '#ff0000';      // Extreme (Red)
-            else if (val >= 3) color = '#ffc000'; // Strong (Orange)
-            else if (val >= 1) color = '#ffff00'; // Minor/Moderate (Yellow)
+            if (val === 5) color = '#C80000';
+            else if (val === 4) color = '#FF0000';
+            else if (val === 3) color = '#FF9600';
+            else if (val === 2) color = '#FFC800';
+            else if (val === 1) color = '#F6EB14';
 
             // Optional: Return a darker/different shade for the bottom label bar
             return color;
+        },
+        getScaleCondition(value, isLabel = false) {
+            const val = parseInt(value) || 0;
+
+            let condition = 'None';
+
+            if (val === 5) condition = 'Extreme';
+            else if (val === 4) condition = 'Severe';
+            else if (val === 3) condition = 'Strong';
+            else if (val === 2) condition = 'Moderate';
+            else if (val === 1) condition = 'Minor';
+            else if (val === 0) condition = 'Quiet';
+
+            return condition;
         }
     },
 };
@@ -446,18 +466,18 @@ export default {
 }
 
 .stat-value {
-    color: var(--value-text);
+    color: #D7CCC8;
     font-weight: bold;
 }
 
 .label-caption {
-    color: var(--text-muted) !important;
+    color: #D7CCC8 !important;
     font-size: 0.75rem;
     font-weight: 500;
 }
 
 .ionosphere-value {
-    color: var(--value-text) !important;
+    color: #D7CCC8 !important;
     font-weight: bold;
 }
 
@@ -480,6 +500,9 @@ export default {
     justify-content: center;
 }
 
+.text-caption {
+    color: #D7CCC8
+}
 
 .val {
     font-size: 0.80rem;
@@ -489,18 +512,18 @@ export default {
 }
 
 .v-progress-linear {
-    background-color: var(--divider-color) !important;
+    background-color: #D7CCC8) !important;
     overflow: hidden;
 }
 
 .prob-label {
-    color: var(--text-muted) !important;
+    color: #D7CCC8 !important;
     font-weight: 600;
     width: 65px;
 }
 
 .prob-percent {
-    color: var(--text-primary) !important;
+    color: #D7CCC8 !important;
     width: 35px;
     text-align: right;
 }

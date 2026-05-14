@@ -1,7 +1,6 @@
 // plugins/vuetify.ts
 import { createVuetify } from 'vuetify'
 
-// Try this path instead - it's the more common export for Labs
 import * as labsComponents from 'vuetify/labs/components'
 
 import '@mdi/font/css/materialdesignicons.css'

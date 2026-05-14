@@ -88,7 +88,7 @@ const defaultSettings = reactive({
     showAttribution: true,
     activeTab: 'settings',
     // panel: null, // Fixed auto-open bug by setting to null
-    appName: 'Station Dashboard',
+    appName: 'SkyDash',
   },
 })
 
