@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# OpenHamClock - Raspberry Pi Setup Script
+# Station-Dashboard - Raspberry Pi Setup Script
 #
 # ═══════════════════════════════════════════════════════════════════
 # SUPPORTED HARDWARE
@@ -65,7 +65,7 @@
 #   1. Updates system packages (apt-get update && upgrade)
 #   2. Installs Node.js 22 LTS via NodeSource
 #   3. Installs system dependencies (Chromium, fonts, display tools)
-#   4. Clones or updates the OpenHamClock repository
+#   4. Clones or updates the Station-Dashboard repository
 #   5. Runs npm install and npm run build
 #   6. Creates /home/<user>/.env from .env.example (if absent)
 #   7. Creates and enables a systemd service (openhamclock.service)
@@ -89,7 +89,7 @@
 #                 from the autostart context), then xset disables the
 #                 screensaver and unclutter hides the cursor
 #
-#   If the OpenHamClock server does not respond within 60 seconds,
+#   If the Station-Dashboard server does not respond within 60 seconds,
 #   kiosk.sh exits with an error rather than looping forever.
 #
 # ═══════════════════════════════════════════════════════════════════
@@ -122,21 +122,19 @@ NODE_VERSION="22"
 
 # Print banner
 echo -e "${BLUE}"
-echo "╔═══════════════════════════════════════════════════════════╗"
-echo "║                                                           ║"
-echo "║ ███████╗██╗  ██╗██╗   ██╗ ██████╗ █████╗ ██████╗ ██████╗  ║"
-echo "║ ██╔════╝██║ ██╔╝╚██╗ ██╔╝██╔════╝██╔══██╗██╔══██╗██╔══██╗ ║"
-echo "║ ███████╗█████╔╝  ╚████╔╝ ██║     ███████║██████╔╝██║  ██║ ║"
-echo "║ ╚════██║██╔═██╗   ╚██╔╝  ██║     ██╔══██║██╔══██╗██║  ██║ ║"
-echo "║ ███████║██║  ██╗   ██║   ╚██████╗██║  ██║██║  ██║██████╔╝ ║"
-echo "║ ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝  ║"
-echo "║                                                           ║"
-echo "║   Raspberry Pi Setup Script                               ║"
-echo "║                                                           ║"
-echo "╚═══════════════════════════════════════════════════════════╝"
-echo -e "${NC}"
-
-                                                         
+echo "╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗";
+echo "║                                                                                                                                      ║";
+echo "███████╗████████╗ █████╗ ████████╗██╗ ██████╗ ███╗   ██╗      ██████╗  █████╗ ███████╗██╗  ██╗██████╗  ██████╗  █████╗ ██████╗ ██████╗ ║";
+echo "██╔════╝╚══██╔══╝██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║      ██╔══██╗██╔══██╗██╔════╝██║  ██║██╔══██╗██╔═══██╗██╔══██╗██╔══██╗██╔══██╗║";
+echo "███████╗   ██║   ███████║   ██║   ██║██║   ██║██╔██╗ ██║█████╗██║  ██║███████║███████╗███████║██████╔╝██║   ██║███████║██████╔╝██║  ██║║";
+echo "╚════██║   ██║   ██╔══██║   ██║   ██║██║   ██║██║╚██╗██║╚════╝██║  ██║██╔══██║╚════██║██╔══██║██╔══██╗██║   ██║██╔══██║██╔══██╗██║  ██║║";
+echo "███████║   ██║   ██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║      ██████╔╝██║  ██║███████║██║  ██║██████╔╝╚██████╔╝██║  ██║██║  ██║██████╔╝║";
+echo "╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝      ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ║";
+echo "║                                                                                                                                      ║";
+echo "║   Raspberry Pi Setup Script                                                                                                          ║";
+echo "║                                                                                                                                      ║";
+echo "╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝";
+echo -e "${NC}"                                                         
 
 # Parse arguments
 KIOSK_MODE=false
@@ -196,7 +194,7 @@ install_nodejs() {
     if command -v node &> /dev/null; then
         CURRENT_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
         if [ "$CURRENT_VERSION" -ge "$NODE_VERSION" ]; then
-            echo -e "${GREEN}✓ Node.js $(node -v) already installed${NC}"
+            echo -e "${GREEN}✓ Existing Node.js v$CURRENT_VERSION detected. Skipping install to protect existing apps.${NC}"
             return
         fi
     fi
@@ -263,7 +261,7 @@ install_dependencies() {
     if [ "$SERVER_MODE" = false ]; then
         # Note: Package is 'chromium' on Raspberry Pi OS Bookworm+, 'chromium-browser' on older versions
         # Try chromium first (newer), fall back to chromium-browser (older)
-        PACKAGES="$PACKAGES unclutter xdotool x11-xserver-utils"
+        PACKAGES="$PACKAGES unclutter x11-xserver-utils"
         if apt-cache show chromium &>/dev/null; then
             PACKAGES="$PACKAGES chromium"
         else
@@ -276,8 +274,16 @@ install_dependencies() {
 }
 
 # Clone or update repository
-setup_repository() {
-    echo -e "${BLUE}>>> Setting up OpenHamClock...${NC}"
+setup_repository() {    
+    echo -e "${BLUE}>>> Setting up Station-Dashboard...${NC}"
+
+    if [ ! -f /swapfile ]; then
+        echo -e "${BLUE}>>> Creating temporary swap for build...${NC}"
+        sudo fallocate -l 1G /swapfile
+        sudo chmod 600 /swapfile
+        sudo mkswap /swapfile
+        sudo swapon /swapfile
+    fi
     
     if [ -d "$INSTALL_DIR" ]; then
         echo "Updating existing installation..."
@@ -285,7 +291,7 @@ setup_repository() {
         git pull
     else
         echo "Cloning repository..."
-        git clone https://github.com/accius/openhamclock.git "$INSTALL_DIR"
+        git clone https://github.com/w8be/Station-Dashboard "$INSTALL_DIR"
         cd "$INSTALL_DIR"
     fi
     
@@ -304,37 +310,22 @@ setup_repository() {
     echo -e "${BLUE}>>> Downloading vendor assets for privacy...${NC}"
     bash scripts/vendor-download.sh || echo -e "${YELLOW}⚠ Vendor download failed — will fall back to CDN${NC}"
 
-    # Build frontend for production
+    # Build process
+    npm install
     npm run build
 
-    # Remove dev dependencies (electron, electron-builder, etc.) after the build.
-    # This frees ~500 MB of node_modules that are not needed at runtime on the Pi.
-    npm prune --omit=dev
-    
-    # Make update script executable
-    chmod +x scripts/update.sh 2>/dev/null || true
-
-    # Create .env from the example template if it doesn't exist yet.
-    # The example defaults PORT=3001 (dev mode, to avoid conflicts with Vite).
-    # On a Pi production install everything runs on port 3000, so override that.
-    if [ ! -f .env ]; then
-        cp .env.example .env
-        # Switch to the production port used by the systemd service and kiosk
-        sed -i 's/^PORT=3001$/PORT=3000/' .env
-        # Enable server-side settings sync for Pi (single-user kiosk deployment).
-        # With SETTINGS_SYNC=true the UI reads/writes its settings (callsign, locator,
-        # layout, theme, etc.) from the server instead of browser localStorage.
-        # This means editing CALLSIGN and LOCATOR in .env and restarting the service
-        # is enough to update what is shown on screen — no manual UI step required.
-        sed -i 's/^SETTINGS_SYNC=false$/SETTINGS_SYNC=true/' .env
-        echo -e "${YELLOW}⚠ A default .env file has been created at $INSTALL_DIR/.env${NC}"
-        echo -e "${YELLOW}  Edit CALLSIGN and LOCATOR in $INSTALL_DIR/.env, then run:${NC}"
-        echo -e "${YELLOW}  sudo systemctl restart openhamclock${NC}"
-    else
-        echo -e "${GREEN}✓ Existing .env kept — not overwritten${NC}"
+    # Cleanup swap after build
+    if [ -f /swapfile ]; then
+        sudo swapoff /swapfile
+        sudo rm /swapfile
     fi
 
-    echo -e "${GREEN}✓ OpenHamClock installed to $INSTALL_DIR${NC}"
+    # Create .env if missing
+    if [ ! -f .env ]; then
+        echo "PORT=3000" > .env
+    fi
+
+    echo -e "${GREEN}✓ Station-Dashboard installed to $INSTALL_DIR${NC}"
 }
 
 # Create systemd service
@@ -352,7 +343,7 @@ create_service() {
 
     sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << EOF
 [Unit]
-Description=OpenHamClock Server
+Description=Station-Dashboard Server
 After=network.target
 
 [Service]
@@ -379,175 +370,175 @@ EOF
     echo -e "${GREEN}✓ Service created and started${NC}"
 }
 
-# Setup kiosk mode
-# setup_kiosk() {
-#     echo -e "${BLUE}>>> Configuring kiosk mode...${NC}"
+#Setup kiosk mode
+setup_kiosk() {
+    echo -e "${BLUE}>>> Configuring kiosk mode...${NC}"
     
-#     # Disable screen blanking (0 = disable, 1 = enable — keep the screen on for kiosk)
-#     sudo raspi-config nonint do_blanking 0 2>/dev/null || true
+    # Disable screen blanking (0 = disable, 1 = enable — keep the screen on for kiosk)
+    sudo raspi-config nonint do_blanking 0 2>/dev/null || true
     
-#     # Create autostart directory
-#     mkdir -p "$HOME/.config/autostart"
+    # Create autostart directory
+    mkdir -p "$HOME/.config/autostart"
     
-#     # Create kiosk launcher script
-#     cat > "$INSTALL_DIR/kiosk.sh" << 'EOF'
-# #!/bin/bash
-# # OpenHamClock Kiosk Launcher
-# # Supports Raspberry Pi OS Bookworm (X11) and Trixie (Wayland/labwc)
+    # Create kiosk launcher script
+    cat > "$INSTALL_DIR/kiosk.sh" << 'EOF'
+#!/bin/bash
+# Station-Dashboard Kiosk Launcher
+# Supports Raspberry Pi OS Bookworm (X11) and Trixie (Wayland/labwc)
 
-# # Wait for the desktop environment to be ready
-# sleep 5
+# Wait for the desktop environment to be ready
+sleep 5
 
-# # ------------------------------------------------------------------
-# # Detect display server: Wayland or X11
-# # $XDG_SESSION_TYPE is set by the session manager on both Bookworm and Trixie.
-# # Fall back to checking $WAYLAND_DISPLAY in case the variable isn't exported.
-# # ------------------------------------------------------------------
-# SESSION_TYPE="${XDG_SESSION_TYPE:-}"
-# if [ -z "$SESSION_TYPE" ] && [ -n "$WAYLAND_DISPLAY" ]; then
-#     SESSION_TYPE="wayland"
-# fi
-# if [ -z "$SESSION_TYPE" ]; then
-#     # Last resort: default to x11 so the script always does something useful
-#     SESSION_TYPE="x11"
-# fi
+# ------------------------------------------------------------------
+# Detect display server: Wayland or X11
+# $XDG_SESSION_TYPE is set by the session manager on both Bookworm and Trixie.
+# Fall back to checking $WAYLAND_DISPLAY in case the variable isn't exported.
+# ------------------------------------------------------------------
+SESSION_TYPE="${XDG_SESSION_TYPE:-}"
+if [ -z "$SESSION_TYPE" ] && [ -n "$WAYLAND_DISPLAY" ]; then
+    SESSION_TYPE="wayland"
+fi
+if [ -z "$SESSION_TYPE" ]; then
+    # Last resort: default to x11 so the script always does something useful
+    SESSION_TYPE="x11"
+fi
 
-# echo "OpenHamClock kiosk: detected session type = $SESSION_TYPE"
+echo "Station-Dashboard kiosk: detected session type = $SESSION_TYPE"
 
-# if [ "$SESSION_TYPE" = "wayland" ]; then
-#     # ------------------------------------------------------------------
-#     # Wayland path (Raspberry Pi OS Trixie with labwc)
-#     # xset and unclutter require an X server — skip them entirely.
-#     # Screen blanking is disabled system-wide via raspi-config at install time.
-#     # ------------------------------------------------------------------
-#     CHROMIUM_EXTRA_FLAGS="--ozone-platform=wayland --enable-features=UseOzonePlatform,WaylandWindowDecorations"
-# else
-#     # ------------------------------------------------------------------
-#     # X11 path (Raspberry Pi OS Bookworm with openbox/LXDE)
-#     # DISPLAY=:0 must be set explicitly — it is not always inherited when
-#     # the script is launched from an XDG autostart .desktop file.
-#     # ------------------------------------------------------------------
-#     export DISPLAY="${DISPLAY:-:0}"
+if [ "$SESSION_TYPE" = "wayland" ]; then
+    # ------------------------------------------------------------------
+    # Wayland path (Raspberry Pi OS Trixie with labwc)
+    # xset and unclutter require an X server — skip them entirely.
+    # Screen blanking is disabled system-wide via raspi-config at install time.
+    # ------------------------------------------------------------------
+    CHROMIUM_EXTRA_FLAGS="--ozone-platform=wayland --enable-features=UseOzonePlatform,WaylandWindowDecorations"
+else
+    # ------------------------------------------------------------------
+    # X11 path (Raspberry Pi OS Bookworm with openbox/LXDE)
+    # DISPLAY=:0 must be set explicitly — it is not always inherited when
+    # the script is launched from an XDG autostart .desktop file.
+    # ------------------------------------------------------------------
+    export DISPLAY="${DISPLAY:-:0}"
 
-#     # Disable screen saver and power management
-#     xset s off    2>/dev/null || true
-#     xset -dpms    2>/dev/null || true
-#     xset s noblank 2>/dev/null || true
+    # Disable screen saver and power management
+    xset s off    2>/dev/null || true
+    xset -dpms    2>/dev/null || true
+    xset s noblank 2>/dev/null || true
 
-#     # Hide mouse cursor after 1 second of inactivity
-#     unclutter -idle 1 -root &
+    # Hide mouse cursor after 1 second of inactivity
+    unclutter -idle 1 -root &
 
-#     CHROMIUM_EXTRA_FLAGS=""
-# fi
+    CHROMIUM_EXTRA_FLAGS=""
+fi
 
-# # ------------------------------------------------------------------
-# # Wait for the OpenHamClock server to be ready (max 60 seconds)
-# # ------------------------------------------------------------------
-# HEALTH_URL="http://localhost:3000/api/health"
-# MAX_WAIT=60
-# WAITED=0
-# until curl -s "$HEALTH_URL" > /dev/null 2>&1; do
-#     if [ "$WAITED" -ge "$MAX_WAIT" ]; then
-#         echo "ERROR: OpenHamClock server did not respond within ${MAX_WAIT}s."
-#         echo "Check the service: sudo systemctl status openhamclock"
-#         exit 1
-#     fi
-#     sleep 1
-#     WAITED=$((WAITED + 1))
-# done
-# echo "Server ready after ${WAITED}s."
+# ------------------------------------------------------------------
+# Wait for the Station-Dashboard server to be ready (max 60 seconds)
+# ------------------------------------------------------------------
+HEALTH_URL="http://localhost:3000/api/health"
+MAX_WAIT=60
+WAITED=0
+until curl -s "$HEALTH_URL" > /dev/null 2>&1; do
+    if [ "$WAITED" -ge "$MAX_WAIT" ]; then
+        echo "ERROR: Station-Dashboard server did not respond within ${MAX_WAIT}s."
+        echo "Check the service: sudo systemctl status openhamclock"
+        exit 1
+    fi
+    sleep 1
+    WAITED=$((WAITED + 1))
+done
+echo "Server ready after ${WAITED}s."
 
-# # ------------------------------------------------------------------
-# # Choose Chromium binary
-# # 'chromium' on Bookworm+, 'chromium-browser' on older images
-# # ------------------------------------------------------------------
-# if command -v chromium &> /dev/null; then
-#     CHROME_CMD="chromium"
-# else
-#     CHROME_CMD="chromium-browser"
-# fi
+# ------------------------------------------------------------------
+# Choose Chromium binary
+# 'chromium' on Bookworm+, 'chromium-browser' on older images
+# ------------------------------------------------------------------
+if command -v chromium &> /dev/null; then
+    CHROME_CMD="chromium"
+else
+    CHROME_CMD="chromium-browser"
+fi
 
-# # ------------------------------------------------------------------
-# # Clear stale crash-recovery prompts from unclean shutdowns
-# # Prevents the "Chromium didn't shut down correctly" bar in kiosk mode
-# # ------------------------------------------------------------------
-# KIOSK_PROFILE="$HOME/.config/openhamclock-kiosk"
-# mkdir -p "$KIOSK_PROFILE"
-# sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' "$KIOSK_PROFILE/Default/Preferences" 2>/dev/null || true
-# sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' "$KIOSK_PROFILE/Default/Preferences" 2>/dev/null || true
+# ------------------------------------------------------------------
+# Clear stale crash-recovery prompts from unclean shutdowns
+# Prevents the "Chromium didn't shut down correctly" bar in kiosk mode
+# ------------------------------------------------------------------
+KIOSK_PROFILE="$HOME/.config/openhamclock-kiosk"
+mkdir -p "$KIOSK_PROFILE"
+sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' "$KIOSK_PROFILE/Default/Preferences" 2>/dev/null || true
+sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' "$KIOSK_PROFILE/Default/Preferences" 2>/dev/null || true
 
-# # ------------------------------------------------------------------
-# # Launch Chromium in kiosk mode
-# # ------------------------------------------------------------------
-# trap 'pkill -f "chromium.*kiosk"; exit 0' SIGTERM SIGINT
+# ------------------------------------------------------------------
+# Launch Chromium in kiosk mode
+# ------------------------------------------------------------------
+trap 'pkill -f "chromium.*kiosk"; exit 0' SIGTERM SIGINT
 
-# # shellcheck disable=SC2086  # CHROMIUM_EXTRA_FLAGS is intentionally word-split
-# $CHROME_CMD \
-#     --kiosk \
-#     --noerrdialogs \
-#     --disable-infobars \
-#     --disable-session-crashed-bubble \
-#     --disable-restore-session-state \
-#     --disable-features=TranslateUI \
-#     --check-for-update-interval=31536000 \
-#     --disable-component-update \
-#     --overscroll-history-navigation=0 \
-#     --disable-pinch \
-#     --password-store=basic \
-#     --user-data-dir="$HOME/.config/openhamclock-kiosk" \
-#     $CHROMIUM_EXTRA_FLAGS \
-#     http://localhost:3000 &
+# shellcheck disable=SC2086  # CHROMIUM_EXTRA_FLAGS is intentionally word-split
+$CHROME_CMD \
+    --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --disable-session-crashed-bubble \
+    --disable-restore-session-state \
+    --disable-features=TranslateUI \
+    --check-for-update-interval=31536000 \
+    --disable-component-update \
+    --overscroll-history-navigation=0 \
+    --disable-pinch \
+    --password-store=basic \
+    --user-data-dir="$HOME/.config/openhamclock-kiosk" \
+    $CHROMIUM_EXTRA_FLAGS \
+    http://localhost:3000 &
 
-# CHROME_PID=$!
+CHROME_PID=$!
 
-# echo "OpenHamClock kiosk running (PID: $CHROME_PID)"
-# echo "Exit methods:"
-# echo "  - Alt+F4        (close Chromium)"
-# echo "  - Ctrl+Alt+T    (open terminal, then: pkill -f kiosk)"
-# echo "  - SSH in and run: pkill -f kiosk.sh"
+echo "Station-Dashboard kiosk running (PID: $CHROME_PID)"
+echo "Exit methods:"
+echo "  - Alt+F4        (close Chromium)"
+echo "  - Ctrl+Alt+T    (open terminal, then: pkill -f kiosk)"
+echo "  - SSH in and run: pkill -f kiosk.sh"
 
-# wait $CHROME_PID
-# EOF
+wait $CHROME_PID
+EOF
     
-#     chmod +x "$INSTALL_DIR/kiosk.sh"
+    chmod +x "$INSTALL_DIR/kiosk.sh"
     
-#     # Create autostart entry
-#     cat > "$HOME/.config/autostart/openhamclock-kiosk.desktop" << EOF
-# [Desktop Entry]
-# Type=Application
-# Name=OpenHamClock Kiosk
-# Exec=$INSTALL_DIR/kiosk.sh
-# Hidden=false
-# X-GNOME-Autostart-enabled=true
-# EOF
+    # Create autostart entry
+    cat > "$HOME/.config/autostart/openhamclock-kiosk.desktop" << EOF
+[Desktop Entry]
+Type=Application
+Name=Station-Dashboard Kiosk
+Exec=$INSTALL_DIR/kiosk.sh
+Hidden=false
+X-GNOME-Autostart-enabled=true
+EOF
     
-#     # Configure boot for faster startup.
-#     # Bookworm and later (including Trixie) moved the config to /boot/firmware/config.txt.
-#     # Bullseye and older use /boot/config.txt.
-#     if [ -f /boot/firmware/config.txt ]; then
-#         BOOT_CONFIG=/boot/firmware/config.txt
-#     elif [ -f /boot/config.txt ]; then
-#         BOOT_CONFIG=/boot/config.txt
-#     else
-#         BOOT_CONFIG=""
-#     fi
+    # Configure boot for faster startup.
+    # Bookworm and later (including Trixie) moved the config to /boot/firmware/config.txt.
+    # Bullseye and older use /boot/config.txt.
+    if [ -f /boot/firmware/config.txt ]; then
+        BOOT_CONFIG=/boot/firmware/config.txt
+    elif [ -f /boot/config.txt ]; then
+        BOOT_CONFIG=/boot/config.txt
+    else
+        BOOT_CONFIG=""
+    fi
 
-#     if [ -n "$BOOT_CONFIG" ]; then
-#         # Disable splash screen for faster boot
-#         if ! grep -q "disable_splash=1" "$BOOT_CONFIG"; then
-#             echo "disable_splash=1" | sudo tee -a "$BOOT_CONFIG" > /dev/null
-#         fi
+    if [ -n "$BOOT_CONFIG" ]; then
+        # Disable splash screen for faster boot
+        if ! grep -q "disable_splash=1" "$BOOT_CONFIG"; then
+            echo "disable_splash=1" | sudo tee -a "$BOOT_CONFIG" > /dev/null
+        fi
 
-#         # Allocate more GPU memory for smooth rendering
-#         if ! grep -q "gpu_mem=" "$BOOT_CONFIG"; then
-#             echo "gpu_mem=128" | sudo tee -a "$BOOT_CONFIG" > /dev/null
-#         fi
-#     else
-#         echo -e "${YELLOW}⚠ Boot config not found — skipping gpu_mem and splash settings${NC}"
-#     fi
+        # Allocate more GPU memory for smooth rendering
+        if ! grep -q "gpu_mem=" "$BOOT_CONFIG"; then
+            echo "gpu_mem=128" | sudo tee -a "$BOOT_CONFIG" > /dev/null
+        fi
+    else
+        echo -e "${YELLOW}⚠ Boot config not found — skipping gpu_mem and splash settings${NC}"
+    fi
     
-#     echo -e "${GREEN}✓ Kiosk mode configured${NC}"
-# }
+    echo -e "${GREEN}✓ Kiosk mode configured${NC}"
+}
 
 # Create helper scripts
 create_scripts() {
@@ -567,7 +558,7 @@ EOF
 sudo systemctl stop ${SERVICE_NAME}
 pkill -f chromium 2>/dev/null || true
 pkill -f unclutter 2>/dev/null || true
-echo "OpenHamClock stopped"
+echo "Station-Dashboard stopped"
 EOF
     chmod +x "$INSTALL_DIR/stop.sh"
     
@@ -575,14 +566,14 @@ EOF
     cat > "$INSTALL_DIR/restart.sh" << EOF
 #!/bin/bash
 sudo systemctl restart ${SERVICE_NAME}
-echo "OpenHamClock restarted"
+echo "Station-Dashboard restarted"
 EOF
     chmod +x "$INSTALL_DIR/restart.sh"
     
     # Status script
     cat > "$INSTALL_DIR/status.sh" << EOF
 #!/bin/bash
-echo "=== OpenHamClock Status ==="
+echo "=== Station-Dashboard Status ==="
 sudo systemctl status ${SERVICE_NAME} --no-pager
 echo ""
 echo "=== Server Health ==="
@@ -617,30 +608,30 @@ print_summary() {
     echo "    sudo journalctl -u ${SERVICE_NAME} -f"
     echo ""
     
-    # if [ "$KIOSK_MODE" = true ]; then
-    #     echo -e "  ${GREEN}Kiosk Mode:${NC} Enabled"
-    #     echo "    OpenHamClock will auto-start on boot in fullscreen"
-    #     echo ""
-    #     echo -e "    ${YELLOW}Exit kiosk:${NC}"
-    #     echo "      Alt+F4          Close Chromium"
-    #     echo "      Ctrl+Alt+T      Open terminal (then: pkill -f kiosk)"
-    #     echo "      SSH:            pkill -f kiosk.sh"
-    #     echo ""
-    #     echo -e "    ${YELLOW}Disable auto-start:${NC}"
-    #     echo "      rm ~/.config/autostart/openhamclock-kiosk.desktop"
-    #     echo ""
-    # fi
+    if [ "$KIOSK_MODE" = true ]; then
+        echo -e "  ${GREEN}Kiosk Mode:${NC} Enabled"
+        echo "    Station-Dashboard will auto-start on boot in fullscreen"
+        echo ""
+        echo -e "    ${YELLOW}Exit kiosk:${NC}"
+        echo "      Alt+F4          Close Chromium"
+        echo "      Ctrl+Alt+T      Open terminal (then: pkill -f kiosk)"
+        echo "      SSH:            pkill -f kiosk.sh"
+        echo ""
+        echo -e "    ${YELLOW}Disable auto-start:${NC}"
+        echo "      rm ~/.config/autostart/openhamclock-kiosk.desktop"
+        echo ""
+    fi
     
-    # echo -e "  ${BLUE}73 de OpenHamClock!${NC}"
-    # echo ""
+    echo -e "  ${BLUE}73 de Station-Dashboard!${NC}"
+    echo ""
     
-    # if [ "$KIOSK_MODE" = true ]; then
-    #     read -p "Reboot now to start kiosk mode? (y/N) " -n 1 -r
-    #     echo
-    #     if [[ $REPLY =~ ^[Yy]$ ]]; then
-    #         sudo reboot
-    #     fi
-    # fi
+    if [ "$KIOSK_MODE" = true ]; then
+        read -p "Reboot now to start kiosk mode? (y/N) " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            sudo reboot
+        fi
+    fi
 }
 
 # Main installation flow
@@ -653,9 +644,9 @@ main() {
     create_service
     create_scripts
     
-    # if [ "$KIOSK_MODE" = true ]; then
-    #     setup_kiosk
-    # fi
+    if [ "$KIOSK_MODE" = true ]; then
+        setup_kiosk
+    fi
     
     print_summary
 }
