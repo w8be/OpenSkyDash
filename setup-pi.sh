@@ -116,7 +116,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-INSTALL_DIR="$HOME/skycard"
+INSTALL_DIR="$HOME/station-dashboard"
 SERVICE_NAME="Station-Dashboard"
 NODE_VERSION="22"
 
@@ -322,7 +322,7 @@ setup_repository() {
 
     # Create .env if missing
     if [ ! -f .env ]; then
-        echo "PORT=3000" > .env
+        echo "PORT=5050" > .env
     fi
 
     echo -e "${GREEN}✓ Station-Dashboard installed to $INSTALL_DIR${NC}"
@@ -357,7 +357,7 @@ SuccessExitStatus=75
 Environment=NODE_ENV=production
 # PORT is read from .env; set here only as a fallback so the service always
 # has a defined value even if .env is missing or PORT is not set there.
-Environment=PORT=3000
+Environment=PORT=5050
 
 [Install]
 WantedBy=multi-user.target
@@ -434,7 +434,6 @@ fi
 # ------------------------------------------------------------------
 # Wait for the Station-Dashboard server to be ready (max 60 seconds)
 # ------------------------------------------------------------------
-HEALTH_URL="http://localhost:3000/api/health"
 MAX_WAIT=60
 WAITED=0
 until curl -s "$HEALTH_URL" > /dev/null 2>&1; do
@@ -487,7 +486,7 @@ $CHROME_CMD \
     --password-store=basic \
     --user-data-dir="$HOME/.config/openhamclock-kiosk" \
     $CHROMIUM_EXTRA_FLAGS \
-    http://localhost:3000 &
+    http://localhost:5050 &
 
 CHROME_PID=$!
 
@@ -576,8 +575,6 @@ EOF
 echo "=== Station-Dashboard Status ==="
 sudo systemctl status ${SERVICE_NAME} --no-pager
 echo ""
-echo "=== Server Health ==="
-curl -s http://localhost:3000/api/health | python3 -m json.tool 2>/dev/null || echo "Server not responding"
 EOF
     chmod +x "$INSTALL_DIR/status.sh"
     
@@ -592,14 +589,8 @@ print_summary() {
     echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "  ${BLUE}Installation Directory:${NC} $INSTALL_DIR"
-    echo -e "  ${BLUE}Web Interface:${NC} http://localhost:3000"
+    echo -e "  ${BLUE}Web Interface:${NC} http://localhost:5050"
     echo ""
-    echo -e "  ${YELLOW}Helper Commands:${NC}"
-    echo "    $INSTALL_DIR/scripts/update.sh - Update to latest version"
-    echo "    $INSTALL_DIR/start.sh          - Start server manually"
-    echo "    $INSTALL_DIR/stop.sh           - Stop everything"
-    echo "    $INSTALL_DIR/restart.sh        - Restart server"
-    echo "    $INSTALL_DIR/status.sh         - Check status"
     echo ""
     echo -e "  ${YELLOW}Service Commands:${NC}"
     echo "    sudo systemctl start ${SERVICE_NAME}"
