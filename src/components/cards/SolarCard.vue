@@ -10,7 +10,7 @@
                     <span class="text-subtitle-1 font-weight-bold stat-value"
                         style="line-height: 1.0rem; font-size: 1.2rem;">Solar</span>
                     <span class="text-grey-darken-1" style="font-size: 0.55rem;">NOAA.org / KC2G.com {{
-                        stg.solar.current.ionosphere.timestamp }}</span>
+                        lastUpdate }}</span>
                 </div>
             </div>
         </div>
@@ -22,7 +22,7 @@
                         :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic.flux)"
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.flux
-                        }}</span>
+                            }}</span>
                     </v-progress-circular>
                     <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
                 </v-col>
@@ -240,6 +240,14 @@ export default {
             return isMi
                 ? Math.round(raw * 0.621371)
                 : Math.round(raw);
+        },
+        lastUpdate() {
+            let lastUpdateString = this.stg.solar.current.ionosphere.timestamp;
+            lastUpdateString = new Date().toLocaleString('en-US', {
+                hour12: true, hour: 'numeric', minute: 'numeric'
+            });
+            return lastUpdateString;
+
         }
     },
 
