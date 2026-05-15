@@ -14,22 +14,22 @@ const port = process.env.PORT || 5050
 app.use(cors())
 
 app.get('/blitz-js', async (req, res) => {
-  console.log('>>> Request received for /blitz-js') // Log to Pi terminal
+  // console.log('>>> Request received for /blitz-js') // Log to Pi terminal
   try {
     const response = await fetch('https://www.blitzortung.org/en/JS/live_lightning_maps.js')
 
     if (!response.ok) {
-      console.error(`!!! Blitzortung returned status: ${response.status}`)
+      // console.error(`!!! Blitzortung returned status: ${response.status}`)
       return res.status(response.status).send('Blitzortung site is down or blocking the Pi.')
     }
 
     const data = await response.text()
-    console.log('>>> Successfully fetched script. Length:', data.length)
+    // console.log('>>> Successfully fetched script. Length:', data.length)
 
     res.set('Content-Type', 'application/javascript')
     res.send(data)
   } catch (error) {
-    console.error('!!! Proxy Error:', error)
+    // console.error('!!! Proxy Error:', error)
     res.status(500).send('Proxy failed to reach Blitzortung')
   }
 })
@@ -52,7 +52,7 @@ app.get('/api-kc2g/api/point_prediction.json', async (req, res) => {
   // Note the "prop." added to the URL below
   const targetUrl = `https://prop.kc2g.com/api/point_prediction.json?grid=${grid}`
 
-  console.log(`>>> Solar Proxy: Fetching from ${targetUrl}`)
+  // console.log(`>>> Solar Proxy: Fetching from ${targetUrl}`)
 
   try {
     const response = await fetch(targetUrl, {
@@ -66,7 +66,7 @@ app.get('/api-kc2g/api/point_prediction.json', async (req, res) => {
     const data = await response.json()
     res.json(data)
   } catch (error) {
-    console.error('!!! Solar Proxy Error:', error.message)
+    // console.error('!!! Solar Proxy Error:', error.message)
     res.status(500).json({ error: 'Failed to fetch solar data' })
   }
 })
