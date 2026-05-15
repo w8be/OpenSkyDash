@@ -66,7 +66,7 @@ app.get('/api-kc2g/api/point_prediction.json', async (req, res) => {
 
 // 3. The Wildcard Catch-All (Satisfies Node v24/Express 5 strictness)
 // Using (.*) is a foolproof way to catch every other path for the SPA
-app.get(/^(?!\/(api|blitz-js)).+/, (req, res) => {
+app.get(/^(?!\/(api|blitz-js|api-kc2g)).+/, (req, res) => {
   const indexPath = path.join(__dirname, 'dist', 'index.html')
 
   if (fs.existsSync(indexPath)) {
