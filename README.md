@@ -54,6 +54,28 @@ Station-Dashboard is built on selectable cards, each focused on a specific data 
 
 ---
 
+### Header
+
+The persistent bar at the top of the dashboard.
+
+- **App Name** - A configurable name to display for your station.
+- **Local Time** - Time indicator in hour, minutes and seconds that displays the current time for your locale.
+
+---
+
+### Dashboard Card icons
+
+The persistent icons that provides at-a-glance information and card selection.
+
+**From left to right:**
+
+- **Weather** — Click on the icon to open the Weather Card. The icon will update showing the current condition.
+- **Lightning** — Click on the icon to open the Lightning Card. The icon will flash when strikes are within the area or alert range.
+- **Solar** — Click on the icon to open the Solar Card. The icon will flash when a Geomagnetic storm (g1-g5) is present.
+- **Settings** — Click on the icon to open the Settings Card. All user configurable information is defined in this card.
+
+---
+
 ### Weather
 
 Current weather conditions at your station location.
@@ -87,7 +109,7 @@ Current weather conditions at your station location.
 
 **Data sources:**
 
-- **Open-Meteo** — Free weather API, no API key required. Fetched directly by each user's browser (rate limits are per-user, not per-server). Optional API key support in Settings for higher rate limits.
+- **Open-Meteo** — Free weather API, no API key required. Fetched directly by each user's browser (rate limits are per-user, not per-server).
 
 No configuration needed — weather works automatically based on your station coordinates.
 
@@ -153,24 +175,6 @@ Data gathered from `prop.kc2g.com` originates from the [Global Ionospheric Radio
 ---
 
 ---
-
----
-
-### Header Bar
-
-The persistent bar across the top of the dashboard provides at-a-glance information and quick controls.
-
-**From left to right:**
-
-- **Callsign** — Your callsign displayed prominently. Click it to open Settings.
-- **Version** — Current Station-Dashboard version number.
-- **UTC Clock** — Current UTC time in large digits with the date. Essential for logging.
-- **Local Clock** — Your local time with date. Click it to toggle between 12-hour and 24-hour format.
-- **Weather** — Current temperature (°F/°C) with weather icon and wind info on hover.
-- **SFI / K / SSN** — Live space weather indices. The K-index turns red when Kp ≥ 4 (storm conditions).
-- **Donate** — Link to support the project.
-- **Settings** — Opens the settings modal.
-- **Fullscreen** — Toggle fullscreen mode (great for dedicated shack displays).
 
 ---
 
