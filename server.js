@@ -16,7 +16,7 @@ app.use(cors())
 app.get('/blitz-js', async (req, res) => {
   console.log('>>> Request received for /blitz-js') // Log to Pi terminal
   try {
-    const response = await fetch('https://www.blitzortung.org/Data/js/blitzortung.js')
+    const response = await fetch('https://www.blitzortung.org/en/JS/live_lightning_maps.js')
 
     if (!response.ok) {
       console.error(`!!! Blitzortung returned status: ${response.status}`)
