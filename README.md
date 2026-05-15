@@ -4,8 +4,6 @@
 
 Station-Dashboard brings local weather, lightning tracking, and solar indicies into a single browser-based interface. Run it locally on a Raspberry Pi.
 
-**🌐 Live Site:** [openhamclock.com](https://openhamclock.com)
-
 **📝 License:** MIT — See [LICENSE](LICENSE)
 
 ---
@@ -46,12 +44,53 @@ Start Server - node.server.js
 
 - [Deployment](#deployment)
   - [Raspberry Pi](#raspberry-pi)
+- [Dashboard Cards](#dashboard-cards)
 
 ---
 
-## Dashboard Modules
+## Dashboard Cards
 
-Station-Dashboard is built from independent modules, each focused on a specific data source or function. Every module fetches its own data, manages its own refresh cycle, and can be toggled on or off. Below is a detailed walkthrough of each one.
+Station-Dashboard is built on selectable cards, each focused on a specific data source or function. Every card fetches its own data, manages its own refresh cycle. Below is a detailed walkthrough of each one.
+
+---
+
+### Weather
+
+Current weather conditions at your station location.
+
+**In the header:**
+
+- Weather description icon and temperature in both °F and °C
+- Last update time
+- Feels like temperature in both °F and °C
+
+**Current conditions icons**
+
+- Wind speed in both mph/km
+- Humidity
+- Gusts in both mph/km
+- Dew point in both °F and °C
+- Air pressure in in/mb
+- Cloud cover
+- Visability in mph/km
+- UV exposure
+  **_Hover over the icon to show the label_**
+
+**3 Day forecast**
+
+- Day
+- High/Low temperature
+- Chance of rain
+
+**How to use it:** The weather is shown automatically based on your configured station coordinates.
+
+**Data sources:**
+
+- **Open-Meteo** — Free weather API, no API key required. Fetched directly by each user's browser (rate limits are per-user, not per-server). Optional API key support in Settings for higher rate limits.
+
+No configuration needed — weather works automatically based on your station coordinates.
+
+**Refresh interval:** Every 15 minutes (weather data is cached server-side).
 
 ---
 
@@ -111,33 +150,6 @@ HF propagation reliability predictions between your station (DE) and whatever DX
 Data gathered from `prop.kc2g.com` originates from the [Global Ionospheric Radio Observatory](https://giro.uml.edu) who have graciously offered free access for that purpose. Thanks are given to all of the [ionosonde stations participating in that network](https://giro.uml.edu/didbase/acknowledgements.html).
 
 ---
-
----
-
-### Weather
-
-Current weather conditions at your station location, displayed in the header bar and the DE location panel and, optionally, weather at the currently selected DX target station.
-
-**In the header:**
-
-- Weather description icon and temperature in both °F and °C
-
-**Below the DE and optionally DX Location panel:**
-
-- Temperature in either °F or °C with a toggle to select which one (note that the toggle affects both the DE and DX temperature display)
-- Weather description (clear, cloudy, rain, snow, etc.) with an emoji icon
-- Humidity and wind speed
-- Collapsible detail view in the DE panel (click to expand/collapse)
-
-**How to use it:** The weather is shown automatically based on your configured station coordinates and, optionally, at the currently selected DX target station. Click the weather line in the DE/DX panel to expand full details or collapse to a one-line summary.
-
-**Data sources:**
-
-- **Open-Meteo** — Free weather API, no API key required. Fetched directly by each user's browser (rate limits are per-user, not per-server). Optional API key support in Settings for higher rate limits.
-
-No configuration needed — weather works automatically based on your station coordinates.
-
-**Refresh interval:** Every 2 hours (weather data is cached server-side).
 
 ---
 
