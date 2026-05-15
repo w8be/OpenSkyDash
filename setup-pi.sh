@@ -581,6 +581,29 @@ EOF
     echo -e "${GREEN}✓ Helper scripts created${NC}"
 }
 
+# Build and Deploy the Station-Dashboard
+deploy_dashboard() {
+    echo -e "${BLUE}>>> Deploying SkyDash Dashboard...${NC}"
+    
+    # Ensure we are in the project directory
+    # (Adjust path if your script clones it elsewhere)
+    cd /home/w8be/Station-Dashboard || { echo -e "${RED}✗ Directory not found${NC}"; return; }
+
+    echo -e "${BLUE}    Installing Node modules...${NC}"
+    npm install --quiet
+
+    echo -e "${BLUE}    Building production assets (Vite)...${NC}"
+    npm run build
+
+    echo -e "${BLUE}    Setting up Systemd Service...${NC}"
+    # This ensures the service points to the correct capitalized path
+    sudo systemctl daemon-reload
+    sudo systemctl enable Station-Dashboard
+    sudo systemctl restart Station-Dashboard
+
+    echo -e "${GREEN}✓ Dashboard deployed and running on port 5050${NC}"
+}
+
 # Print summary
 print_summary() {
     echo ""
@@ -589,7 +612,11 @@ print_summary() {
     echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "  ${BLUE}Installation Directory:${NC} $INSTALL_DIR"
-    echo -e "  ${BLUE}Web Interface:${NC} http://localhost:5050"
+    IP_ADDR=$(hostname -I | awk '{print $1}')
+    
+    echo -e "  ${BLUE}Web Interface (Local):${NC}  http://localhost:5050"
+    echo -e "  ${BLUE}Web Interface (Network):${NC} http://$IP_ADDR:5050"
+    echo -e "  ${BLUE}Web Interface (MDNS):${NC}    http://$(hostname).local:5050"
     echo ""
     echo ""
     echo -e "  ${YELLOW}Service Commands:${NC}"
@@ -634,6 +661,7 @@ main() {
     setup_repository
     create_service
     create_scripts
+    deploy_dashboard
     
     if [ "$KIOSK_MODE" = true ]; then
         setup_kiosk
