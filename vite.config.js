@@ -24,8 +24,11 @@ export default defineConfig({
       },
     }),
   ], // This ends the plugins array
-  esbuild: {
-    drop: ['console', 'debugger'],
+  build: {
+    minify: 'esbuild', // Ensures esbuild is handling the minification
+    esbuild: {
+      drop: ['console', 'debugger'], // Drops them during the final compilation
+    },
   },
   define: { 'process.env': {} },
   resolve: {
