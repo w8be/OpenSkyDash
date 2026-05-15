@@ -185,9 +185,6 @@ export default {
     },
     mounted() {
 
-        window.dashboard = this.stg;
-        console.log("Dashboard state exposed to console as 'window.dashboard'");
-
         if (this.solarTimer) clearInterval(this.solarTimer);
 
         const saved = localStorage.getItem('station_config_v1');
