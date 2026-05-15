@@ -22,7 +22,7 @@
                         :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic.flux)"
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.flux
-                            }}</span>
+                        }}</span>
                     </v-progress-circular>
                     <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
                 </v-col>
@@ -242,12 +242,22 @@ export default {
                 : Math.round(raw);
         },
         lastUpdate() {
-            let lastUpdateString = this.stg.solar.current.ionosphere.timestamp;
-            lastUpdateString = new Date().toLocaleString('en-US', {
-                hour12: true, hour: 'numeric', minute: 'numeric'
-            });
-            return lastUpdateString;
+            // 1. Get the raw value from your data store
+            const rawStamp = this.stg.solar.current.ionosphere.timestamp;
 
+            // 2. Safety check: If it's missing or not a number, show "N/A"
+            if (!rawStamp) return 'Pending...';
+
+            // 3. Create a Date object FROM the timestamp 
+            // Note: If the number is in seconds (10 digits), multiply by 1000
+            const dateObj = new Date(Number(rawStamp) * 1000);
+
+            // 4. Return the formatted string
+            return dateObj.toLocaleString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            });
         }
     },
 
