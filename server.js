@@ -48,18 +48,25 @@ app.get('/api/health', (req, res) => {
 
 // Proxy for KC2G Solar Data
 app.get('/api-kc2g/api/point_prediction.json', async (req, res) => {
-  const { grid } = req.query // Grabs the 39.2562,-77.925 from the URL
-  console.log(`>>> Fetching Solar Data for grid: ${grid}`)
+  const { grid } = req.query
+  // Note the "prop." added to the URL below
+  const targetUrl = `https://prop.kc2g.com/api/point_prediction.json?grid=${grid}`
+
+  console.log(`>>> Solar Proxy: Fetching from ${targetUrl}`)
 
   try {
-    const response = await fetch(`https://kc2g.com/api/point_prediction.json?grid=${grid}`)
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Station-Dashboard-Pi/1.0',
+      },
+    })
 
     if (!response.ok) throw new Error(`KC2G responded with ${response.status}`)
 
     const data = await response.json()
     res.json(data)
   } catch (error) {
-    console.error('!!! Solar Proxy Error:', error)
+    console.error('!!! Solar Proxy Error:', error.message)
     res.status(500).json({ error: 'Failed to fetch solar data' })
   }
 })
