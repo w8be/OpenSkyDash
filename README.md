@@ -74,7 +74,8 @@ Current weather conditions at your station location.
 - Cloud cover
 - Visability in mph/km
 - UV exposure
-  **_Hover over the icon to show the label_**
+
+- **_Hover over the icon to show the label_**
 
 **3 Day forecast**
 
