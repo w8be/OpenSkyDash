@@ -116,7 +116,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-INSTALL_DIR="$HOME/station-dashboard"
+INSTALL_DIR="$HOME/Station-Dashboard"
 SERVICE_NAME="Station-Dashboard"
 NODE_VERSION="22"
 
