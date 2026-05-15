@@ -74,7 +74,7 @@ const defaultSettings = reactive({
         fof2: 8.01,
         hmf2: 262,
         mufd: 24.7,
-        timestamp: 1777562100,
+        ts: 1777562100,
       },
       scales: {
         current: { r: 0, s: 0, g: 0 },
