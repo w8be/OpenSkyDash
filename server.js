@@ -21,7 +21,7 @@ app.get('/api/health', (req, res) => {
 })
 
 // 3. Catch-all Wildcard (Must come LAST)
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   const indexPath = path.join(__dirname, 'dist', 'index.html')
 
   if (fs.existsSync(indexPath)) {
