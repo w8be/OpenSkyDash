@@ -14,16 +14,23 @@ const port = process.env.PORT || 5050
 app.use(cors())
 
 app.get('/blitz-js', async (req, res) => {
+  console.log('>>> Request received for /blitz-js') // Log to Pi terminal
   try {
-    // We fetch the dynamic JS from Blitzortung's server
-    const response = await fetch('https://www.blitzortung.org/blitzortung.php?layout=0')
-    const data = await response.text()
+    const response = await fetch('https://www.blitzortung.org/Data/js/blitzortung.js')
 
-    // We pass that script text right through to your frontend
+    if (!response.ok) {
+      console.error(`!!! Blitzortung returned status: ${response.status}`)
+      return res.status(response.status).send('Blitzortung site is down or blocking the Pi.')
+    }
+
+    const data = await response.text()
+    console.log('>>> Successfully fetched script. Length:', data.length)
+
+    res.set('Content-Type', 'application/javascript')
     res.send(data)
   } catch (error) {
-    console.error('Error fetching Blitzortung script:', error)
-    res.status(500).send('Could not fetch lightning data')
+    console.error('!!! Proxy Error:', error)
+    res.status(500).send('Proxy failed to reach Blitzortung')
   }
 })
 
