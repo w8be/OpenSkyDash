@@ -46,6 +46,24 @@ app.get('/api/health', (req, res) => {
   })
 })
 
+// Proxy for KC2G Solar Data
+app.get('/api-kc2g/api/point_prediction.json', async (req, res) => {
+  const { grid } = req.query // Grabs the 39.2562,-77.925 from the URL
+  console.log(`>>> Fetching Solar Data for grid: ${grid}`)
+
+  try {
+    const response = await fetch(`https://kc2g.com/api/point_prediction.json?grid=${grid}`)
+
+    if (!response.ok) throw new Error(`KC2G responded with ${response.status}`)
+
+    const data = await response.json()
+    res.json(data)
+  } catch (error) {
+    console.error('!!! Solar Proxy Error:', error)
+    res.status(500).json({ error: 'Failed to fetch solar data' })
+  }
+})
+
 // 3. The Wildcard Catch-All (Satisfies Node v24/Express 5 strictness)
 // Using (.*) is a foolproof way to catch every other path for the SPA
 app.get(/^(?!\/(api|blitz-js)).+/, (req, res) => {
