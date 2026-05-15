@@ -1,5 +1,4 @@
 <template>
-
     <v-sheet value="solar" transition="fade-transition" flat class="solarCard mx-auto lightning-card bg-grey-darken-4"
         style="max-width: 300px; min-width:300px">
         <div class="d-flex justify-space-between align-center header-bg px-3 py-2"
@@ -161,21 +160,23 @@ export default {
     name: 'LightningCard',
     inheritAttrs: false,
     props: {
-        stg: {
-            type: Object,
-            required: true
-        }
+        // stg: {
+        //     type: Object,
+        //     required: true
+        // }
     },
 
     data() {
         return {
-            // stg: reactive(settings),
+            stg: reactive(settings),
             shared: window.G_STATE,
             currentServerIndex: 0,
             connection: null,
             reconnectTimer: null,
             heartbeat: null,
-            panel: null
+            panel: null,
+            displayTime: '--:--', // This is what the HTML template uses
+            solarData: {}
         };
     },
     beforeUnmount() {
@@ -242,22 +243,36 @@ export default {
                 : Math.round(raw);
         },
         lastUpdate() {
-            // 1. Get the raw value from your data store
-            const rawStamp = this.stg.solar.current.ionosphere.timestamp;
+            const raw = this.stg?.solar?.current?.ionosphere?.ts;
 
-            // 2. Safety check: If it's missing or not a number, show "N/A"
-            if (!rawStamp) return 'Pending...';
+            // Log exactly what the COMPUTED property sees
+            console.log("Computed saw raw value:", raw);
 
-            // 3. Create a Date object FROM the timestamp 
-            // Note: If the number is in seconds (10 digits), multiply by 1000
-            const dateObj = new Date(Number(rawStamp) * 1000);
+            // If it's missing entirely or explicitly 0, stop here
+            if (!raw || raw === 0) {
+                return 'Waiting for Data...';
+            }
 
-            // 4. Return the formatted string
-            return dateObj.toLocaleString('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            });
+            // IF IT'S ALREADY A FORMATTED TIME STRING, JUST RETURN IT!
+            if (typeof raw === 'string' && raw.includes(':')) {
+                return raw;
+            }
+
+            // Fallback logic for raw numbers just in case
+            try {
+                if (!isNaN(Number(raw))) {
+                    const dateObj = new Date(Number(raw) * 1000);
+                    return dateObj.toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        hour12: true
+                    });
+                }
+            } catch (e) {
+                return 'Error parsing date';
+            }
+
+            return 'Waiting for Data...';
         }
     },
 
@@ -370,7 +385,7 @@ export default {
                     fof2: fof2.toFixed(2),
                     hmf2: hmf2.toFixed(1),
                     mufd: mufd.toFixed(2),
-                    timestamp: formattedTime
+                    ts: formattedTime
                 };
             } catch (e) {
             }

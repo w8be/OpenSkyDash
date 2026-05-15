@@ -10,6 +10,9 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "axios": "^1.16.1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "vue": "^3.5.31"
   },
   "devDependencies": {
