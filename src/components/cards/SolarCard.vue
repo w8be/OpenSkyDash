@@ -477,9 +477,9 @@ export default {
 
             let text = 'None';
 
-            if (val === 'r') text = 'Radio Blackout (x-ray)';
-            else if (val === 's') text = 'Solar Storm (proton)';
-            else if (val === 'g') text = 'Geomagnetic Activity (solar wind/cme)';
+            if (val === 'R') text = 'Radio Blackout (x-ray)';
+            else if (val === 'S') text = 'Solar Storm (proton)';
+            else if (val === 'G') text = 'Geomagnetic Activity (solar wind/cme)';
 
             return text;
         }
