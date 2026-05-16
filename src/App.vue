@@ -37,7 +37,8 @@
             <SolarCard v-show="stg.ui.activeTab === 'solar'" :stg="stg" />
           </v-window-item>
           <v-window-item value="settings" eager>
-            <SettingsCard v-if="stg.ui.activeTab === 'settings'" :stg="stg" />
+            <SettingsCard v-if="stg.ui.activeTab === 'settings'" :stg="stg"
+              @update-distance="(val) => stg.units.distance = val" />
           </v-window-item>
         </v-window>
       </v-card>

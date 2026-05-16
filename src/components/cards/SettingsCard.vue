@@ -32,11 +32,10 @@
                             <span class="text-body-2 text-grey-lighten-1">Distance</span>
                         </v-col>
                         <v-col cols="4" class="d-flex justify-end">
-                            <v-btn-toggle v-model="stg.units.distance"
-                                @update:model-value="$emit('update:settings', { ...stg, units: { ...stg.units, distance: $event } })"
+                            <v-btn-toggle v-model="stg.units.distance" @update:model-value="changeDistanceUnit"
                                 mandatory color="blue-darken-2" density="compact" class="unit-toggle-group">
-                                <v-btn value="Mi" size="small" class="px-4">Mi</v-btn>
-                                <v-btn value="Km" size="small" class="px-4">Km</v-btn>
+                                <v-btn value="mi" size="small" class="px-4">Mi</v-btn>
+                                <v-btn value="km" size="small" class="px-4">Km</v-btn>
                             </v-btn-toggle>
                         </v-col>
                     </v-row>
@@ -163,6 +162,15 @@ export default {
         };
     },
     methods: {
+        changeDistanceUnit(newUnit) {
+            if (!newUnit) return;
+
+            // Force it to lowercase ('mi' or 'km') so the state engine recognizes it
+            const normalizedUnit = newUnit.toLowerCase();
+            console.log("SettingsCard: Toggling unit safely to:", normalizedUnit);
+
+            this.$emit('update-distance', normalizedUnit);
+        },
         updateLocation() {
             const newLat = parseFloat(this.localLat);
             const newLon = parseFloat(this.localLon);
@@ -173,17 +181,17 @@ export default {
             }
 
             // 1. Update Home Location (The source of truth for all cards)
-            settings.lightning.homeLocation.lat = newLat;
-            settings.lightning.homeLocation.lon = newLon;
+            this.settings.lightning.homeLocation.lat = newLat;
+            this.settings.lightning.homeLocation.lon = newLon;
 
             // 3. Update UI settings
-            settings.ui.appName = this.appName;
+            this.settings.ui.appName = this.appName;
 
             // 4. Commit the entire reactive object to LocalStorage
-            localStorage.setItem('station_config_v1', JSON.stringify(settings));
+            localStorage.setItem('station_config_v1', JSON.stringify(this.stg));
 
             console.log("Station updated successfully:",
-                newLat, newLon, settings.units.distance, settings.units.temperature);
+                newLat, newLon, this.stg?.units?.distance, this.stg?.units?.temperature);
         },
 
         saveSettings() {
