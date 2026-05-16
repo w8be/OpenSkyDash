@@ -154,7 +154,7 @@
 
 
 // import {globalState} from '../../state.js';
-import { defaultSettings } from './dashboardSettings.js';
+import settings from './dashboardSettings.js';
 import { reactive } from 'vue';
 export default {
     name: 'SolarCard',
@@ -168,7 +168,7 @@ export default {
 
     data() {
         return {
-            stg: defaultSettings,
+            stg: settings,
             shared: window.G_STATE,
             currentServerIndex: 0,
             connection: null,
