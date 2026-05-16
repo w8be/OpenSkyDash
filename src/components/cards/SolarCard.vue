@@ -94,7 +94,8 @@
 
         <div><v-row no-gutters justify="center" class="mt-2 mb-2">
                 <v-col v-for="(val, key) in stg.solar.current.scales.current" :key="key" cols="3" class="mx-1">
-                    <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)" theme="light">
+                    <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)" theme="light"
+                        v-tooltip="getTooltipContent(val, key)">
                         <!-- The Big Letter -->
                         <div class="text-h4 font-weight-black pt-1" style="line-height: 1;">
                             {{ key.toUpperCase() }} {{ val > 0 ? val : '' }}
@@ -470,6 +471,17 @@ export default {
             else if (val === 0) condition = 'Quiet';
 
             return condition;
+        },
+        getTooltipContent(value, key) {
+            const val = toLowerCase(value) || 'g';
+
+            let text = 'None';
+
+            if (val === 'r') text = 'Radio Blackout (x-ray)';
+            else if (val === 's') text = 'Solar Storm (proton)';
+            else if (val === 'g') text = 'Geomagnetic Activity (solar wind/cme)';
+
+            return text;
         }
     },
 };
