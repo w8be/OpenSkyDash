@@ -21,7 +21,7 @@
                         :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic.flux)"
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.flux
-                        }}</span>
+                            }}</span>
                     </v-progress-circular>
                     <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
                 </v-col>
@@ -473,7 +473,7 @@ export default {
             return condition;
         },
         getTooltipContent(value, key) {
-            const val = toLowerCase(value) || 'g';
+            const val = (value) || 'g';
 
             let text = 'None';
 
