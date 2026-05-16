@@ -21,7 +21,7 @@
                         :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic.flux)"
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.flux
-                            }}</span>
+                        }}</span>
                     </v-progress-circular>
                     <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
                 </v-col>
@@ -81,8 +81,7 @@
                 <v-icon icon="mdi-arrow-up-bold-box-outline" v-tooltip:top="'F2 Max Altitude'" color="amber-lighten-3"
                     size="small" class="mb-1"></v-icon>
                 <div class="text-body-2 font-weight-bold  stat-value" style="line-height: 1;">
-                    {{ convertedHmf2 }} {{ stg.units.distance.toLowerCase() === 'mi' ? 'mi' : 'km'
-                    }}
+                    {{ convertedHmf2 }} {{ distanceUnitLabel }}
                 </div>
                 <div class="text-grey-darken-1 mt-1"
                     style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -224,7 +223,7 @@ export default {
             },
             deep: true,
             immediate: true
-        }
+        },
     },
 
     computed: {
@@ -236,13 +235,20 @@ export default {
 
             if (raw === undefined || raw === null) return '--';
 
-            const unit = String(this.stg.units.distance || 'Mi').trim().toLowerCase();
+            // Safe navigation for deep units state
+            const unit = String(this.stg?.units?.distance || 'Mi').trim().toLowerCase();
             const isMi = unit === 'mi';
 
             return isMi
                 ? Math.round(raw * 0.621371)
                 : Math.round(raw);
         },
+
+        distanceUnitLabel() {
+            const unit = String(this.stg?.units?.distance || 'Mi').trim().toLowerCase();
+            return unit === 'mi' ? 'mi' : 'km';
+        },
+
         lastUpdate() {
             const raw = this.stg?.solar?.current?.ionosphere?.ts;
 
