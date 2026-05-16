@@ -94,10 +94,10 @@
 
         <div><v-row no-gutters justify="center" class="mt-2 mb-2">
                 <v-col v-for="(val, key) in stg.solar.current.scales.current" :key="key" cols="3" class="mx-1">
-                    <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)" theme="light"
-                        v-tooltip="getTooltipContent(val, key)">
+                    <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)" theme="light">
                         <!-- The Big Letter -->
-                        <div class="text-h4 font-weight-black pt-1" style="line-height: 1;">
+                        <div class="text-h4 font-weight-black pt-1" style="line-height: 1;"
+                            v-tooltip="getTooltipContent(val, key)">
                             {{ key.toUpperCase() }} {{ val > 0 ? val : '' }}
                         </div>
 
