@@ -21,7 +21,7 @@
                         :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic.flux)"
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.flux
-                        }}</span>
+                            }}</span>
                     </v-progress-circular>
                     <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
                 </v-col>
@@ -153,17 +153,18 @@
 <script>
 
 
-// import {globalState} from '../../state.js';
-import { settings } from './dashboardSettings.js';
-
 export default {
     name: 'SolarCard',
     inheritAttrs: false,
-    props: {},
+    props: {
+        stg: {
+            type: Object,
+            required: true
+        }
+    },
 
     data() {
         return {
-            stg: settings,
             shared: window.G_STATE,
             currentServerIndex: 0,
             connection: null,
@@ -214,10 +215,11 @@ export default {
     watch: {
         'stg.units.distance': {
             handler() {
+                console.log("SolarCard: Unit changed to", newUnit);
                 this.fetchIonosphere();
             },
             deep: true,
-            immediate: true
+            immediate: false
         },
     },
 
