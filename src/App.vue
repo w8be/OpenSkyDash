@@ -20,7 +20,7 @@
               :class="{ 'pulsing-icon': (shared.lightning.frequency > 0) }">
             </v-icon></v-tab>
           <v-tab value="solar"><v-icon icon="mdi-sun-wireless" color="error" size="small" class="mr-1"
-              :class="{ 'pulsing-icon': (shared.solar.current.scales.current.g > 0) }">
+              :class="{ 'pulsing-icon': (shared.solar.current.scales.current.g > 0 || shared.solar.current.scales.current.r > 0 || shared.solar.current.scales.current.s > 0) }">
             </v-icon></v-tab>
           <v-tab value="settings"><v-icon icon="mdi-cog" color="grey" size="small">
             </v-icon></v-tab>
