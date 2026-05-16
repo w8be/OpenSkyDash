@@ -8,8 +8,6 @@ Station-Dashboard brings local weather, lightning tracking, and solar indicies i
 
 ---
 
-## Quick Start
-
 ### Prerequisites
 
 - **Node.js v20.19 or later** (v22.12+ also supported) — required by Vite and the Express
@@ -28,16 +26,6 @@ Station-Dashboard brings local weather, lightning tracking, and solar indicies i
 > ⚠️ **Ubuntu / Debian users:** Do **not** use `apt install nodejs` — the packaged version
 > is v18 which is below the minimum required. Use NodeSource or nvm as shown above.
 
-### Install & run
-
-```bash
-Download the code - git clone git clone https://github.com/w8be/Station-Dashboard.git
-cd Station-Dashboard
-npm install
-npm run build
-Start Server - node.server.js
-```
-
 ---
 
 ## Table of Contents
@@ -45,6 +33,11 @@ Start Server - node.server.js
 - [Deployment](#deployment)
   - [Raspberry Pi](#raspberry-pi)
 - [Dashboard Cards](#dashboard-cards)
+- [Header](#Header)
+- [Dashboard Card Icons](#Dashboard-Card-Icons)
+- [Weather](#Weather)
+- [Lightning](#Lighting)
+- [Solar](#Solar)
 
 ---
 
@@ -117,7 +110,7 @@ No configuration needed — weather works automatically based on your station co
 
 ---
 
-### Space Weather
+### Solar
 
 Displays the three key solar indices that affect HF radio propagation. If you operate HF, these numbers directly determine what bands will be open.
 
@@ -138,8 +131,6 @@ Displays the three key solar indices that affect HF radio propagation. If you op
 **How to use it:** Check these numbers before getting on the air. High SFI + low Kp = good day for DX. The space weather values are also displayed in the header bar for quick reference without scrolling.
 
 **Data source:** NOAA Space Weather Prediction Center (SWPC) JSON feeds. Updates every 5 minutes.
-
----
 
 ---
 
@@ -176,10 +167,6 @@ Data gathered from `prop.kc2g.com` originates from the [Global Ionospheric Radio
 
 ---
 
----
-
----
-
 ## Audio Alerts
 
 Station-Dashboard can play audible tones when new items appear in data feeds — useful for monitoring while doing other tasks in the shack.
@@ -208,7 +195,7 @@ All feeds default to **OFF**. Settings persist in localStorage.
 
 ---
 
-## Profiles
+## Settings
 
 Save and switch between named configuration profiles. Useful when multiple operators share a single HamClock, or when you want to quickly toggle between different personal setups (contest mode, field day, everyday).
 
@@ -319,6 +306,7 @@ One-line install for Raspberry Pi (3B, 3B+, 4, 5). Supports both graphical and h
 **Standard install (kiosk mode — auto-starts fullscreen on boot):**
 
 ```bash
+
 curl -fsSL https://raw.githubusercontent.com/accius/openhamclock/main/scripts/setup-pi.sh | bash -s -- --kiosk
 ```
 
@@ -366,109 +354,6 @@ The update script: backs up your `.env` → pulls latest code → installs new d
 sudo systemctl restart openhamclock
 # or
 ./restart.sh
-```
-
----
-
-## Architecture
-
-Station-Dashboard is a React + Node.js application. The Node.js backend acts as an API proxy and data aggregator — all external API calls go through it, cached to reduce load on upstream services. The React frontend handles all rendering and user interaction.
-
-```text
-openhamclock/
-├── server.js                 # Node.js backend — API proxy, data aggregation, WSJT-X listener
-├── config.js                 # Server configuration loader (.env → runtime config)
-├── src/
-│   ├── App.jsx               # Main React application — state management, layout, component wiring
-│   ├── main.jsx              # React entry point
-│   ├── components/           # UI components (one per panel/feature)
-│   │   ├── WorldMap.jsx      # Leaflet map with all overlays (DX, POTA, WWFF, satellites, paths)
-│   │   ├── Header.jsx        # Top bar — callsign, clocks, weather, SFI/K/SSN, controls
-│   │   ├── DXClusterPanel.jsx    # DX spot list with band coloring and hover highlighting
-│   │   ├── DXFilterManager.jsx   # DX cluster filter modal (zones, bands, modes, watchlist, exclude)
-│   │   ├── PSKReporterPanel.jsx  # PSKReporter TX/RX tabs with signal reports
-│   │   ├── PSKFilterManager.jsx  # PSKReporter filter modal (bands, modes, time window)
-│   │   ├── POTAPanel.jsx         # POTA activators scrollable list with map toggle
-│   │   ├── WWFFPanel.jsx         # WWFF activators scrollable list with map toggle
-│   │   ├── WWBOTAPanel.jsx       # WWBOTA activators scrollable list with map toggle
-│   │   ├── SpaceWeatherPanel.jsx # SFI / K-index / SSN gauges
-│   │   ├── SolarPanel.jsx        # 4-view cycling: solar image, indices, x-ray flux, lunar phase
-│   │   ├── BandConditionsPanel.jsx # HF band open/closed indicators
-│   │   ├── PropagationPanel.jsx  # Per-band propagation reliability predictions
-│   │   ├── ContestPanel.jsx      # Upcoming/active contest calendar
-│   │   ├── DXpeditionPanel.jsx   # Active DXpedition list
-│   │   ├── DXNewsTicker.jsx      # Scrolling DX news headline bar
-│   │   ├── LocationPanel.jsx     # DE/DX station info panels
-│   │   ├── SettingsPanel.jsx     # Settings modal (station, theme, layout, DX source, map layers)
-│   │   ├── Icons.jsx             # SVG icon components
-│   │   └── PluginLayer.jsx       # Plugin system mount point for map overlays
-│   ├── hooks/                # Data fetching hooks — one per data source, each manages its own polling
-│   │   ├── useDXCluster.js       # DX Spider spots — polls every 5 seconds
-│   │   ├── usePSKReporter.js     # PSKReporter MQTT + HTTP fallback — real-time
-│   │   ├── usePOTASpots.js       # POTA activators — polls every 60 seconds
-│   │   ├── useWWFFSpots.js       # WWFF activators — polls every 60 seconds
-│   │   ├── useWWBOTASpots.js     # WWBOTA activators — opens live SSE connection from browser
-│   │   ├── useSpaceWeather.js    # NOAA SFI/Kp/SSN — polls every 5 minutes
-│   │   ├── useSolarIndices.js    # Extended solar data with history — polls every 15 minutes
-│   │   ├── useBandConditions.js  # Band conditions — recalculates when SFI/Kp change
-│   │   ├── usePropagation.js     # Propagation model — polls every 10 minutes
-│   │   ├── useSatellites.js      # Satellite tracking — SGP4 position every 5 seconds
-│   │   ├── useContests.js        # Contest calendar — polls every 30 minutes
-│   │   ├── useDXpeditions.js     # DXpedition list — polls every 30 minutes
-│   │   ├── useDXPaths.js         # DX spot paths for map — polls every 10 seconds
-│   │   ├── useMySpots.js         # Your callsign spotted by others — polls every 30 seconds
-│   │   ├── useWeather.js         # Weather — polls every 15 minutes
-│   │   └── useWSJTX.js           # WSJT-X decoded messages — polls every 2 seconds
-│   ├── utils/
-│   │   ├── config.js             # App configuration (localStorage read/write, theme application)
-│   │   ├── geo.js                # Grid square conversion, bearings, distances, sun/moon calculations
-│   │   └── callsign.js           # Band detection, mode detection, DXCC prefix lookup
-│   ├── plugins/                  # Map layer plugin system
-│   │   ├── layerRegistry.js      # Central plugin registration
-│   │   └── layers/               # Built-in plugins (aurora, earthquakes, weather radar)
-│   ├── lang/                     # i18n translation files (8 languages)
-│   └── styles/
-│       └── main.css              # Theme CSS variables, base styles, responsive breakpoints
-├── dxspider-proxy/           # DX Spider telnet proxy microservice
-├── iturhfprop-service/       # ITU-R P.533 propagation prediction microservice (self-host alternative)
-├── wsjtx-relay/              # WSJT-X UDP → HTTPS relay agent
-├── electron/                 # Electron desktop app wrapper (experimental)
-├── scripts/                  # Setup and update scripts
-│   ├── setup-pi.sh               # Raspberry Pi one-line installer
-│   ├── setup-linux.sh            # Linux / macOS installer (--service for systemd)
-│   ├── setup-windows.ps1         # Windows PowerShell installer
-│   └── update.sh                 # Update script (backup → pull → rebuild → restore)
-├── Dockerfile                # Multi-stage Docker build
-├── docker-compose.yml        # Docker Compose configuration
-├── railway.toml              # Railway deployment configuration
-├── railway.json              # Railway build settings
-└── .env.example              # Configuration template (auto-copied to .env on first run)
-```
-
-### Data Flow
-
-All external API calls go through the Node.js backend, which caches responses to reduce load on upstream services. The frontend never contacts external APIs directly (except PSKReporter MQTT and WWBOTA, which use WebSocket and Server-Sent Events connection from the browser respectivley).
-
-```text
-NOAA SWPC ──┐
-POTA API ───┤
-WWFF API ───┤
-SOTA API ───┤                              ┌─ WorldMap
-DX Spider ──┼──► Node.js Server ──► React ─┼─ DX Cluster Panel
-CelesTrak ──┤   (API proxy +              ├─ Space Weather Panel
-N0NBH ──────┤    data cache)              ├─ Band Conditions (N0NBH)
-HamQTH ─────┤                              ├─ Propagation Panel
-Contest Cal ┤                              └─ ... all other panels
-Ionosonde ──┘
-
-WSJT-X UDP ──► Server listener ──► React ──► WSJT-X Panel
-                 (or Relay Agent)
-
-PSKReporter MQTT ──────────────► React ──► PSKReporter Panel
-  (direct WebSocket)
-
-WWBOTA API ──────────────► React ──►  Panel
-  (direct Server-Sent Events)
 ```
 
 ---
