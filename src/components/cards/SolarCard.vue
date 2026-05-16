@@ -91,7 +91,7 @@
             </v-col>
         </v-row>
 
-
+        <pre>{{ key }}</pre>
         <div><v-row no-gutters justify="center" class="mt-2 mb-2">
                 <v-col v-for="(val, key) in stg.solar.current.scales.current" :key="key" cols="3" class="mx-1">
                     <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)" theme="light">
