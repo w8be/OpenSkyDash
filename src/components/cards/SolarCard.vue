@@ -21,7 +21,7 @@
                         :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic.flux)"
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.flux
-                            }}</span>
+                        }}</span>
                     </v-progress-circular>
                     <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
                 </v-col>
@@ -154,17 +154,12 @@
 
 
 // import {globalState} from '../../state.js';
-import settings from './dashboardSettings.js';
-import { reactive } from 'vue';
+import { settings } from './dashboardSettings.js';
+
 export default {
     name: 'SolarCard',
     inheritAttrs: false,
-    props: {
-        // stg: {
-        //     type: Object,
-        //     required: true
-        // }
-    },
+    props: {},
 
     data() {
         return {
