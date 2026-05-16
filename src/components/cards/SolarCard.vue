@@ -97,7 +97,7 @@
                     <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)" theme="light">
                         <!-- The Big Letter -->
                         <div class="text-h4 font-weight-black pt-1" style="line-height: 1;"
-                            v-tooltip="getTooltipContent(val, key)">
+                            v-tooltip="getTooltipContent(key)">
                             {{ key.toUpperCase() }} {{ val > 0 ? val : '' }}
                         </div>
 
@@ -472,14 +472,14 @@ export default {
 
             return condition;
         },
-        getTooltipContent(value, key) {
-            const val = (value) || 'g';
+        getTooltipContent(key) {
+            const val = (key) || 'g';
 
             let text = 'None';
 
-            if (val === 'R') text = 'Radio Blackout (x-ray)';
-            else if (val === 'S') text = 'Solar Storm (proton)';
-            else if (val === 'G') text = 'Geomagnetic Activity (solar wind/cme)';
+            if (val === 'r') text = 'Radio Blackout (x-ray)';
+            else if (val === 's') text = 'Solar Storm (proton)';
+            else if (val === 'g') text = 'Geomagnetic Activity (solar wind/cme)';
 
             return text;
         }
