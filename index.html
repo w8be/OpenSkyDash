@@ -1,32 +1,6 @@
 <!doctype html>
 <html lang="">
   <head>
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>
-      window.onerror = function (message, source, lineno, colno, error) {
-        var div = document.createElement('div')
-        div.style.position = 'fixed'
-        div.style.top = '0'
-        div.style.left = '0'
-        div.style.width = '100%'
-        div.style.background = '#d32f2f'
-        div.style.color = 'white'
-        div.style.zIndex = '999999'
-        div.style.padding = '20px'
-        div.style.fontSize = '16px'
-        div.style.fontFamily = 'monospace'
-        div.innerHTML =
-          '<strong>Mobile Crash:</strong> ' +
-          message +
-          '<br><br><strong>File:</strong> ' +
-          source +
-          ' : line ' +
-          lineno
-        document.body.appendChild(div)
-        return false
-      }
-    </script>
-
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
