@@ -185,7 +185,7 @@ export default {
             this.stg.lightning.homeLocation.lon = newLon;
 
             // 3. Update UI settings
-            this.stg.ui.appName = this.appName;
+            // this.stg.ui.appName = this.appName;
 
             // 4. Commit the entire reactive object to LocalStorage
             localStorage.setItem('station_config_v1', JSON.stringify(this.stg));
