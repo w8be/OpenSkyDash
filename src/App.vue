@@ -49,7 +49,6 @@
 <script>
 import { useTheme } from 'vuetify';
 import { reactive } from 'vue';
-import { globalState } from './state.js';
 import { settings } from './components/cards/dashboardSettings.js';
 import '@mdi/font/css/materialdesignicons.css';
 
@@ -73,7 +72,7 @@ export default {
   data() {
     return {
       // isDark: true, // Default to dark for that station look
-      stg: globalState,
+      stg: settings,
       activeTab: 'weather',
       shared: reactive(window.G_STATE || globalState),
       currentTime: ''
@@ -110,10 +109,6 @@ export default {
   methods: {
     updateClock() {
       this.currentTime = new Date().toLocaleTimeString();
-    },
-    // Add a helper to open the settings
-    openSettings() {
-      this.stg.lightning.showModal = true;
     },
   }
 };
