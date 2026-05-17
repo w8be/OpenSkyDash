@@ -149,15 +149,8 @@ export default {
         return {
             // Keep your WebSockets and Timers here local
             shared: window.G_STATE,
-            isDark: localStorage.getItem('theme') === 'dark',
             socket: null,
             timer: null,
-            localLat: this.stg?.lightning?.homeLocation?.lat,
-            localLon: this.stg?.lightning?.homeLocation?.lon,
-            localDistanceUnit: this.stg?.units?.distance,
-            localTempUnit: this.stg?.units?.temperature,
-            localPressureUnit: this.stg?.units?.pressure,
-            // appName: this.stg?.ui.appName,
             settingsView: 'general'
         };
     },
@@ -165,40 +158,36 @@ export default {
         changeDistanceUnit(newUnit) {
             if (!newUnit) return;
 
-            // Force it to lowercase ('mi' or 'km') so the state engine recognizes it
+            // Normalize and assign directly to the global stg object path
             const normalizedUnit = newUnit.toLowerCase();
             console.log("SettingsCard: Toggling unit safely to:", normalizedUnit);
 
-            this.$emit('update-distance', normalizedUnit);
-        },
-        updateLocation() {
-            const newLat = parseFloat(this.localLat);
-            const newLon = parseFloat(this.localLon);
+            this.stg.units.distance = normalizedUnit;
 
-            if (isNaN(newLat) || isNaN(newLon)) {
+            // Save the updated object immediately to disk
+            localStorage.setItem('station_config_v1', JSON.stringify(this.stg));
+        },
+
+        updateLocation() {
+            // 1. Snag values straight from the form template's bound stg properties
+            const lat = parseFloat(this.stg.lightning.homeLocation.lat);
+            const lon = parseFloat(this.stg.lightning.homeLocation.lon);
+
+            if (isNaN(lat) || isNaN(lon)) {
                 console.error("Invalid coordinates. Aborting save.");
                 return;
             }
 
-            // 1. Update Home Location (The source of truth for all cards)
-            this.stg.lightning.homeLocation.lat = newLat;
-            this.stg.lightning.homeLocation.lon = newLon;
+            // 2. Ensure they are locked down as actual formatted numbers back in stg
+            this.stg.lightning.homeLocation.lat = lat;
+            this.stg.lightning.homeLocation.lon = lon;
 
-            // 3. Update UI settings
-            // this.stg.ui.appName = this.appName;
-
-            // 4. Commit the entire reactive object to LocalStorage
+            // 3. Commit the entire clean stg configuration to LocalStorage
             localStorage.setItem('station_config_v1', JSON.stringify(this.stg));
 
-            console.log("Station updated successfully:",
-                newLat, newLon, this.stg?.units?.distance, this.stg?.units?.temperature);
+            console.log("Station updated successfully:", lat, lon, this.stg?.units?.distance);
         },
 
-        saveSettings() {
-            // Just write the current state of the settings object to LocalStorage
-            localStorage.setItem('station_config_v1', JSON.stringify(settings));
-            console.log("Units/Settings updated in LocalStorage");
-        },
         // 1. Logic to take your 'stg' object and save it as a JSON file
         exportToDisk() {
             try {
