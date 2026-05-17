@@ -169,7 +169,6 @@
 </template>
 
 <script>
-import { globalState } from '../../state.js';
 import { settings } from './dashboardSettings.js';
 export default {
     name: 'LightningCard',
