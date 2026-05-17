@@ -84,6 +84,6 @@ app.get(/^(?!\/(api|blitz-js|api-kc2g)).+/, (req, res) => {
 })
 
 // Leave out the host string entirely, or use '0.0.0.0'
-app.listen(5050, '0.0.0.0', () => {
+app.listen(port, '0.0.0.0', () => {
   console.log('Station-Dashboard running and accessible on local network port 5050')
 })
