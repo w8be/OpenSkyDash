@@ -68,13 +68,13 @@
 
                     <v-row density="comfortable">
                         <v-col class="text-info" cols="6">
-                            <v-text-field v-model.number="localLat" label="Lat" density="compact" variant="outlined"
-                                @keydown.enter.prevent="updateLocation"></v-text-field>
+                            <v-text-field v-model.number="stg.lightning.homeLocation.lat" label="Lat" density="compact"
+                                variant="outlined" @keydown.enter.prevent="updateLocation"></v-text-field>
                         </v-col>
 
                         <v-col class="text-info" cols="6">
-                            <v-text-field v-model.number="localLon" label="Lon" density="compact" variant="outlined"
-                                @keydown.enter.prevent="updateLocation"></v-text-field>
+                            <v-text-field v-model.number="stg.lightning.homeLocation.lon" label="Lon" density="compact"
+                                variant="outlined" @keydown.enter.prevent="updateLocation"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -181,11 +181,11 @@ export default {
             }
 
             // 1. Update Home Location (The source of truth for all cards)
-            this.settings.lightning.homeLocation.lat = newLat;
-            this.settings.lightning.homeLocation.lon = newLon;
+            this.stg.lightning.homeLocation.lat = newLat;
+            this.stg.lightning.homeLocation.lon = newLon;
 
             // 3. Update UI settings
-            this.settings.ui.appName = this.appName;
+            this.stg.ui.appName = this.appName;
 
             // 4. Commit the entire reactive object to LocalStorage
             localStorage.setItem('station_config_v1', JSON.stringify(this.stg));

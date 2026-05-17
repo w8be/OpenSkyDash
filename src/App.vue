@@ -81,14 +81,27 @@ export default {
     };
   },
   mounted() {
+    const savedSettings = localStorage.getItem('station_config_v1');
+
+    if (savedSettings) {
+      try {
+        // Parse the saved data and deep-merge or assign it to your main state
+        const parsed = JSON.parse(savedSettings);
+
+        // Overwrite your default stg object with the saved user preferences
+        this.stg = { ...this.stg, ...parsed };
+
+        console.log("App.vue: Successfully restored station configurations from localStorage.");
+      } catch (e) {
+        console.error("App.vue: Failed to parse saved settings, falling back to defaults.", e);
+      }
+    } else {
+      console.log("App.vue: No saved settings found. Using dashboardSettings.js defaults.");
+    }
+
+    // 2. Keep your clock running
     this.updateClock();
     setInterval(this.updateClock, 1000);
-  },
-
-  watch: {
-    'stg.ui.activeTab'(newVal) {
-      //   console.log('Tab Changed to:', newVal);
-    }
   },
 
   methods: {
