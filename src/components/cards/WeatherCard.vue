@@ -48,7 +48,7 @@
                     <span class="label"><v-icon icon="mdi-weather-windy-variant" v-tooltip:top="'Current Wind'"
                             color="blue-lighten-3" size="large"></v-icon></span>
                     <span class="val mr-2">{{ stg.weather.current.windDir }} <strong>{{ stg.weather.current.windSpeed }}
-                            {{ stg.units.distance === 'Mi' ? 'mph' : 'km' }}</strong></span>
+                            {{ stg.units.distance === 'mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell">
                     <span class="label"><v-icon icon="mdi-water" v-tooltip:top="'Current Humidity'"
@@ -60,7 +60,7 @@
                     <span class="label"><v-icon icon="mdi-windsock" v-tooltip:top="'Current Gusts'"
                             color="teal-lighten-1" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.gusts }} {{
-                        stg.units.distance === 'Mi' ? 'mph' : 'km' }}</strong></span>
+                        stg.units.distance === 'mi' ? 'mph' : 'km' }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-water-thermometer" v-tooltip:top="'Current Dew Point'"
@@ -85,7 +85,7 @@
                     <span class="label"><v-icon icon="mdi-eye" v-tooltip:top="'Current Visibility'"
                             color="brown-lighten-2" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.visibility }} {{ stg.units.distance
-                            }}</strong></span>
+                    }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" v-tooltip:top="'Current UV Exposure'"
@@ -102,7 +102,7 @@
                         <span class="day-label text-caption" style="width: 50px">{{ day.name }}</span>
                         <v-icon :icon="day.icon" size="small" color="blue-lighten-4"></v-icon>
                         <span class="temp-range text-caption ml-4">{{ Math.round(day.high) }}°/{{ Math.round(day.low)
-                            }}°</span>
+                        }}°</span>
                         <span class="precip text-caption text-blue-lighten-4" style="width: 80px; text-align: right;">
                             💧{{ day.precip }}%
                         </span>
@@ -129,7 +129,6 @@ export default {
     },
     data() {
         return {
-            // stg: settings,
             data: null,
             shared: window.G_STATE,
             alert: null,
@@ -190,6 +189,23 @@ export default {
                 this.fetchWeather();
             },
             deep: true
+        },
+        // 🟢 Only refetch if temperature toggles (C <=> F)
+        'stg.units.temperature'() {
+            console.log("WeatherCard: Temperature unit changed. Fetching fresh data...");
+            this.fetchWeather();
+        },
+
+        // 🟢 Only refetch if pressure toggles (in <=> hPa)
+        'stg.units.pressure'() {
+            console.log("WeatherCard: Pressure unit changed. Fetching fresh data...");
+            this.fetchWeather();
+        },
+
+        // 🟢 Only refetch if distance/speed toggles (mi <=> km)
+        'stg.units.distance'() {
+            console.log("WeatherCard: Distance/Wind unit changed. Fetching fresh data...");
+            this.fetchWeather();
         }
     },
 
