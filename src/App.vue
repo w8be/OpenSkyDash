@@ -85,21 +85,25 @@ export default {
 
     if (savedSettings) {
       try {
-        // Parse the saved data and deep-merge or assign it to your main state
         const parsed = JSON.parse(savedSettings);
 
-        // Overwrite your default stg object with the saved user preferences
-        this.stg = { ...this.stg, ...parsed };
+        // 🟢 1. Explicitly restore the nested station coordinates directly
+        if (parsed.lightning && parsed.lightning.homeLocation) {
+          this.stg.lightning.homeLocation.lat = parseFloat(parsed.lightning.homeLocation.lat);
+          this.stg.lightning.homeLocation.lon = parseFloat(parsed.lightning.homeLocation.lon);
+        }
 
-        console.log("App.vue: Successfully restored station configurations from localStorage.");
+        // 🟢 2. Explicitly restore any other nested settings you need (like UI app name)
+        if (parsed.ui && parsed.ui.appName) {
+          this.stg.ui.appName = parsed.ui.appName;
+        }
+
+        console.log("App.vue: Successfully locked in restored coordinates:", this.stg.lightning.homeLocation);
       } catch (e) {
-        console.error("App.vue: Failed to parse saved settings, falling back to defaults.", e);
+        console.error("App.vue: Error parsing saved settings", e);
       }
-    } else {
-      console.log("App.vue: No saved settings found. Using dashboardSettings.js defaults.");
     }
 
-    // 2. Keep your clock running
     this.updateClock();
     setInterval(this.updateClock, 1000);
   },
