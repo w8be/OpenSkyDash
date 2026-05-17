@@ -74,7 +74,6 @@ export default {
     return {
       // isDark: true, // Default to dark for that station look
       stg: globalState,
-      cfg: settings,
       activeTab: 'weather',
       shared: reactive(window.G_STATE || globalState),
       currentTime: ''
