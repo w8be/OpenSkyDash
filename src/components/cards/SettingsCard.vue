@@ -18,8 +18,8 @@
 
                 <v-window-item value="innerTab" style="overflow-y: auto;">
                     <div class="text-brown-lighten-4 d-flex align-center mt-2">
-                        <v-text-field label="Dashboard Name" density="compact" variant="outlined"
-                            prepend-inner-icon="mdi-rename-box" v-model="stg.ui.appName"></v-text-field>
+                        <v-text-field v-model="stg.ui.appName" label="App Name" density="compact" variant="outlined"
+                            @keydown.enter.prevent="updateLocation" @change="updateLocation"></v-text-field>
                     </div>
 
                     <div class="text-subtitle-2 mb-1 text-secondary d-flex align-center">
@@ -157,7 +157,7 @@ export default {
             localDistanceUnit: this.stg?.units?.distance,
             localTempUnit: this.stg?.units?.temperature,
             localPressureUnit: this.stg?.units?.pressure,
-            appName: this.stg?.ui.appName,
+            // appName: this.stg?.ui.appName,
             settingsView: 'general'
         };
     },
