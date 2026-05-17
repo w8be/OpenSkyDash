@@ -30,7 +30,7 @@
           <v-window-item value="weather" eager>
             <WeatherCard v-show="stg.ui.activeTab === 'weather'" :stg="stg" />
           </v-window-item>
-          <v-window-item value="lightning" eager>
+          <v-window-item v-show="stg.ui.activeTab === 'lightning'" value="lightning" eager>
             <LightningCard :stg="stg" />
           </v-window-item>
           <v-window-item value="solar" eager>
