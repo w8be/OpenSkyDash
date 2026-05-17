@@ -135,7 +135,7 @@
                                     </v-col>
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ convertedDistance }}<span class="text-caption ml-1">{{ stg.units.distance
-                                        }}</span>
+                                            }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -174,9 +174,14 @@ import { settings } from './dashboardSettings.js';
 export default {
     name: 'LightningCard',
     inheritAttrs: false,
+    props: {
+        stg: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
-            stg: globalState,
             shared: window.G_STATE,
             settings: settings,
             currentServerIndex: 0,
@@ -186,7 +191,6 @@ export default {
             panel: null,
             instanceId: null,
             isConnecting: false,
-            // lightningTimeout: null,
         };
     },
     created() {
@@ -258,7 +262,7 @@ export default {
             const cutoff = Date.now() - (newVal * 60 * 1000);
             this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
             this.stg.lightning.currentStorm.frequency = this.stg.lightning.history.length;
-        }
+        },
     },
     methods: {
         lzw_decode(s) {
@@ -403,7 +407,8 @@ export default {
             const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
             const toRad = (v) => (v * Math.PI) / 180;
             const isMi = this.stg.units.distance.toLowerCase() === 'mi';
-            const R = isMi ? 3958.8 : 6371;
+            // const R = isMi ? 3958.8 : 6371;
+            const R = 3958.8;
 
             // 1. Calculate Distance
             const dLat = toRad(data.lat - home.lat);
@@ -739,13 +744,19 @@ export default {
             return this.getTimeAgo(this.lightning.history[this.lightning.history.length - 1].time);
         },
 
-        // convertedDistance() {
-        //     const d = parseFloat(this.lightning.currentStorm?.distance);
-        //     if (isNaN(d) || d === 0) return '0';
-        //     return this.stg.units.distance.toLowerCase() === 'mi' ? Math.round(d) : Math.round(d * 1.60934);
-        // },
         convertedDistance() {
-            return this.lightning.currentStorm?.distance || '0';
+            const rawDistance = this.stg?.lightning?.currentStorm?.distance;
+
+            if (rawDistance === undefined || rawDistance === null) {
+                return '--';
+            }
+
+            const unit = String(this.stg?.units?.distance || 'mi').trim().toLowerCase();
+
+            // If the UI is set to km, dynamically multiply the base miles by 1.60934
+            return unit === 'km'
+                ? Math.round(rawDistance * 1.60934)
+                : Math.round(rawDistance);
         },
 
         trendColor() {
