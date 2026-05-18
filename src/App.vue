@@ -71,11 +71,28 @@ export default {
   },
   data() {
     return {
-      // isDark: true, // Default to dark for that station look
       stg: settings,
       activeTab: 'weather',
-      shared: reactive(window.G_STATE || {}),
-      currentTime: ''
+      currentTime: '',
+
+      // 🟢 Expand the skeleton with frequency and lightning blocks
+      shared: reactive(window.G_STATE || {
+        weather: {
+          temp: null,
+          icon: '',
+          wind: {},
+          baro: {},
+          precip: {}
+        },
+        lightning: {
+          count: 0,
+          distance: null,
+          frequency: 0, // ⚡ Added to prevent the lightning card crash!
+          history: [],
+          trend: ''
+        },
+        solar: {}
+      }),
     };
   },
   mounted() {
