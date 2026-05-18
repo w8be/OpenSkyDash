@@ -47,7 +47,6 @@
 </template>
 
 <script>
-import { useTheme } from 'vuetify';
 import { reactive } from 'vue';
 import { settings } from './components/cards/dashboardSettings.js';
 import '@mdi/font/css/materialdesignicons.css';
@@ -254,5 +253,15 @@ body {
     transform: scale(1);
     filter: brightness(1) drop-shadow(0 0 0px rgba(255, 193, 7, 0));
   }
+}
+
+/* 🟢 Move this completely outside of the keyframes block */
+html,
+body,
+#app,
+.v-application {
+  min-height: 100dvh !important;
+  height: 100dvh !important;
+  overflow-y: auto !important;
 }
 </style>

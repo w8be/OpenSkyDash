@@ -307,7 +307,7 @@ One-line install for Raspberry Pi (3B, 3B+, 4, 5). Supports both graphical and h
 
 ```bash
 
-curl -fsSL https://raw.githubusercontent.com/accius/openhamclock/main/scripts/setup-pi.sh | bash -s -- --kiosk
+curl -H "Authorization: token <your_token>" -L [https://raw.githubusercontent.com/w8be/Station-Dashboard/main/setup-pi.sh](https://raw.githubusercontent.com/w8be/Station-Dashboard/main/setup.sh) | bash -s -- --kiosk
 ```
 
 This is the recommended option for a dedicated shack display. The Pi boots directly into a fullscreen Chromium browser showing Station-Dashboard. The kiosk launcher automatically detects Wayland (Trixie/labwc) or X11 (Bookworm/LXDE) and adjusts accordingly — no manual configuration needed.
@@ -315,7 +315,8 @@ This is the recommended option for a dedicated shack display. The Pi boots direc
 **Server-only install (headless, no GUI):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/accius/openhamclock/main/scripts/setup-pi.sh | bash -s -- --server
+
+curl -H "Authorization: token <your_token>" -L [https://raw.githubusercontent.com/w8be/Station-Dashboard/main/setup-pi.sh](https://raw.githubusercontent.com/w8be/Station-Dashboard/main/setup.sh) | bash -s -- --server
 ```
 
 Runs Station-Dashboard as a web server only. Access it from any browser on your LAN.

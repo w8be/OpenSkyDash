@@ -84,7 +84,6 @@ const defaultSettings = reactive({
   },
 
   ui: {
-    theme: 'dark',
     showAttribution: true,
     activeTab: 'settings',
     // panel: null, // Fixed auto-open bug by setting to null

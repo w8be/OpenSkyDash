@@ -14,7 +14,7 @@
         <v-divider></v-divider>
 
         <v-card-text class="pb-0 d-block">
-            <v-window v-model="settingsView" style="width: 300px" height="auto" continuous;>
+            <v-window v-model="settingsView" style="width: 300px;" height="auto" continuous>
 
                 <v-window-item value="innerTab" style="overflow-y: auto;">
                     <div class="text-brown-lighten-4 d-flex align-center mt-2">
@@ -264,12 +264,6 @@ export default {
             };
             reader.readAsText(file);
         },
-        // toggleTheme() {
-        //     this.isDark = !this.isDark;
-        //     // Directly update your global settings object
-        //     this.stg.ui.theme = this.isDark ? 'dark' : 'light';
-        //     localStorage.setItem('theme', this.stg.ui.theme);
-        // }
     },
     computed: {
         displayPressure() {

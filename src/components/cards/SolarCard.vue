@@ -21,7 +21,7 @@
                         :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic.flux)"
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg?.solar?.current?.geoMagnetic?.flux
-                        }}</span>
+                            }}</span>
                     </v-progress-circular>
                     <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
                 </v-col>
@@ -94,7 +94,7 @@
 
         <div><v-row no-gutters justify="center" class="mt-2 mb-2">
                 <v-col v-for="(val, key) in stg.solar.current.scales.current" :key="key" cols="3" class="mx-1">
-                    <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)" theme="light">
+                    <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)">
                         <!-- The Big Letter -->
                         <div class="text-h4 font-weight-black pt-1" style="line-height: 1;"
                             v-tooltip:top="getTooltipContent(key)">
