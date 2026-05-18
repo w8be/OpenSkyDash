@@ -49,7 +49,7 @@
 <script>
 import { useTheme } from 'vuetify';
 import { reactive } from 'vue';
-import settings from './components/cards/dashboardSettings.js';
+import { defaultSettings as settings } from './components/cards/dashboardSettings.js';
 import '@mdi/font/css/materialdesignicons.css';
 
 import LightningCard from './components/cards/LightningCard.vue';

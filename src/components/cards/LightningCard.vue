@@ -135,7 +135,7 @@
                                     </v-col>
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ convertedDistance }}<span class="text-caption ml-1">{{ stg.units.distance
-                                            }}</span>
+                                        }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -609,7 +609,7 @@ export default {
             // 3. UPDATE UI
             const freq = localStrikes.length;
             this.stg.lightning.currentStorm.frequency = freq;
-            this.shared.lightning.frequency = freq;
+            // this.shared.lightning.frequency = freq;
 
             // Reset dashboard if no data remains in the reset window
             if (this.stg.lightning.history.length === 0) {
