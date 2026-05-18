@@ -583,6 +583,11 @@ export default {
 
 
         updateFrequency() {
+            if (!this.stg || !this.stg.lightning) {
+                console.warn("LightningCard waiting for state hydration...");
+                return;
+            }
+
             const now = Date.now();
             const radius = Number(this.stg.lightning?.searchRadius || 50);
 
@@ -609,7 +614,6 @@ export default {
             // 3. UPDATE UI
             const freq = localStrikes.length;
             this.stg.lightning.currentStorm.frequency = freq;
-            // this.shared.lightning.frequency = freq;
 
             // Reset dashboard if no data remains in the reset window
             if (this.stg.lightning.history.length === 0) {

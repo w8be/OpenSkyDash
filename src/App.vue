@@ -17,10 +17,10 @@
             </template>
           </v-tab>
           <v-tab value="lightning"><v-icon icon="mdi-flash" color="amber" size="small" class="mr-1"
-              :class="{ 'pulsing-icon': (shared.lightning.frequency > 0) }">
+              :class="{ 'pulsing-icon': (stg?.lightning?.currentStorm?.frequency > 0) }">
             </v-icon></v-tab>
           <v-tab value="solar"><v-icon icon="mdi-sun-wireless" color="error" size="small" class="mr-1"
-              :class="{ 'pulsing-icon': (shared.solar.current.scales.current.g > 0 || shared.solar.current.scales.current.r > 0 || shared.solar.current.scales.current.s > 0) }">
+              :class="{ 'pulsing-icon': (stg?.solar?.current?.scales?.current.g > 0 || stg?.solar?.current?.scales?.current?.r > 0 || stg?.solar?.current?.scales?.current?.s > 0) }">
             </v-icon></v-tab>
           <v-tab value="settings"><v-icon icon="mdi-cog" color="grey" size="small">
             </v-icon></v-tab>
@@ -49,7 +49,7 @@
 <script>
 import { useTheme } from 'vuetify';
 import { reactive } from 'vue';
-import { defaultSettings as settings } from './components/cards/dashboardSettings.js';
+import { settings } from './components/cards/dashboardSettings.js';
 import '@mdi/font/css/materialdesignicons.css';
 
 import LightningCard from './components/cards/LightningCard.vue';
@@ -70,39 +70,68 @@ export default {
     return { theme };
   },
   data() {
+    const masterState = reactive(settings);
+
+    // Fallback structural safety nets
+    if (!masterState.weather) masterState.weather = {};
+    if (!masterState.weather.current) masterState.weather.current = {};
+
     return {
-      // 🟢 One single source of truth for configuration AND live telemetry
-      stg: reactive(window.G_STATE || settings),
+      stg: masterState,
+
+      // Create a dynamic proxy wrapper for shared to handle the legacy card assignments
+      shared: new Proxy(masterState, {
+        get(target, prop) {
+          // If the card asks for this.shared.weatherIcon, route it safely
+          if (prop === 'weatherIcon') return target.weather.current.weatherIcon;
+          return target[prop];
+        },
+        set(target, prop, value) {
+          // When the card executes: this.shared.weatherIcon = o.icon
+          if (prop === 'weatherIcon') {
+            target.weather.current.weatherIcon = value;
+            return true;
+          }
+          target[prop] = value;
+          return true;
+        }
+      }),
+
       activeTab: 'weather',
       currentTime: '',
     };
   },
-  mounted() {
+  created() {
     const savedSettings = localStorage.getItem('station_config_v1');
-
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings);
 
-        // 🟢 1. Explicitly restore the nested station coordinates directly
+        // 🟢 Restores coordinates BEFORE child cards mount
         if (parsed.lightning && parsed.lightning.homeLocation) {
           this.stg.lightning.homeLocation.lat = parseFloat(parsed.lightning.homeLocation.lat);
           this.stg.lightning.homeLocation.lon = parseFloat(parsed.lightning.homeLocation.lon);
         }
 
-        // 🟢 2. Explicitly restore any other nested settings you need (like UI app name)
         if (parsed.ui && parsed.ui.appName) {
           this.stg.ui.appName = parsed.ui.appName;
         }
 
-        console.log("App.vue: Successfully locked in restored coordinates:", this.stg.lightning.homeLocation);
+        console.log("App.vue (created): Pre-loaded coordinates:", this.stg.lightning.homeLocation);
       } catch (e) {
-        console.error("App.vue: Error parsing saved settings", e);
+        console.error("App.vue: Error pre-parsing saved settings", e);
       }
     }
+  },
+  mounted() {
 
     this.updateClock();
     setInterval(this.updateClock, 1000);
+
+    // Expose the reactive master state to the browser console for easy testing
+    window.G_STATE = this.stg;
+
+    this.stg.ui.activeTab = 'weather';
   },
 
   methods: {
