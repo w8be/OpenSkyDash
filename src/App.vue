@@ -65,10 +65,6 @@ export default {
     WeatherCard,
     SettingsCard
   },
-  setup() {
-    const theme = useTheme();
-    return { theme };
-  },
   data() {
     const masterState = reactive(settings);
 
