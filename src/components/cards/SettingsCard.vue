@@ -69,12 +69,14 @@
                     <v-row density="comfortable">
                         <v-col class="text-info" cols="6">
                             <v-text-field v-model.number="stg.lightning.homeLocation.lat" label="Lat" density="compact"
-                                variant="outlined" @keydown.enter.prevent="updateLocation"></v-text-field>
+                                variant="outlined" @keydown.enter.prevent="updateLocation"
+                                @change="updateLocation"></v-text-field>
                         </v-col>
 
                         <v-col class="text-info" cols="6">
                             <v-text-field v-model.number="stg.lightning.homeLocation.lon" label="Lon" density="compact"
-                                variant="outlined" @keydown.enter.prevent="updateLocation"></v-text-field>
+                                variant="outlined" @keydown.enter.prevent="updateLocation"
+                                @change="updateLocation"></v-text-field>
                         </v-col>
                     </v-row>
 
@@ -188,24 +190,30 @@ export default {
             console.log("Station updated successfully:", lat, lon, this.stg?.units?.distance);
         },
 
-        // 1. Logic to take your 'stg' object and save it as a JSON file
+        // 1. Safe, live export logic
         exportToDisk() {
             try {
-                // 1. Create a DEEP CLONE (A completely separate copy in memory)
-                const cleanData = JSON.parse(JSON.stringify(settings));
+                // 🟢 Grab the LIVE state, not the static file import template
+                const cleanData = JSON.parse(JSON.stringify(this.stg));
 
-                // 2. Scrub the Activity Data from the clone
-                cleanData.weather.current = {};
-                cleanData.weather.forecast = [];
-                cleanData.lightning.history = [];
+                // Clean out volatile live tracking arrays so the configuration file stays small
+                if (cleanData.weather) {
+                    cleanData.weather.current = {};
+                    cleanData.weather.forecast = [];
+                }
+                if (cleanData.lightning) {
+                    cleanData.lightning.history = [];
+                    // 🟢 Target the corrected structure to prevent recursion crashes
+                    delete cleanData.lightning.currentStorm;
+                }
+                if (cleanData.solar) {
+                    cleanData.solar.current = {};
+                }
 
-                // 3. Scrub the recursion (The Nesting Doll Fix)
-                delete cleanData.lightning.lightning;
-
-                // 4. PERSISTENCE: Save the clean version to browser memory
+                // Save the cleaned live profile back to local browser storage
                 localStorage.setItem('station_config_v1', JSON.stringify(cleanData));
 
-                // Create the physical file download
+                // Create and trigger the physical file download
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cleanData, null, 2));
                 const downloadAnchorNode = document.createElement('a');
                 downloadAnchorNode.setAttribute("href", dataStr);
@@ -214,13 +222,13 @@ export default {
                 downloadAnchorNode.click();
                 downloadAnchorNode.remove();
 
-                console.log("Export successful. LocalStorage updated with WV coordinates.");
+                console.log("Live configuration successfully exported to disk.");
             } catch (e) {
                 console.error("Export failed:", e);
             }
         },
 
-        // 2. Logic to take a JSON file and overwrite your 'stg' object
+        // 2. Safe, deep-merge import logic
         importFromDisk(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -228,21 +236,40 @@ export default {
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    const json = JSON.parse(e.target.result);
-                    // Object.assign keeps the reactivity alive while updating values
-                    Object.assign(this.stg, json);
+                    const importedConfig = JSON.parse(e.target.result);
+
+                    // 🟢 Deep recursive merge function to update properties without breaking Vue Proxies
+                    const deepMerge = (target, source) => {
+                        for (const key in source) {
+                            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                                if (!target[key]) target[key] = {};
+                                deepMerge(target[key], source[key]);
+                            } else {
+                                target[key] = source[key];
+                            }
+                        }
+                    };
+
+                    // Run the deep merge against your live state root
+                    deepMerge(this.stg, importedConfig);
+
+                    // Save the newly imported configuration to disk immediately
+                    localStorage.setItem('station_config_v1', JSON.stringify(JSON.parse(JSON.stringify(this.stg))));
+
+                    alert("Settings imported successfully! Layout updated.");
                 } catch (err) {
-                    alert("Error parsing the settings file. Ensure it is a valid JSON.");
+                    console.error("Import parsing error:", err);
+                    alert("Error parsing the settings file. Ensure it is a valid, uncorrupted JSON profile.");
                 }
             };
             reader.readAsText(file);
         },
-        toggleTheme() {
-            this.isDark = !this.isDark;
-            // Directly update your global settings object
-            this.stg.ui.theme = this.isDark ? 'dark' : 'light';
-            localStorage.setItem('theme', this.stg.ui.theme);
-        }
+        // toggleTheme() {
+        //     this.isDark = !this.isDark;
+        //     // Directly update your global settings object
+        //     this.stg.ui.theme = this.isDark ? 'dark' : 'light';
+        //     localStorage.setItem('theme', this.stg.ui.theme);
+        // }
     },
     computed: {
         displayPressure() {

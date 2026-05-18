@@ -85,7 +85,7 @@
                     <span class="label"><v-icon icon="mdi-eye" v-tooltip:top="'Current Visibility'"
                             color="brown-lighten-2" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.visibility }} {{ stg.units.distance
-                    }}</strong></span>
+                            }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" v-tooltip:top="'Current UV Exposure'"
@@ -102,7 +102,7 @@
                         <span class="day-label text-caption" style="width: 50px">{{ day.name }}</span>
                         <v-icon :icon="day.icon" size="small" color="blue-lighten-4"></v-icon>
                         <span class="temp-range text-caption ml-4">{{ Math.round(day.high) }}°/{{ Math.round(day.low)
-                        }}°</span>
+                            }}°</span>
                         <span class="precip text-caption text-blue-lighten-4" style="width: 80px; text-align: right;">
                             💧{{ day.precip }}%
                         </span>
@@ -130,13 +130,13 @@ export default {
     data() {
         return {
             data: null,
-            shared: window.G_STATE,
             alert: null,
             forecast: [],
             previousApiTime: null,
             localPressure: 0,
             localVisability: 0,
-            localToggle: null
+            localToggle: null,
+            shared: this.stg || window.G_STATE || { weather: { current: {} } }
         };
     },
     mounted() {
