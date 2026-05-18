@@ -49,7 +49,7 @@
 <script>
 import { useTheme } from 'vuetify';
 import { reactive } from 'vue';
-import { settings } from './components/cards/dashboardSettings.js';
+import settings from './components/cards/dashboardSettings.js';
 import '@mdi/font/css/materialdesignicons.css';
 
 import LightningCard from './components/cards/LightningCard.vue';
@@ -71,28 +71,10 @@ export default {
   },
   data() {
     return {
-      stg: settings,
+      // 🟢 One single source of truth for configuration AND live telemetry
+      stg: reactive(window.G_STATE || settings),
       activeTab: 'weather',
       currentTime: '',
-
-      // 🟢 Expand the skeleton with frequency and lightning blocks
-      shared: reactive(window.G_STATE || {
-        weather: {
-          temp: null,
-          icon: '',
-          wind: {},
-          baro: {},
-          precip: {}
-        },
-        lightning: {
-          count: 0,
-          distance: null,
-          frequency: 0, // ⚡ Added to prevent the lightning card crash!
-          history: [],
-          trend: ''
-        },
-        solar: {}
-      }),
     };
   },
   mounted() {
