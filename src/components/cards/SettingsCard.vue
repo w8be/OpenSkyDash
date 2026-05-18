@@ -217,7 +217,8 @@ export default {
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cleanData, null, 2));
                 const downloadAnchorNode = document.createElement('a');
                 downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", "station_settings.json");
+                const safeAppName = this.stg.ui.appName.replace(/[^a-zA-Z0-9-_]/g, '_');
+                downloadAnchorNode.setAttribute("download", `{{stg.ui.appName}}_station_settings.json`);
                 document.body.appendChild(downloadAnchorNode);
                 downloadAnchorNode.click();
                 downloadAnchorNode.remove();
