@@ -141,6 +141,8 @@ export default {
     },
     mounted() {
 
+        window.dashboard = this.stg;
+
         if (this.stg.weather.updateInterval) { clearInterval(this.stg.weather.updateInterval); }
 
         const saved = localStorage.getItem('station_config_v1');

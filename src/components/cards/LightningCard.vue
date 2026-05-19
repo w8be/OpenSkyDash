@@ -426,6 +426,7 @@ export default {
                 const x = Math.cos(toRad(home.lat)) * Math.sin(toRad(data.lat)) -
                     Math.sin(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.cos(toRad(data.lon - home.lon));
                 const bearing = Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360);
+                const heading = this.getDir(bearing); //added for trending 5/19/26
 
                 // Record the strike
                 this.stg.lightning.history.push({
@@ -522,8 +523,10 @@ export default {
             return minutes < 60 ? minutes + "m ago" : Math.floor(minutes / 60) + "h ago";
         },
 
+        //
+
         calculateTrend() {
-            // 1. Guard against the entire state object being missing
+            // 1. Guard against missing data
             if (!this.stg || !this.stg.lightning || !Array.isArray(this.stg.lightning.history)) {
                 return;
             }
@@ -534,50 +537,88 @@ export default {
             const sampleSize = Number(lightning.sampleSize) || 20;
             const sensitivity = Number(lightning.sensitivity) || 5;
 
-            if (h.length < sampleSize) {
+            // Initialize an object to track trends and intensities for all 16 headings
+            const headings16 = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+            const directionalTrends = {};
+
+            headings16.forEach(dir => {
+                directionalTrends[dir] = { trend: 'Stationary', activityCount: 0, diff: 0 };
+            });
+
+            // 2. Group your historical data window by heading
+            // We use a larger slice or the whole buffer because a single heading needs enough samples
+            h.forEach(strike => {
+                if (directionalTrends[strike.heading]) {
+                    directionalTrends[strike.heading].activityCount++;
+                }
+            });
+
+            // 3. Run the tracking math INDEPENDENTLY for each heading
+            headings16.forEach(dir => {
+                // Filter the history down to ONLY strikes in this specific direction
+                const directionalWindow = h.filter(strike => strike.heading === dir).slice(-sampleSize);
+
+                // If a sector doesn't have enough data points, keep it Stationary
+                if (directionalWindow.length < sampleSize) {
+                    directionalTrends[dir].trend = 'Stationary';
+                    return;
+                }
+
+                let diff = 0;
+
+                // --- YOUR EXACT MATH RUNNING IN ISOLATION PER SECTOR ---
+                if (config.algorithm === 'Percentile (Balanced)') {
+                    const sorted = [...directionalWindow].sort((a, b) => a.distance - b.distance);
+                    const mid = Math.floor(directionalWindow.length / 2);
+                    const oldSorted = [...directionalWindow.slice(0, mid)].sort((a, b) => a.distance - b.distance);
+                    const newSorted = [...directionalWindow.slice(-mid)].sort((a, b) => a.distance - b.distance);
+
+                    const oldIdx = Math.floor(0.2 * (oldSorted.length - 1));
+                    const newIdx = Math.floor(0.2 * (newSorted.length - 1));
+
+                    diff = oldSorted[oldIdx].distance - newSorted[newIdx].distance;
+
+                } else if (config.algorithm === 'Closest Strike (Fastest)') {
+                    diff = directionalWindow[0].distance - directionalWindow[directionalWindow.length - 1].distance;
+                } else {
+                    // Average (Smoother)
+                    const mid = Math.floor(directionalWindow.length / 2);
+                    const oldAvg = directionalWindow.slice(0, mid).reduce((a, b) => a + b.distance, 0) / mid;
+                    const newAvg = directionalWindow.slice(-mid).reduce((a, b) => a + b.distance, 0) / mid;
+                    diff = oldAvg - newAvg;
+                }
+
+                directionalTrends[dir].diff = diff;
+
+                // Evaluate the vector direction
+                if (diff > sensitivity) {
+                    directionalTrends[dir].trend = 'Approaching';
+                } else if (diff < -sensitivity) {
+                    directionalTrends[dir].trend = 'Receding';
+                } else {
+                    directionalTrends[dir].trend = 'Stationary';
+                }
+            });
+
+            // 4. Update state so your UI can bind to it
+            this.directionalTrends = directionalTrends;
+
+            // 5. Determine Global Threat (Identify the fastest approaching sector)
+            let highestThreatSector = 'None';
+            let maxDiff = sensitivity; // Must beat sensitivity to be considered approaching
+
+            headings16.forEach(dir => {
+                if (directionalTrends[dir].trend === 'Approaching' && directionalTrends[dir].diff > maxDiff) {
+                    maxDiff = directionalTrends[dir].diff;
+                    highestThreatSector = dir;
+                }
+            });
+
+            // Update primary display fields
+            if (highestThreatSector !== 'None') {
+                lightning.currentStorm.trend = `Approaching from ${highestThreatSector}`;
+            } else {
                 lightning.currentStorm.trend = 'Stationary';
-                return;
-            }
-
-            // 3. Define the window BEFORE logging it
-            const window = h.slice(-sampleSize);
-            let diff = 0;
-
-            if (config.algorithm === 'Percentile (Balanced)') {
-                // 1. Sort the current window by distance
-                const sorted = [...window].sort((a, b) => a.distance - b.distance);
-                // 2. Calculate the 20th percentile index
-                const idx = Math.floor(0.2 * (sorted.length - 1));
-                const currentRefDist = sorted[idx].distance;
-
-                // 3. To find the trend, we compare this percentile to the previous one
-                // (or compare the first half of the window vs the second half using percentiles)
-                const mid = Math.floor(window.length / 2);
-                const oldSorted = [...window.slice(0, mid)].sort((a, b) => a.distance - b.distance);
-                const newSorted = [...window.slice(-mid)].sort((a, b) => a.distance - b.distance);
-
-                const oldIdx = Math.floor(0.2 * (oldSorted.length - 1));
-                const newIdx = Math.floor(0.2 * (newSorted.length - 1));
-
-                diff = oldSorted[oldIdx].distance - newSorted[newIdx].distance;
-
-            } else if (config.algorithm === 'Closest Strike (Fastest)') {
-                diff = window[0].distance - window[window.length - 1].distance;
-            } else {
-                // Average (Smoother)
-                const mid = Math.floor(window.length / 2);
-                const oldAvg = window.slice(0, mid).reduce((a, b) => a + b.distance, 0) / mid;
-                const newAvg = window.slice(-mid).reduce((a, b) => a + b.distance, 0) / mid;
-                diff = oldAvg - newAvg;
-            }
-
-            // Apply Sensitivity Threshold
-            if (diff > sensitivity) {
-                this.stg.lightning.currentStorm.trend = 'Approaching';
-            } else if (diff < -sensitivity) {
-                this.stg.lightning.currentStorm.trend = 'Receding';
-            } else {
-                this.stg.lightning.currentStorm.trend = 'Stationary';
             }
         },
 

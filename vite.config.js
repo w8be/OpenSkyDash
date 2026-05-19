@@ -23,13 +23,19 @@ export default defineConfig({
         ],
       },
     }),
-  ], // This ends the plugins array
-  build: {
-    minify: 'esbuild', // Ensures esbuild is handling the minification
-    esbuild: {
-      drop: ['console', 'debugger'], // Drops them during the final compilation
-    },
+  ],
+
+  // 🟢 FIX 1: esbuild settings must be at the top level, NOT inside build
+  esbuild: {
+    drop: ['console', 'debugger'],
   },
+
+  build: {
+    // 🟢 FIX 2: Vite uses esbuild as the default minifier anyway,
+    // so you can just let build.minify defaults handle it.
+    minify: true,
+  },
+
   define: { 'process.env': {} },
   resolve: {
     alias: {
