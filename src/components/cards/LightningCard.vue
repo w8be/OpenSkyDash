@@ -134,7 +134,8 @@
                                         {{ formatTime(strike.time) }}
                                     </v-col>
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
-                                        {{ convertedDistance }}<span class="text-caption ml-1">{{ stg.units.distance
+                                        {{ formatDistance(strike.distance) }}<span class="text-caption ml-1">{{
+                                            stg.units.distance
                                             }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
@@ -402,11 +403,21 @@ export default {
             };
         },
 
+        formatDistance(rawDistance) {
+            if (rawDistance === undefined || rawDistance === null) return '--';
+
+            const unit = String(this.stg?.units?.distance || 'mi').trim().toLowerCase();
+            return unit === 'km'
+                ? Math.round(rawDistance * 1.60934)
+                : Math.round(rawDistance);
+        },
+
         processIncomingStrike(data) {
             if (!data || data.lat === undefined || data.lon === undefined) return;
-
+            // console.log("ACTUAL INCOMING STRIKE DATA:", data);
             const now = Date.now();
             const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
+            // console.log(home);
             const toRad = (v) => (v * Math.PI) / 180;
             const isMi = this.stg.units.distance.toLowerCase() === 'mi';
             // const R = isMi ? 3958.8 : 6371;
@@ -554,7 +565,7 @@ export default {
             return minutes < 60 ? minutes + "m ago" : Math.floor(minutes / 60) + "h ago";
         },
 
-        //
+
 
         calculateTrend() {
             // 1. Guard against missing data
@@ -595,14 +606,21 @@ export default {
                     return;
                 }
 
+                const mid = Math.floor(directionalWindow.length / 2);
+
                 let diff = 0;
 
                 // --- YOUR EXACT MATH RUNNING IN ISOLATION PER SECTOR ---
                 if (config.algorithm === 'Percentile (Balanced)') {
-                    const oldSorted = [...directionalWindow.slice(0, mid)].sort((a, b) => a.distance - b.distance);
-                    const newSorted = [...directionalWindow.slice(-mid)].sort((a, b) => a.distance - b.distance);
+                    // 🟢 THE FIX: Use .map() to deeply clone the objects so .sort() doesn't touch history references
+                    const oldSorted = directionalWindow.slice(0, mid)
+                        .map(strike => ({ ...strike }))
+                        .sort((a, b) => a.distance - b.distance);
 
-                    // 🟢 Change 0.2 to 0.5 (Median) or 0.8 (True Percentile Tracking) to see the storm body shift
+                    const newSorted = directionalWindow.slice(-mid)
+                        .map(strike => ({ ...strike }))
+                        .sort((a, b) => a.distance - b.distance);
+
                     const percentileWeight = 0.5;
                     const oldIdx = Math.floor(percentileWeight * (oldSorted.length - 1));
                     const newIdx = Math.floor(percentileWeight * (newSorted.length - 1));
@@ -903,19 +921,24 @@ export default {
             return this.getTimeAgo(this.lightning.history[this.lightning.history.length - 1].time);
         },
 
+        // convertedDistance() {
+        //     const rawDistance = this.stg?.lightning?.currentStorm?.distance;
+
+        //     if (rawDistance === undefined || rawDistance === null) {
+        //         return '--';
+        //     }
+
+        //     const unit = String(this.stg?.units?.distance || 'mi').trim().toLowerCase();
+
+        //     // If the UI is set to km, dynamically multiply the base miles by 1.60934
+        //     return unit === 'km'
+        //         ? Math.round(rawDistance * 1.60934)
+        //         : Math.round(rawDistance);
+        // },
+
         convertedDistance() {
             const rawDistance = this.stg?.lightning?.currentStorm?.distance;
-
-            if (rawDistance === undefined || rawDistance === null) {
-                return '--';
-            }
-
-            const unit = String(this.stg?.units?.distance || 'mi').trim().toLowerCase();
-
-            // If the UI is set to km, dynamically multiply the base miles by 1.60934
-            return unit === 'km'
-                ? Math.round(rawDistance * 1.60934)
-                : Math.round(rawDistance);
+            return this.formatDistance(rawDistance);
         },
 
         trendColor() {
