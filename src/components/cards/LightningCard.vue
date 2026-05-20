@@ -135,7 +135,7 @@
                                     </v-col>
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ convertedDistance }}<span class="text-caption ml-1">{{ stg.units.distance
-                                        }}</span>
+                                            }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -446,7 +446,7 @@ export default {
                             const trueBearingDelta = bearingDelta > 180 ? 360 - bearingDelta : bearingDelta;
 
                             // If it's within 25 miles or 15 degrees inside that 3-second window, it's a duplicate
-                            if (distDelta <= 25 || trueBearingDelta <= 15) {
+                            if (distDelta <= 25 && trueBearingDelta <= 15) {
                                 return true;
                             }
                         }
