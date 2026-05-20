@@ -80,11 +80,11 @@
                         <v-icon icon="mdi-navigation"
                             :style="{ transform: `rotate(${stg.lightning.currentStorm?.bearing || 0}deg)`, transition: 'transform 0.5s' }"
                             size="28" color="brown-lighten-4"></v-icon>
-                        <div :class="['trend-text font-weight-black mt-1 text-capitalize', trendColor]">
-                            {{ stg.lightning.currentStorm?.trend }}
-                        </div>
                         <div class="unit-text ml-1" style="font-size: 1.0rem;">
                             {{ getDir(stg.lightning.currentStorm?.bearing) }}
+                        </div>
+                        <div :class="['trend-text font-weight-black text-capitalize', trendColor]">
+                            {{ stg.lightning.currentStorm?.trend }}
                         </div>
                     </div>
                 </div>
@@ -213,6 +213,9 @@ export default {
     },
 
     mounted() {
+        window.dashboard = this.stg;
+        window.lightningCard = this;
+
         // 1. Cleanup
         if (this.freqTimer) clearInterval(this.freqTimer);
 
@@ -428,11 +431,39 @@ export default {
                 const bearing = Math.round((Math.atan2(y, x) * 180 / Math.PI + 360) % 360);
                 const heading = this.getDir(bearing); //added for trending 5/19/26
 
+                const history = this.stg.lightning.history;
+                if (history.length > 0) {
+                    const currentStrikeTime = Number(data.time) || now;
+
+                    // Scan history backward to find any matches within a 3-second window
+                    const isDuplicate = history.slice(-5).some(pastStrike => {
+                        const timeDelta = Math.abs(currentStrikeTime - pastStrike.time);
+
+                        // Only evaluate strikes that happened within 3 seconds of this one
+                        if (timeDelta < 3000) {
+                            const distDelta = Math.abs(dist - pastStrike.distance);
+                            const bearingDelta = Math.abs(bearing - pastStrike.bearing);
+                            const trueBearingDelta = bearingDelta > 180 ? 360 - bearingDelta : bearingDelta;
+
+                            // If it's within 25 miles or 15 degrees inside that 3-second window, it's a duplicate
+                            if (distDelta <= 25 || trueBearingDelta <= 15) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+
+                    if (isDuplicate) {
+                        // console.warn(`[DEDUPE] Window blocked a duplicate cluster strike at ${dist}mi`);
+                        return; // Drop the duplicate packet completely!
+                    }
+                }
                 // Record the strike
                 this.stg.lightning.history.push({
                     time: data.time || now,
                     distance: dist,
-                    bearing: bearing
+                    bearing: bearing,
+                    heading: heading
                 });
 
                 // 3. Update UI State
@@ -568,13 +599,13 @@ export default {
 
                 // --- YOUR EXACT MATH RUNNING IN ISOLATION PER SECTOR ---
                 if (config.algorithm === 'Percentile (Balanced)') {
-                    const sorted = [...directionalWindow].sort((a, b) => a.distance - b.distance);
-                    const mid = Math.floor(directionalWindow.length / 2);
                     const oldSorted = [...directionalWindow.slice(0, mid)].sort((a, b) => a.distance - b.distance);
                     const newSorted = [...directionalWindow.slice(-mid)].sort((a, b) => a.distance - b.distance);
 
-                    const oldIdx = Math.floor(0.2 * (oldSorted.length - 1));
-                    const newIdx = Math.floor(0.2 * (newSorted.length - 1));
+                    // 🟢 Change 0.2 to 0.5 (Median) or 0.8 (True Percentile Tracking) to see the storm body shift
+                    const percentileWeight = 0.5;
+                    const oldIdx = Math.floor(percentileWeight * (oldSorted.length - 1));
+                    const newIdx = Math.floor(percentileWeight * (newSorted.length - 1));
 
                     diff = oldSorted[oldIdx].distance - newSorted[newIdx].distance;
 
@@ -605,18 +636,25 @@ export default {
 
             // 5. Determine Global Threat (Identify the fastest approaching sector)
             let highestThreatSector = 'None';
-            let maxDiff = sensitivity; // Must beat sensitivity to be considered approaching
+            let recedingSector = 'None';
+            let maxDiff = sensitivity;
+            let minDiff = -sensitivity; // Track receding delta
 
             headings16.forEach(dir => {
                 if (directionalTrends[dir].trend === 'Approaching' && directionalTrends[dir].diff > maxDiff) {
                     maxDiff = directionalTrends[dir].diff;
                     highestThreatSector = dir;
+                } else if (directionalTrends[dir].trend === 'Receding' && directionalTrends[dir].diff < minDiff) {
+                    minDiff = directionalTrends[dir].diff;
+                    recedingSector = dir;
                 }
             });
 
-            // Update primary display fields
+            // Update primary display fields dynamically
             if (highestThreatSector !== 'None') {
-                lightning.currentStorm.trend = `Approaching from ${highestThreatSector}`;
+                lightning.currentStorm.trend = `Approaching ${highestThreatSector}`;
+            } else if (recedingSector !== 'None') {
+                lightning.currentStorm.trend = `Receding ${recedingSector}`; // 🟢 Now handles receding states!
             } else {
                 lightning.currentStorm.trend = 'Stationary';
             }
@@ -729,6 +767,83 @@ export default {
             };
             reader.readAsText(file);
         },
+        // Add this temporary method for testing
+        simulateStormCell(direction, startingDistance, simType = 'approaching') {
+            console.log(`>>> Starting simulated ${simType} storm cell from the ${direction}...`);
+
+            // Mapping 16 headings back to approximate degree angles
+            const headingToDegrees = {
+                'N': 0, 'NNE': 22.5, 'NE': 45, 'ENE': 67.5,
+                'E': 90, 'ESE': 112.5, 'SE': 135, 'SSE': 157.5,
+                'S': 180, 'SSW': 202.5, 'SW': 225, 'WSW': 247.5,
+                'W': 270, 'WNW': 292.5, 'NW': 315, 'NNW': 337.5
+            };
+
+            const bearing = headingToDegrees[direction.toUpperCase()] || 0;
+            const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
+            const R_EARTH = 3958.8; // Miles
+
+            let currentDistance = startingDistance;
+            let pulseCount = 0;
+
+            // Fire a strike every 2 seconds, marching closer each time
+            const interval = setInterval(() => {
+                if (pulseCount >= 25) { // Stop after 25 bursts (exceeds sampleSize)
+                    clearInterval(interval);
+                    console.log(`>>> Simulation for ${direction} cell complete.`);
+                    return;
+                }
+
+                if (simType.toLowerCase() === 'receding') {
+                    currentDistance += 1.5;
+                    if (currentDistance > 100) currentDistance = 100;
+                } else {
+                    currentDistance -= 1.5;
+                    if (currentDistance < 2) currentDistance = 2;
+                }
+
+                // Drop distance by 1.5 miles per strike to simulate an approaching front
+                // currentDistance -= 1.5;
+                // if (currentDistance < 2) currentDistance = 2; // Don't crash into ground zero
+
+                // Reverse-engineer lat/lon coordinates from the home location based on bearing and distance
+                const bearingRad = (bearing * Math.PI) / 180;
+                const centerLatRad = (home.lat * Math.PI) / 180;
+                const centerLonRad = (home.lon * Math.PI) / 180;
+                const distRad = currentDistance / R_EARTH;
+
+                const strikeLatRad = Math.asin(
+                    Math.sin(centerLatRad) * Math.cos(distRad) +
+                    Math.cos(centerLatRad) * Math.sin(distRad) * Math.cos(bearingRad)
+                );
+                const strikeLonRad = centerLonRad + Math.atan2(
+                    Math.sin(bearingRad) * Math.sin(distRad) * Math.cos(centerLatRad),
+                    Math.cos(distRad) - Math.sin(centerLatRad) * Math.sin(strikeLatRad)
+                );
+
+                const fakeStrike = {
+                    lat: (strikeLatRad * 180) / Math.PI,
+                    lon: (strikeLonRad * 180) / Math.PI,
+                    time: Date.now()
+                };
+
+                // Pass it straight to your live calculation engine
+                this.processIncomingStrike(fakeStrike);
+                pulseCount++;
+            }, 2000);
+        },
+        simulateFullStormCycle(direction) {
+            console.log(`>>> Kicking off realistic storm cycle from the ${direction}...`);
+
+            // Phase 1: March inward from 45 miles down to 5 miles
+            this.simulateStormCell(direction, 45, 'approaching');
+
+            // Phase 2: After 50 seconds (25 pulses * 2s), automatically shift to receding
+            setTimeout(() => {
+                console.log(`>>> Real-world transition: Front is stalling and beginning to recede...`);
+                this.simulateStormCell(direction, 5, 'receding');
+            }, 51000);
+        }
     },
     computed: {
         // 1. Helper to make template code cleaner
