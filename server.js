@@ -47,6 +47,8 @@ function getUptime() {
 
   return `${d}d ${h}h ${m}m ${s}s`
 }
+const { version } = require('./package.json')
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
