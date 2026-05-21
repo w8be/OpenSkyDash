@@ -3,6 +3,7 @@ import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
+import p_json from './package.json' with { type: 'json' }
 
 // Setup for ES Modules __dirname
 const __filename = fileURLToPath(import.meta.url)
@@ -47,12 +48,11 @@ function getUptime() {
 
   return `${d}d ${h}h ${m}m ${s}s`
 }
-const { version } = require('./package.json')
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    version: version,
+    version: p_json.version,
     uptime: getUptime(),
     timestamp: new Date().toLocaleTimeString(),
   })
