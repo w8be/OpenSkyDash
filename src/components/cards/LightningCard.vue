@@ -136,7 +136,7 @@
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ formatDistance(strike.distance) }}<span class="text-caption ml-1">{{
                                             stg.units.distance
-                                            }}</span>
+                                        }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -588,7 +588,6 @@ export default {
             });
 
             // 2. Group your historical data window by heading
-            // We use a larger slice or the whole buffer because a single heading needs enough samples
             h.forEach(strike => {
                 if (directionalTrends[strike.heading]) {
                     directionalTrends[strike.heading].activityCount++;
@@ -607,12 +606,10 @@ export default {
                 }
 
                 const mid = Math.floor(directionalWindow.length / 2);
-
                 let diff = 0;
 
                 // --- YOUR EXACT MATH RUNNING IN ISOLATION PER SECTOR ---
                 if (config.algorithm === 'Percentile (Balanced)') {
-                    // 🟢 THE FIX: Use .map() to deeply clone the objects so .sort() doesn't touch history references
                     const oldSorted = directionalWindow.slice(0, mid)
                         .map(strike => ({ ...strike }))
                         .sort((a, b) => a.distance - b.distance);
@@ -631,7 +628,6 @@ export default {
                     diff = directionalWindow[0].distance - directionalWindow[directionalWindow.length - 1].distance;
                 } else {
                     // Average (Smoother)
-                    const mid = Math.floor(directionalWindow.length / 2);
                     const oldAvg = directionalWindow.slice(0, mid).reduce((a, b) => a + b.distance, 0) / mid;
                     const newAvg = directionalWindow.slice(-mid).reduce((a, b) => a + b.distance, 0) / mid;
                     diff = oldAvg - newAvg;
@@ -652,27 +648,45 @@ export default {
             // 4. Update state so your UI can bind to it
             this.directionalTrends = directionalTrends;
 
-            // 5. Determine Global Threat (Identify the fastest approaching sector)
+            // 5. Determine Global Threat (Zone-Aware Multi-Cell Evaluation)
             let highestThreatSector = 'None';
             let recedingSector = 'None';
-            let maxDiff = sensitivity;
-            let minDiff = -sensitivity; // Track receding delta
+
+            let closestApproachingDist = Infinity;
+            let closestRecedingDist = Infinity;
+            const alertRadiusThreshold = Number(config.alertRadius) || 25;
 
             headings16.forEach(dir => {
-                if (directionalTrends[dir].trend === 'Approaching' && directionalTrends[dir].diff > maxDiff) {
-                    maxDiff = directionalTrends[dir].diff;
-                    highestThreatSector = dir;
-                } else if (directionalTrends[dir].trend === 'Receding' && directionalTrends[dir].diff < minDiff) {
-                    minDiff = directionalTrends[dir].diff;
-                    recedingSector = dir;
+                const sectorStrikes = h.filter(strike => strike.heading === dir);
+                if (sectorStrikes.length === 0) return; // Skip empty skies
+
+                const closestSectorDist = Math.min(...sectorStrikes.map(s => s.distance));
+                const currentTrend = directionalTrends[dir].trend;
+
+                // Evaluate based on calculated presence rather than requiring high velocity diffs
+                if (currentTrend === 'Approaching') {
+                    if (closestSectorDist < closestApproachingDist) {
+                        closestApproachingDist = closestSectorDist;
+                        highestThreatSector = dir;
+                    }
+                } else if (currentTrend === 'Receding') {
+                    if (closestSectorDist < closestRecedingDist) {
+                        closestRecedingDist = closestSectorDist;
+                        recedingSector = dir;
+                    }
                 }
             });
 
-            // Update primary display fields dynamically
-            if (highestThreatSector !== 'None') {
+            // Update primary display fields dynamically using the new hierarchy
+            if (closestRecedingDist <= alertRadiusThreshold && closestRecedingDist < closestApproachingDist) {
+                // A cell is leaving, but it's inside our alert radius and closer than any incoming outer threats
+                lightning.currentStorm.trend = `Receding ${recedingSector}`;
+            } else if (highestThreatSector !== 'None') {
+                // Default macro behavior: focus on the incoming sector threat
                 lightning.currentStorm.trend = `Approaching ${highestThreatSector}`;
             } else if (recedingSector !== 'None') {
-                lightning.currentStorm.trend = `Receding ${recedingSector}`; // 🟢 Now handles receding states!
+                // No approaching cells anywhere, track the departing outer cell
+                lightning.currentStorm.trend = `Receding ${recedingSector}`;
             } else {
                 lightning.currentStorm.trend = 'Stationary';
             }
