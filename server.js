@@ -50,6 +50,7 @@ function getUptime() {
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
+    version: version,
     uptime: getUptime(),
     timestamp: new Date().toLocaleTimeString(),
   })
