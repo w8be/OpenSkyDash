@@ -85,7 +85,7 @@
                     <span class="label"><v-icon icon="mdi-eye" v-tooltip:top="'Current Visibility'"
                             color="brown-lighten-2" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.visibility }} {{ stg.units.distance
-                    }}</strong></span>
+                            }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" v-tooltip:top="'Current UV Exposure'"
@@ -105,7 +105,7 @@
                             size="small" color="blue-lighten-4">
                         </v-icon>
                         <span class="temp-range text-caption ml-4">{{ Math.round(day.high) }}°/{{ Math.round(day.low)
-                        }}°</span>
+                            }}°</span>
                         <span class="precip text-caption text-blue-lighten-4" style="width: 80px; text-align: right;">
                             💧{{ day.precip }}%
                         </span>
@@ -334,7 +334,9 @@ export default {
             }
 
             if (code === 0) return { text: 'Clear', icon: 'mdi-weather-sunny' };
-            if (code <= 3) return { text: 'Partly Cloudy', icon: 'mdi-weather-partly-cloudy' };
+            if (code === 1) return { text: 'Mainly Clear', icon: 'mdi-weather-partly-cloudy' };
+            if (code === 2) return { text: 'Partly Cloudy', icon: 'mdi-weather-partly-cloudy' };
+            if (code === 3) return { text: 'Overcast', icon: 'mdi-weather-cloudy' };
             if (code >= 45 && code <= 48) return { text: 'Foggy', icon: 'mdi-weather-fog' };
             if (code >= 51 && code <= 67) return { text: 'Rainy', icon: 'mdi-weather-rainy' };
             if (code >= 71 && code <= 77) return { text: 'Snowy', icon: 'mdi-weather-snowy' };
