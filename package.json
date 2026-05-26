@@ -21,6 +21,7 @@
     "esbuild": "^0.28.0",
     "prettier": "3.8.1",
     "sass": "^1.99.0",
+    "strip-comments": "^2.0.1",
     "unplugin-fonts": "^2.0.0",
     "vite": "^8.0.3",
     "vite-plugin-vue-devtools": "^8.1.1",
