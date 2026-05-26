@@ -28,6 +28,7 @@ export default defineConfig({
   // 🟢 FIX 1: esbuild settings must be at the top level, NOT inside build
   esbuild: {
     drop: ['console', 'debugger'],
+    legalComments: 'none',
   },
 
   build: {
