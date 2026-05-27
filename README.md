@@ -303,20 +303,20 @@ One-line install for Raspberry Pi (3B, 3B+, 4, 5). Supports both graphical and h
 | Raspberry Pi OS Trixie   | 13     | ✅ Supported           | Wayland (labwc)      |
 | Raspberry Pi OS Bullseye | 11     | ⚠️ Legacy, best-effort | X11                  |
 
-**Standard install (kiosk mode — auto-starts fullscreen on boot):**
+**Kiosk install (kiosk mode — auto-starts fullscreen on boot):**
 
 ```bash
 
-curl -H "Authorization: token <your_token>" -L [https://raw.githubusercontent.com/w8be/Station-Dashboard/main/setup-pi.sh](https://raw.githubusercontent.com/w8be/Station-Dashboard/main/setup.sh) | bash -s -- --kiosk
+curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash -s --kiosk
 ```
 
-This is the recommended option for a dedicated shack display. The Pi boots directly into a fullscreen Chromium browser showing Station-Dashboard. The kiosk launcher automatically detects Wayland (Trixie/labwc) or X11 (Bookworm/LXDE) and adjusts accordingly — no manual configuration needed.
+The Pi boots directly into a fullscreen Chromium browser showing Station-Dashboard. The kiosk launcher automatically detects Wayland (Trixie/labwc) or X11 (Bookworm/LXDE) and adjusts accordingly — no manual configuration needed. Only use this if you want a dedicated device for SkyDash.
 
 **Server-only install (headless, no GUI):**
 
 ```bash
 
-curl -H "Authorization: token <your_token>" -L [https://raw.githubusercontent.com/w8be/Station-Dashboard/main/setup-pi.sh](https://raw.githubusercontent.com/w8be/Station-Dashboard/main/setup.sh) | bash -s -- --server
+curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash -s --server
 ```
 
 Runs Station-Dashboard as a web server only. Access it from any browser on your LAN.
