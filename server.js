@@ -69,7 +69,7 @@ app.get('/api-kc2g/api/point_prediction.json', async (req, res) => {
   try {
     const response = await fetch(targetUrl, {
       headers: {
-        'User-Agent': 'Station-Dashboard-Pi/1.0',
+        'User-Agent': 'SkyDash-Pi/1.0',
       },
     })
 
@@ -97,5 +97,5 @@ app.get(/^(?!\/(api|blitz-js|api-kc2g)).+/, (req, res) => {
 
 // Leave out the host string entirely, or use '0.0.0.0'
 app.listen(port, '0.0.0.0', () => {
-  console.log('Station-Dashboard running and accessible on local network port 5050')
+  console.log('SkyDash running and accessible on local network port 5050')
 })
