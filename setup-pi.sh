@@ -137,13 +137,13 @@ echo "╚═══════════════════════�
 echo -e "${NC}"                                                         
 
 # Parse arguments
+SERVER_MODE=true
 KIOSK_MODE=false
-SERVER_MODE=false
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --kiosk) KIOSK_MODE=true ;;
-        --server) SERVER_MODE=true ;;
+        --kiosk) KIOSK_MODE=true SERVER_MODE=false ;;
+        --server) SERVER_MODE=true KIOSK_MODE=false ;;
         --help) 
             echo "Usage: ./setup-pi.sh [OPTIONS]"
             echo ""
