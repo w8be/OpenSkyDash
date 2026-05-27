@@ -20,7 +20,7 @@
               :class="{ 'pulsing-icon': (stg?.lightning?.currentStorm?.frequency > 0) }">
             </v-icon></v-tab>
           <v-tab value="solar"><v-icon icon="mdi-sun-wireless" color="error" size="small" class="mr-1"
-              :class="{ 'pulsing-icon': (stg?.solar?.current?.scales?.current.g > 0 || stg?.solar?.current?.scales?.current?.r > 0 || stg?.solar?.current?.scales?.current?.s > 0) }">
+              :class="{ 'pulsing-icon-solar': (stg?.solar?.current?.scales?.current.g > 0 || stg?.solar?.current?.scales?.current?.r > 0 || stg?.solar?.current?.scales?.current?.s > 0) }">
             </v-icon></v-tab>
           <v-tab value="settings"><v-icon icon="mdi-cog" color="grey" size="small">
             </v-icon></v-tab>
@@ -235,6 +235,11 @@ body {
 
 .pulsing-icon {
   animation: pulse-lightning 1.5s infinite ease-in-out;
+  display: inline-block;
+}
+
+.pulsing-icon-solar {
+  animation: pulse-lightning 10s infinite ease-in-out;
   display: inline-block;
 }
 
