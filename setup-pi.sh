@@ -291,7 +291,6 @@ setup_repository() {
         git pull
     else
         echo "Cloning repository..."
-        # git clone https://x-token-auth:<your_token>@github.com/w8be/SkyDash.git "$INSTALL_DIR"
         git clone https://x-token-auth:<your_token>@github.com/w8be/Station-Dashboard.git "$INSTALL_DIR"
         cd "$INSTALL_DIR"
     fi
