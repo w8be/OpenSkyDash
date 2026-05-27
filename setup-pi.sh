@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Station-Dashboard - Raspberry Pi Setup Script
+# SkyDash - Raspberry Pi Setup Script
 #
 # ═══════════════════════════════════════════════════════════════════
 # SUPPORTED HARDWARE
@@ -65,7 +65,7 @@
 #   1. Updates system packages (apt-get update && upgrade)
 #   2. Installs Node.js 22 LTS via NodeSource
 #   3. Installs system dependencies (Chromium, fonts, display tools)
-#   4. Clones or updates the Station-Dashboard repository
+#   4. Clones or updates the SkyDash repository
 #   5. Runs npm install and npm run build
 #   6. Creates /home/<user>/.env from .env.example (if absent)
 #   7. Creates and enables a systemd service (openhamclock.service)
@@ -89,7 +89,7 @@
 #                 from the autostart context), then xset disables the
 #                 screensaver and unclutter hides the cursor
 #
-#   If the Station-Dashboard server does not respond within 60 seconds,
+#   If the SkyDash server does not respond within 60 seconds,
 #   kiosk.sh exits with an error rather than looping forever.
 #
 # ═══════════════════════════════════════════════════════════════════
@@ -116,20 +116,20 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-INSTALL_DIR="$HOME/Station-Dashboard"
-SERVICE_NAME="Station-Dashboard"
+INSTALL_DIR="$HOME/skydash"
+SERVICE_NAME="skydash"
 NODE_VERSION="22"
 
 # Print banner
 echo -e "${BLUE}"
 echo "╔════════════════════════════════════════════════════════════╗";
 echo "║                                                            ║";
-echo "███████╗██╗  ██╗██╗   ██╗     ██████╗  █████╗ ███████╗██╗  ██╗";
-echo "██╔════╝██║ ██╔╝╚██╗ ██╔╝     ██╔══██╗██╔══██╗██╔════╝██║  ██║";
-echo "███████╗█████╔╝  ╚████╔╝█████╗██║  ██║███████║███████╗███████║";
-echo "╚════██║██╔═██╗   ╚██╔╝ ╚════╝██║  ██║██╔══██║╚════██║██╔══██║";
-echo "███████║██║  ██╗   ██║        ██████╔╝██║  ██║███████║██║  ██║";
-echo "╚══════╝╚═╝  ╚═╝   ╚═╝        ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝";
+echo "║███████╗██╗  ██╗██╗   ██╗██████╗  █████╗ ███████╗██╗  ██╗   ║";
+echo "║██╔════╝██║ ██╔╝╚██╗ ██╔╝██╔══██╗██╔══██╗██╔════╝██║  ██║   ║";
+echo "║███████╗█████╔╝  ╚████╔╝ ██║  ██║███████║███████╗███████║   ║";
+echo "║╚════██║██╔═██╗   ╚██╔╝  ██║  ██║██╔══██║╚════██║██╔══██║   ║";
+echo "║███████║██║  ██╗   ██║   ██████╔╝██║  ██║███████║██║  ██║   ║";
+echo "║╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ║";
 echo "║                                                            ║";
 echo "║   Raspberry Pi Setup Script                                ║";
 echo "║                                                            ║";
@@ -275,7 +275,7 @@ install_dependencies() {
 
 # Clone or update repository
 setup_repository() {    
-    echo -e "${BLUE}>>> Setting up Station-Dashboard...${NC}"
+    echo -e "${BLUE}>>> Setting up SkyDash...${NC}"
 
     if [ ! -f /swapfile ]; then
         echo -e "${BLUE}>>> Creating temporary swap for build...${NC}"
@@ -291,7 +291,7 @@ setup_repository() {
         git pull
     else
         echo "Cloning repository..."
-        git clone https://x-token-auth:<your_token>@github.com/w8be/Station-Dashboard.git "$INSTALL_DIR"
+        git clone https://x-token-auth:<your_token>@github.com/w8be/SkyDash.git "$INSTALL_DIR"
         cd "$INSTALL_DIR"
     fi
     
@@ -325,7 +325,7 @@ setup_repository() {
         echo "PORT=5050" > .env
     fi
 
-    echo -e "${GREEN}✓ Station-Dashboard installed to $INSTALL_DIR${NC}"
+    echo -e "${GREEN}✓ SkyDash installed to $INSTALL_DIR${NC}"
 }
 
 # Create systemd service
@@ -343,7 +343,7 @@ create_service() {
 
     sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << EOF
 [Unit]
-Description=Station-Dashboard Server
+Description=SkyDash Server
 After=network.target
 
 [Service]
@@ -383,7 +383,7 @@ setup_kiosk() {
     # Create kiosk launcher script
     cat > "$INSTALL_DIR/kiosk.sh" << 'EOF'
 #!/bin/bash
-# Station-Dashboard Kiosk Launcher
+# SkyDash Kiosk Launcher
 # Supports Raspberry Pi OS Bookworm (X11) and Trixie (Wayland/labwc)
 
 # Wait for the desktop environment to be ready
@@ -403,7 +403,7 @@ if [ -z "$SESSION_TYPE" ]; then
     SESSION_TYPE="x11"
 fi
 
-echo "Station-Dashboard kiosk: detected session type = $SESSION_TYPE"
+echo "SkyDash kiosk: detected session type = $SESSION_TYPE"
 
 if [ "$SESSION_TYPE" = "wayland" ]; then
     # ------------------------------------------------------------------
@@ -432,13 +432,13 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Wait for the Station-Dashboard server to be ready (max 60 seconds)
+# Wait for the SkyDash server to be ready (max 60 seconds)
 # ------------------------------------------------------------------
 MAX_WAIT=60
 WAITED=0
 until curl -s "$HEALTH_URL" > /dev/null 2>&1; do
     if [ "$WAITED" -ge "$MAX_WAIT" ]; then
-        echo "ERROR: Station-Dashboard server did not respond within ${MAX_WAIT}s."
+        echo "ERROR: SkyDash server did not respond within ${MAX_WAIT}s."
         echo "Check the service: sudo systemctl status openhamclock"
         exit 1
     fi
@@ -490,7 +490,7 @@ $CHROME_CMD \
 
 CHROME_PID=$!
 
-echo "Station-Dashboard kiosk running (PID: $CHROME_PID)"
+echo "SkyDash kiosk running (PID: $CHROME_PID)"
 echo "Exit methods:"
 echo "  - Alt+F4        (close Chromium)"
 echo "  - Ctrl+Alt+T    (open terminal, then: pkill -f kiosk)"
@@ -505,7 +505,7 @@ EOF
     cat > "$HOME/.config/autostart/openhamclock-kiosk.desktop" << EOF
 [Desktop Entry]
 Type=Application
-Name=Station-Dashboard Kiosk
+Name=SkyDash Kiosk
 Exec=$INSTALL_DIR/kiosk.sh
 Hidden=false
 X-GNOME-Autostart-enabled=true
@@ -557,7 +557,7 @@ EOF
 sudo systemctl stop ${SERVICE_NAME}
 pkill -f chromium 2>/dev/null || true
 pkill -f unclutter 2>/dev/null || true
-echo "Station-Dashboard stopped"
+echo "SkyDash stopped"
 EOF
     chmod +x "$INSTALL_DIR/stop.sh"
     
@@ -565,14 +565,14 @@ EOF
     cat > "$INSTALL_DIR/restart.sh" << EOF
 #!/bin/bash
 sudo systemctl restart ${SERVICE_NAME}
-echo "Station-Dashboard restarted"
+echo "SkyDash restarted"
 EOF
     chmod +x "$INSTALL_DIR/restart.sh"
     
     # Status script
     cat > "$INSTALL_DIR/status.sh" << EOF
 #!/bin/bash
-echo "=== Station-Dashboard Status ==="
+echo "=== SkyDash Status ==="
 sudo systemctl status ${SERVICE_NAME} --no-pager
 echo ""
 EOF
@@ -581,13 +581,13 @@ EOF
     echo -e "${GREEN}✓ Helper scripts created${NC}"
 }
 
-# Build and Deploy the Station-Dashboard
+# Build and Deploy the SkyDash
 deploy_dashboard() {
     echo -e "${BLUE}>>> Deploying SkyDash Dashboard...${NC}"
     
     # Ensure we are in the project directory
     # (Adjust path if your script clones it elsewhere)
-    cd /home/w8be/Station-Dashboard || { echo -e "${RED}✗ Directory not found${NC}"; return; }
+    cd /home/w8be/SkyDash || { echo -e "${RED}✗ Directory not found${NC}"; return; }
 
     echo -e "${BLUE}    Installing Node modules...${NC}"
     npm install --quiet
@@ -598,8 +598,8 @@ deploy_dashboard() {
     echo -e "${BLUE}    Setting up Systemd Service...${NC}"
     # This ensures the service points to the correct capitalized path
     sudo systemctl daemon-reload
-    sudo systemctl enable Station-Dashboard
-    sudo systemctl restart Station-Dashboard
+    sudo systemctl enable SkyDash
+    sudo systemctl restart SkyDash
 
     echo -e "${GREEN}✓ Dashboard deployed and running on port 5050${NC}"
 }
@@ -628,7 +628,7 @@ print_summary() {
     
     if [ "$KIOSK_MODE" = true ]; then
         echo -e "  ${GREEN}Kiosk Mode:${NC} Enabled"
-        echo "    Station-Dashboard will auto-start on boot in fullscreen"
+        echo "    SkyDash will auto-start on boot in fullscreen"
         echo ""
         echo -e "    ${YELLOW}Exit kiosk:${NC}"
         echo "      Alt+F4          Close Chromium"
@@ -640,7 +640,7 @@ print_summary() {
         echo ""
     fi
     
-    echo -e "  ${BLUE}73 de Station-Dashboard!${NC}"
+    echo -e "  ${BLUE}73 de SkyDash!${NC}"
     echo ""
     
     if [ "$KIOSK_MODE" = true ]; then
