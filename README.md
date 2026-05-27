@@ -63,8 +63,8 @@ The persistent icons that provides at-a-glance information and card selection.
 **From left to right:**
 
 - **Weather** — Icon to open the Weather Card. The icon will update showing the current condition.
-- **Lightning** — Icon to open the Lightning Card. The icon will flash in 1 second interval when strikes are within the area or alert range.
-- **Solar** — Icon to open the Solar Card. The icon will flash in a 10 second interval when a (R)(S)(G) is > 0.
+- **Lightning** — Icon to open the Lightning Card. The icon will flash in 1 second intervals when strikes are within the area or alert range.
+- **Solar** — Icon to open the Solar Card. The icon will flash in 10 second intervals when (R)(S)(G) is > 0.
 - **Settings** — Icon to open the Settings Card. All user configurable information is defined in this card.
 
 ---
