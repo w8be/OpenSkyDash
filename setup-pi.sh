@@ -116,7 +116,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-INSTALL_DIR="$HOME/skydash"
+INSTALL_DIR="$HOME/Station-Dashboard"
 SERVICE_NAME="skydash"
 NODE_VERSION="22"
 
