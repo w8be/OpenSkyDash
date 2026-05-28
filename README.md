@@ -183,33 +183,6 @@ All feeds default to **OFF**. Settings persist in localStorage.
 
 ---
 
-## Settings
-
-Save and switch between named configuration profiles. Useful when multiple operators share a single HamClock, or when you want to quickly toggle between different personal setups (contest mode, field day, everyday).
-
-**What a profile captures:** Everything — your callsign, location, theme, layout, dock arrangement, map layers, DX filters, PSK filters, satellite filters, VOACAP preferences, temperature unit, time format, and all other `openhamclock_*` settings.
-
-**How to use it:**
-
-1. Open **Settings → Profiles** tab
-2. Enter a name (e.g., your callsign, "Contest", "Field Day") and click **Save**
-3. Your current state is captured as a named profile
-4. To switch profiles, click **▶ Load** on any saved profile — the page reloads with that configuration
-5. To update a profile with your current changes, click **↻** (update)
-6. To share a profile or move it between devices, click **⤓** (export) to download a JSON file, then use **Import Profile from File** on the other device
-
-**Profile actions:**
-
-- **▶ Load** — Restores the profile and reloads the page
-- **↻ Update** — Overwrites the saved profile with your current live state
-- **✎ Rename** — Inline rename
-- **⤓ Export** — Downloads as a `.json` file
-- **✕ Delete** — With confirmation
-
-Profiles are stored in your browser's localStorage. The currently active profile is shown with a green indicator.
-
----
-
 ## Auto-Refresh on Update
 
 When the server is updated with a new version (e.g., via `git pull` + restart, or a Railway deployment), all connected browsers automatically detect the change and reload. There is nothing to configure.
@@ -219,61 +192,6 @@ When the server is updated with a new version (e.g., via `git pull` + restart, o
 ---
 
 ## Health Dashboard
-
----
-
-## Configuration Reference
-
-All configuration is done through the `.env` file. On first run, this file is auto-created from `.env.example`. You can also change most settings through the browser-based Settings panel.
-
-> **Can't find the `.env` file?** Files starting with a dot are hidden by default on Linux, Mac, and Raspberry Pi.
->
-> - **Terminal:** `ls -la` to see hidden files, or `nano .env` to edit directly
-> - **File manager (Pi/Linux):** Press `Ctrl+H` to toggle hidden files
-> - **Mac Finder:** Press `Cmd+Shift+.` to toggle hidden files
-> - **If the file doesn't exist yet:** Run `npm start` once and it will be auto-created, or copy it manually: `cp .env.example .env`
->
-> The `.env` file is located in the root of your SkyDash directory (same folder as `server.js` and `package.json`).
-
-### Station Setting Variables
-
-| Variable    | Default          | Description                                                                                                                               |
-| ----------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `CALLSIGN`  | `N0CALL`         | Your amateur radio callsign. This is shown in the header bar and used for DX cluster login, PSKReporter queries, and "My Spots" tracking. |
-| `LOCATOR`   | `FN31`           | Your Maidenhead grid locator (4 or 6 characters). Used to calculate your station coordinates if LATITUDE/LONGITUDE aren't set.            |
-| `LATITUDE`  | _(from locator)_ | Station latitude in decimal degrees. Overrides the latitude calculated from LOCATOR.                                                      |
-| `LONGITUDE` | _(from locator)_ | Station longitude in decimal degrees. Overrides the longitude calculated from LOCATOR.                                                    |
-
-### Server Setting Variables
-
-| Variable    | Default     | Description                                                                                                                              |
-| ----------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `PORT`      | `3001`      | Backend API server port. In development, the Vite frontend runs on 3000 and proxies /api to this port.                                   |
-| `HOST`      | `localhost` | Bind address. Set to `0.0.0.0` to make SkyDash accessible from other devices on your LAN (tablets, phones, other PCs).                   |
-| `LOG_LEVEL` | `warn`      | Server log verbosity: `debug` (everything), `info` (operational), `warn` (problems), `error` (failures only). Use `warn` for production. |
-
-### Display Preference Variables
-
-| Variable      | Default     | Description                                                                                                                                                          |
-| ------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `UNITS`       | `imperial`  | `imperial` This setting is deprecated and no longer used.                                                                                                            |
-| `DISTUNITS`   | `imperial`. | `imperial` (miles, inches, ...) or `metric (km, m, ...) For displaying anything involving a distance or speed.                                                       |
-| `TEMPUNITS`   | `imperial`. | `imperial` (°F) or `metric` (°C). For displaying Temperatures.                                                                                                       |
-| `PRESSUNITS`. | `imperial`  | `imperial` (inHg) or `metric` (hPa)                                                                                                                                  |
-| `TIME_FORMAT` | `12`        | `12` or `24` hour clock format. Can also be toggled by clicking the local clock in the header.                                                                       |
-| `THEME`       | `dark`      | `dark`, `light`, `legacy`, or `retro`. See [Themes and Layouts](#themes-and-layouts).                                                                                |
-| `LAYOUT`      | `modern`    | `modern` or `classic`. See [Themes and Layouts](#themes-and-layouts).                                                                                                |
-| `TZ`          | _(browser)_ | IANA timezone identifier (e.g., `America/New_York`, `Europe/London`). Only needed if your browser spoofs the timezone (common with privacy browsers like Librewolf). |
-
-### Configuration Priority
-
-Settings are loaded in this order (first match wins):
-
-1. **localStorage** — Changes you make in the browser Settings panel are saved here and take top priority.
-2. **.env file** — Your station configuration file. This is where you set your callsign and locator.
-3. **Defaults** — Built-in fallback values (N0CALL, FN31, dark theme, modern layout).
-
-Your `.env` file is never overwritten by updates, so your configuration is always safe.
 
 ---
 
