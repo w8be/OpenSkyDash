@@ -76,6 +76,8 @@ Configurable data for SkyDash.
 **[General](#General)**
 **[Lightning](#Lightning)**
 
+---
+
 ### Weather
 
 Current weather conditions at your station location.
