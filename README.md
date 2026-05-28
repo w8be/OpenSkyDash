@@ -35,6 +35,7 @@ SkyDash brings local weather, lightning tracking, and solar indicies into a sing
 - [Dashboard Cards](#dashboard-cards)
 - [Header](#Header)
 - [Dashboard Card Icons](#Dashboard-Card-Icons)
+- [Settings](#Settings)
 - [Weather](#Weather)
 - [Lightning](#Lighting)
 - [Solar](#Solar)
@@ -75,6 +76,10 @@ Configurable data for SkyDash.
 
 - **[General](#General)**
 - **[Lightning](#Lightning)**
+
+## General
+
+## Lightning
 
 ---
 
