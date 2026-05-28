@@ -80,7 +80,7 @@ Configurable data for SkyDash.
 ### General
 
 - **App Name** - Name displayed on header. SkyDash is default.
-  ####Measurement Units
+  - Measurement Units
   - **Distance** - Mi/Km - Default is Mi
   - **Pressure** - mb/in - Default is in
   - **Temperature** - F/C - Default is F
