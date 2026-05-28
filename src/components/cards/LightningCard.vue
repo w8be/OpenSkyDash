@@ -71,20 +71,25 @@
             </div>
             <div
                 v-if="stg.lightning.currentStorm.distance > 0 && stg.lightning.currentStorm.distance <= stg.lightning.searchRadius">
-                <div class="d-flex justify-space-between align-end mb-4">
-                    <div class="d-flex align-baseline">
-                        <div class="display-value text-brown-lighten-4">{{ convertedDistance }}</div>
-                        <div class="unit-text ml-1">{{ stg.units.distance }}</div>
+                <div class="d-flex justify-space-between align-center mb-4 ml-6">
+                    <div class="d-flex flex-column align-center">
+
+                        <div class="d-flex align-baseline">
+                            <div class="display-value text-brown-lighten-4">{{ convertedDistance }}</div>
+                            <div class="unit-text ml-1">{{ stg.units.distance }}</div>
+                        </div>
+
+                        <div :class="['trend-text font-weight-black text-capitalize', trendColor]"
+                            style="font-size: 0.8rem;">
+                            {{ stg.lightning.currentStorm?.trend }}
+                        </div>
                     </div>
                     <div class="text-right d-flex flex-column align-center" style="min-width: 100px;">
                         <v-icon icon="mdi-navigation"
                             :style="{ transform: `rotate(${stg.lightning.currentStorm?.bearing || 0}deg)`, transition: 'transform 0.5s' }"
-                            size="28" color="brown-lighten-4"></v-icon>
+                            size="38" color="brown-lighten-4"></v-icon>
                         <div class="unit-text ml-1" style="font-size: 1.0rem;">
                             {{ getDir(stg.lightning.currentStorm?.bearing) }}
-                        </div>
-                        <div :class="['trend-text font-weight-black text-capitalize', trendColor]">
-                            {{ stg.lightning.currentStorm?.trend }}
                         </div>
                     </div>
                 </div>
