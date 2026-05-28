@@ -77,9 +77,9 @@ Configurable data for SkyDash.
 - **[General](#General)**
 - **[Lightning](#Lightning)**
 
-## General
+### General
 
-## Lightning
+### Lightning
 
 ---
 
