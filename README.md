@@ -76,6 +76,7 @@ Configurable data for SkyDash.
 
 - **[General](#General)**
 - **[Lightning](#Lightning)**
+- **[Backup/Restore](#Backup/Restore)**
 
 ### General
 
@@ -90,6 +91,8 @@ Configurable data for SkyDash.
   - **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
 
 ### Lightning
+
+### Backup/Restore
 
 ---
 
