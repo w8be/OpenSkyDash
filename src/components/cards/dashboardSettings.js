@@ -28,7 +28,7 @@ const defaultSettings = reactive({
 
     // chaseMode: false,
     sampleSize: 20, // Modified logic from sensitivity
-    resetTime: 30,
+    resetTime: 5,
 
     currentStorm: { distance: 0, bearing: 0, trend: 'Stationary', frequency: 0 },
     history: [],
