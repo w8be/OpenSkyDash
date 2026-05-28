@@ -73,8 +73,8 @@ The persistent icons that provides at-a-glance information and card selection.
 
 Configurable data for SkyDash.
 
-[General](#General)
-[Lightning](#Lightning)
+- [General](#General)
+- [Lightning](#Lightning)
 
 ---
 
