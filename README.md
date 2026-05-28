@@ -78,24 +78,21 @@ Configurable data for SkyDash.
 - **[Lightning](#Lightning)**
 - **[Backup/Restore](#Backup/Restore)**
 
-### General
+  ### General
+  - **App Name** - Name displayed on header. SkyDash is default.
+  - **Distance** - Mi/Km - Default is Mi
+  - **Pressure** - mb/in - Default is in
+  - **Temperature** - F/C - Default is F
 
-- **App Name** - Name displayed on header. SkyDash is default.
-- **Distance** - Mi/Km - Default is Mi
-- **Pressure** - mb/in - Default is in
-- **Temperature** - F/C - Default is F
+  - **Lat** - Latitude of your locale
+  - **Lon** - Longitude of your local
 
-- **Lat** - Latitude of your locale
-- **Lon** - Longitude of your local
+  - **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
 
-- **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
+  - **Search Radius** - The area radius where strikes within will display along with a warning banner. The default is 50.
+  - **Alert Radius** - The alert radius where strikes within will display aloing with the warning banner. The default is 25.
 
-- **Search Radius** - The area radius where strikes within will display along with a warning banner. The default is 50.
-- **Alert Radius** - The alert radius where strikes within will display aloing with the warning banner. The default is 25.
-
----
-
-### Lightning
+  ### Lightning
 
 ---
 
