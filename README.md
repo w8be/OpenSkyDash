@@ -81,14 +81,14 @@ Configurable data for SkyDash.
 ### General
 
 - **App Name** - Name displayed on header. SkyDash is default.
-  - **Distance** - Mi/Km - Default is Mi
-  - **Pressure** - mb/in - Default is in
-  - **Temperature** - F/C - Default is F
+- **Distance** - Mi/Km - Default is Mi
+- **Pressure** - mb/in - Default is in
+- **Temperature** - F/C - Default is F
 
-  - **Lat** - Latitude of your locale
-  - **Lon** - Longitude of your local
+- **Lat** - Latitude of your locale
+- **Lon** - Longitude of your local
 
-  - **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
+- **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
 
 ### Lightning
 
