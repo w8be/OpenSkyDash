@@ -93,6 +93,8 @@ Configurable data for SkyDash.
 - **Search Radius** - The area radius where strikes within will display along with a warning banner. The default is 50.
 - **Alert Radius** - The alert radius where strikes within will display aloing with the warning banner. The default is 25.
 
+--
+
 ### Lightning
 
 ---
