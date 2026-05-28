@@ -95,7 +95,7 @@
                     <v-row density="comfortable">
                         <v-col cols="6">
                             <div class="text-subtitle-2 mb-1 text-secondary">
-                                <v-icon color="#4285F4" size="small">mdi-earth</v-icon> Search Radius
+                                <v-icon color="#4285F4" size="small">mdi-earth</v-icon> Area Radius
                             </div>
                             <v-text-field v-model.number="stg.lightning.searchRadius" density="compact"
                                 variant="outlined"></v-text-field>
