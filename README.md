@@ -87,7 +87,7 @@ Configurable data for SkyDash.
   - **Lat** - Latitude of your locale
   - **Lon** - Longitude of your local
 
-  -**Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
+  - **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
 
 ### Lightning
 
