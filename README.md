@@ -137,6 +137,10 @@ No configuration needed — weather works automatically based on your station co
 
 ---
 
+### Lightning
+
+---
+
 ### Solar
 
 Displays the three key solar indices that affect HF radio propagation. If you operate HF, these numbers directly determine what bands will be open.
