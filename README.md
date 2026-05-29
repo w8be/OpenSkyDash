@@ -197,11 +197,16 @@ Displays the three key solar indices that affect HF radio propagation. If you op
   - SFI > 150: Excellent conditions, 10m and 12m wide open
 
 - **A-Index (Ap)** - Historical Ap Index
+  - Ap 0-10 (green): Quiet
+  - Ap 11 - 20 (yellow): Moderate
+  - Ap 21 - 30 (orange): Storm
+  - Ap 31 - 50 (red): Severe
 
 - **K-Index (Kp)** — Planetary geomagnetic disturbance level on a 0–9 scale. Lower is better for HF:
-  - Kp 0–2 (green): Quiet — excellent HF conditions
-  - Kp 3–4 (amber): Unsettled — noticeable degradation, especially on polar paths
-  - Kp 5+ (red): Storm — significant HF disruption, possible blackouts on higher bands
+  - Kp 0–3 (green): Quiet — excellent HF conditions
+  - Kp 4–5 (yellow): Moderate — noticeable degradation, especially on polar paths
+  - Kp 6-7 (orange): Storm — significant HF disruption, possible blackouts on higher bands
+  - Kp 8-9 (red): Extreme - Severe HF disruption
 
 - **FOF2** - F2 Layer Critical Frequency
 - **MUF** - Maximum Useable Frequency
