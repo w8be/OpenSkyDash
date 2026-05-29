@@ -75,7 +75,7 @@ The persistent icons that provides at-a-glance information and card selection.
 Configurable data for SkyDash.
 
 - **[General](#General)**
-- **[Lightning](#Lightning)**
+- **[Lightning](#Lightning_config)**
 - **[Backup/Restore](#Backup/Restore)**
 
   ### General
@@ -92,7 +92,7 @@ Configurable data for SkyDash.
   - **Area Radius** - The radius where strikes within will display along with a warning banner. The default is 50.
   - **Alert Radius** - The radius where strikes within will display aloing with the warning banner. The default is 25.
 
-  ### Lightning
+  ### Lightning_config
   - **Calculation** - Method used to trend the strike path. Options are Closest, Average, or Percentile algorithms.
   - **Sensitivity** - Value used to determine strike distance sensitivity. Higher values reduce trend flip-floping.
   - **Sample Size** - Value used to determine the amount of strikes that are used in the trend calculations.
