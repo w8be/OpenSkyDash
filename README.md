@@ -206,7 +206,7 @@ Displays the three key solar indices that affect HF radio propagation. If you op
 
 ## Health Dashboard
 
-- **API** - `http://<localhost/ip>:5050/api/health`
+- **API** - `http://<localhost/ip>:5050/api/health` - The API will return the status, version, uptime, and fetch timestamp
 
 ---
 
