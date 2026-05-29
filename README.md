@@ -152,7 +152,7 @@ No configuration needed — weather works automatically based on your station co
 **Header from left to right:**
 
 - Lightning Icon - Flashes when strikes occur in search area/alert radius.
-- Strikes/minute chip - Dynamic update of strikes per minute every 30 seconds.
+- Strikes/minute Chip - Dynamic update of strikes per minute every 30 seconds.
 - Mute Icon - Toggle audio off/on lightning strike.
 - Trash Icon - Clear strike buffer on click.
 
@@ -177,6 +177,12 @@ No configuration needed — weather works automatically based on your station co
   - Time
   - Distance
   - Heading
+
+**Footer**
+
+- Area - Radius distance value. Any strikes <= this value will result in the Warning banner
+- Strike Buffer Status - Last strike seen time when strikes in in the buffer. No Data when no strikes are in the area/alert radius
+- Alert - Radius distance value. Any strikes <= to this value will result in the Danger banner. Trend calculation prioritized for strikes in the alert radius.
 
 **How it works:** Lightning strikes within the search area/alert radius render on the card.
 
