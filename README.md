@@ -37,7 +37,7 @@ SkyDash brings local weather, lightning tracking, and solar indicies into a sing
 - [Dashboard Card Icons](#Dashboard-Card-Icons)
 - [Settings](#Settings)
 - [Weather](#Weather)
-- [Lightning](#Lighting)
+- [Lightning](#Lightning)
 - [Solar](#Solar)
 
 ---
@@ -152,8 +152,8 @@ No configuration needed — weather works automatically based on your station co
 **Header from left to right:**
 
 - Lightning Icon - Flashes when strikes occur in search area/alert radius.
-- Strikes/minute chip - Dynamically update of strikes per minute.
-- Mute Icon - Toggle audio on lightning strike.
+- Strikes/minute chip - Dynamic update of strikes per minute every 30 seconds.
+- Mute Icon - Toggle audio off/on lightning strike.
 - Trash Icon - Clear strike buffer on click.
 
 **Banner**
