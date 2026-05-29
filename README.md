@@ -95,8 +95,6 @@ Configurable data for SkyDash.
 - **Sensitivity** - Value used to determine strike distance sensitivity. Higher values reduce trend flip-floping.
 - **Sample Size** - Value used to determine the amount of strikes that are used in the trend calculations.
 
----
-
 ### Backup/Restore
 
 - **Backup** - Creates a backup json file with the current settings in the $HOME/download directory (i.e.= SkyDash_station_settings.json)
