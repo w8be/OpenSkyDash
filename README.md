@@ -149,6 +149,37 @@ No configuration needed — weather works automatically based on your station co
 
 ### Lightning
 
+**Header from left to right:**
+
+- Lightning Icon - Flashes when strikes occur in search area/alert radius.
+- Strikes/minute chip - Dynamically update of strikes per minute.
+- Mute Icon - Toggle audio on lightning strike.
+- Trash Icon - Clear strike buffer on click.
+
+**Banner**
+
+- Visual coded alerts. Caution (Yellow), Warning (Red), or Quiet (Green)
+
+**Distance / Direction / Trend**
+
+- Distance from your locale to the strike. Values dynamically update to selected unit (Mi/Km).
+- Brearing Indicator pointing to strike location.
+- Compass heading. Headings are grouped into 16 bins(N, NNE, ENE)
+- Trend - Approaching, Stationary, or Receding by compass heading.
+
+**Sparkline**
+
+- Visual representation of strike history. Strike amplitude is inversely proportional to distance. Closer strikes peak higher
+
+**Recent Strikes**
+
+- Expansion panel that shows the last 5 strikes
+  - Time
+  - Distance
+  - Heading
+
+**How it works:** Lightning strikes within the search area/alert radius render on the card.
+
 ---
 
 ### Solar
