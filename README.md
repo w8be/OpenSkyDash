@@ -87,7 +87,7 @@ Configurable data for SkyDash.
 - **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
 
 - **Area Radius** - The radius where strikes within will display along with a warning banner. The default is 50.
-- **Alert Radius** - The radius where strikes within will display aloing with the warning banner. The default is 25.
+- **Alert Radius** - The radius where strikes within will display aloing with the Danger banner. The default is 25.
 
 ### Lightning_config
 
@@ -195,10 +195,18 @@ Displays the three key solar indices that affect HF radio propagation. If you op
   - SFI 70–100: Fair conditions, mid-bands (20m–30m) open
   - SFI 100–150: Good conditions, higher bands (15m–17m) opening
   - SFI > 150: Excellent conditions, 10m and 12m wide open
+- **A-Index (Ap)** - Historical Ap Index
 - **K-Index (Kp)** — Planetary geomagnetic disturbance level on a 0–9 scale. Lower is better for HF:
   - Kp 0–2 (green): Quiet — excellent HF conditions
   - Kp 3–4 (amber): Unsettled — noticeable degradation, especially on polar paths
   - Kp 5+ (red): Storm — significant HF disruption, possible blackouts on higher bands
+- **FOF2** - F2 Layer Critical Frequency
+- **MUF** - Maximum Useable Frequency
+- **HMF2** - F2 Layer Max Altitude
+- **R** - Radio - Blackout (x-ray flux)
+- **S** - Solar - Storm (proton-flux)
+- **G** - GeoMagnetic - Activity (Solar Wind / CME)
+- **Flare/Storm Probabilities** - R1-R2, R3-R5, S1+
 
 **Data source:** NOAA Space Weather Prediction Center (SWPC) and KC2G.com JSON feeds. Updates every 15 minutes.
 
