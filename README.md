@@ -74,28 +74,26 @@ The persistent icons that provides at-a-glance information and card selection.
 
 Configurable data for SkyDash.
 
-- **[General](#General)**
-- **[Lightning](#Lightning_config)**
-- **[Backup/Restore](#Backup/Restore)**
+### General
 
-  ### General
-  - **App Name** - Name displayed on header. SkyDash is default.
-  - **Distance** - Mi/Km - Default is Mi
-  - **Pressure** - mb/in - Default is in
-  - **Temperature** - F/C - Default is F
+- **App Name** - Name displayed on header. SkyDash is default.
+- **Distance** - Mi/Km - Default is Mi
+- **Pressure** - mb/in - Default is in
+- **Temperature** - F/C - Default is F
 
-  - **Lat** - Latitude of your locale
-  - **Lon** - Longitude of your local
+- **Lat** - Latitude of your locale
+- **Lon** - Longitude of your local
 
-  - **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
+- **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
 
-  - **Area Radius** - The radius where strikes within will display along with a warning banner. The default is 50.
-  - **Alert Radius** - The radius where strikes within will display aloing with the warning banner. The default is 25.
+- **Area Radius** - The radius where strikes within will display along with a warning banner. The default is 50.
+- **Alert Radius** - The radius where strikes within will display aloing with the warning banner. The default is 25.
 
-  ### Lightning_config
-  - **Calculation** - Method used to trend the strike path. Options are Closest, Average, or Percentile algorithms.
-  - **Sensitivity** - Value used to determine strike distance sensitivity. Higher values reduce trend flip-floping.
-  - **Sample Size** - Value used to determine the amount of strikes that are used in the trend calculations.
+### Lightning_config
+
+- **Calculation** - Method used to trend the strike path. Options are Closest, Average, or Percentile algorithms.
+- **Sensitivity** - Value used to determine strike distance sensitivity. Higher values reduce trend flip-floping.
+- **Sample Size** - Value used to determine the amount of strikes that are used in the trend calculations.
 
 ---
 
@@ -205,40 +203,6 @@ Displays the three key solar indices that affect HF radio propagation. If you op
   - Kp 5+ (red): Storm — significant HF disruption, possible blackouts on higher bands
 
 **Data source:** NOAA Space Weather Prediction Center (SWPC) and KC2G.com JSON feeds. Updates every 15 minutes.
-
----
-
-## Audio Alerts
-
-SkyDash can play audible tones when new items appear in data feeds — useful for monitoring while doing other tasks in the shack.
-
-**Supported feeds:** POTA Spots, SOTA Spots, WWFF Spots, WWBOTA Spots, DX Cluster, DXpeditions, Contests.
-
-**How to enable:**
-
-1. Open **Settings** and click the **Alerts** tab.
-2. Toggle any feed **ON** to enable audio alerts for that feed.
-3. Select a tone from the dropdown — 9 Web Audio presets are available (Ping, High Ping, Low Tone, Sharp, Beep, Two-Tone, Simple, Chime, Chirp).
-4. Click the speaker button to preview the selected tone.
-5. Adjust the **Master Volume** slider to set the overall alert volume.
-
-All feeds default to **OFF**. Settings persist in localStorage.
-
-**Behavior notes:**
-
-- Alerts are suppressed on initial page load (no noise from existing data).
-- Alerts are suppressed for 5 seconds after returning to a background tab (prevents a flood of tones from stale data refreshing).
-- A 10-second cooldown per feed prevents rapid-fire alerts from high-volume feeds like DX Cluster.
-- One tone plays per batch of new items, not per individual item.
-- Tones are generated via the Web Audio API — no sound files are downloaded.
-
----
-
-## Auto-Refresh on Update
-
-When the server is updated with a new version (e.g., via `git pull` + restart, or a Railway deployment), all connected browsers automatically detect the change and reload. There is nothing to configure.
-
-**How it works:** The frontend polls `/api/version` every 60 seconds. When the returned version number changes, a toast notification appears at the bottom of the screen ("🔄 SkyDash Updated — v15.0.0 → v15.1.0 — Reloading...") and the page reloads after 3 seconds. The version is read from `package.json` as the single source of truth.
 
 ---
 
