@@ -280,7 +280,12 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 ### Clone SkyDash github repository
 
 - Open a DOS shell and change directory to where you want the SkyDash directory to be installed (i.e.="C:\Users\<accountName>").
-- Run the git clone command to download the repository - **_git clone https://github.com/w8be/SkyDash.git_**
+- Run the git clone command to download the repository
+
+  ```bash
+  git clone https://github.com/w8be/SkyDash.git
+  ```
+
 - CD to the SkyDash directory and verify that the repository has downloaded.
 
 ### Build SkyDash for Production
