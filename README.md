@@ -271,13 +271,9 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 ### Install PM2
 
 - Open a DOS shell run:
-  ``bash
+  ```bash
   npm install -g pm2 pm2-windows-startup serve
   ```
-
-  ```
-
-````
 
 ### Install Git - Skip this step if Git is already installed
 
@@ -362,4 +358,7 @@ A: This happens when Chromium tries to use the system keyring (gnome-keyring / k
 MIT License — See [LICENSE](LICENSE) file.
 
 ---
-````
+
+```
+
+```
