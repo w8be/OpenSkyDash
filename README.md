@@ -327,7 +327,7 @@ sudo systemctl restart openhamclock
 
 ### Launch SkyDash
 
-- In the DOS shell in the SkyDash directory, run: **"pm2 start serve --name"skydash-app" -- dist -s -p 5050"**
+- In the DOS shell in the SkyDash directory, run: **pm2 start serve --name"skydash-app" -- dist -s -p 5050**
 
 ### Save the Service Configuration
 
