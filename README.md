@@ -270,7 +270,11 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 ### Install PM2
 
-- In a DOS shell run: **npm install -g pm2 pm2-windows-startup serve**
+- Open a DOS shell run:
+  ``bash
+  npm install -g pm2 pm2-windows-startup serve
+
+````
 
 ### Install Git - Skip this step if Git is already installed
 
@@ -279,18 +283,18 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 ### Clone SkyDash github repository
 
-- Open a DOS shell and change directory to where you want the SkyDash directory to be installed (i.e.="C:\Users\<accountName>").
+- In the DOS shell and change directory to where you want the SkyDash directory to be installed (i.e.="C:\Users\<accountName>").
 - Run the git clone command to download the repository
 
   ```bash
   git clone https://github.com/w8be/SkyDash.git
-  ```
+````
 
 - CD to the SkyDash directory and verify that the repository has downloaded.
 
 ### Build SkyDash for Production
 
-- In a DOS shell in the SkyDash directory, run:
+- In the DOS shell in the SkyDash directory, run:
 
 ```bash
  npm run build
@@ -298,7 +302,7 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 ### Configure Windows Startup Service
 
-- In a DOS shell in the SkyDash directory, run:
+- In the DOS shell in the SkyDash directory, run:
 
 ```bash
 pm2-startup install
