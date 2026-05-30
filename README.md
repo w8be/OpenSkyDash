@@ -264,13 +264,13 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 ## Windows
 
-### Install Node.js
+### Install Node.js - Skip this step if you have Node.js loaded. Verify that your version meets the #Prerequisites.
 
 - For Windows x64 download the [msi_installer](https://nodejs.org/dist/v24.16.0/node-v24.16.0-x64.msi). This will install node.js and npm on your device. If you already have node.js loaded you can skip this step.
 
 ### Install PM2
 
-- Open a DOS shell run:
+- Open a DOS shell and run:
   ```bash
   npm install -g pm2 pm2-windows-startup serve
   ```
@@ -282,7 +282,7 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 ### Clone SkyDash github repository
 
-- In the DOS shell and change directory to where you want the SkyDash directory to be installed (i.e.="C:\Users\<accountName>").
+- In the DOS shell change directory to where you want the SkyDash directory to be installed (i.e.="C:\Users\<accountName>").
 - Run the git clone command to download the repository
 
   ```bash
