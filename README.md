@@ -260,8 +260,6 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 - This will clone the SkyDash repository and run the install script for a headless server that can be accessed with a web browser.
 
-## Updating
-
 ---
 
 ## Windows
