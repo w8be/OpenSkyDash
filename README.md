@@ -300,22 +300,45 @@ sudo systemctl restart openhamclock
 
 ### Install Node.js
 
+- For Windows x64 download the [msi_installer](https://nodejs.org/dist/v24.16.0/node-v24.16.0-x64.msi). This will install node.js and npm on your device. If you already have node.js loaded you can skip this step.
+
 ### Install PM2
+
+- In a DOS shell run: **npm install -g pm2 pm2-windows-startup serve**
+
+### Install Git - Skip this step if Git is already installed
+
+- Download Git for [Windows](https://github.com/git-for-windows/git/releases/download/v2.54.0.windows.1/Git-2.54.0-64-bit.exe)
+- Run the executable file and follow the install wizard. Use default settings during the install.
+
+### Clone SkyDash github repository
+
+- Open a DOS shell and change directory to where you want the SkyDash directory to be installed (i.e.="C:\Users\<accountName>").
+- Run the git clone command to download the repository - **_git clone https://github.com/w8be/SkyDash.git_**
+- CD to the SkyDash directory and verify that the repository has downloaded.
 
 ### Build SkyDash for Production
 
+- In a DOS shell in the SkyDash directory, run: **npm run build**
+
 ### Configure Windows Startup Service
+
+- In a DOS shell in the SkyDash directory, run: **pm2-startup install** (Note: If prompted during this step to verify environment paths, simply follow the on-screen instructions to confirm).
 
 ### Launch SkyDash
 
+- In the DOS shell in the SkyDash directory, run: **pm2 start serve --name"skydash-app" -- dist -s -p 5050**
+
 ### Save the Service Configuration
+
+- In the DOS shell in the SkyDash directory, run : ** pm2 save**
 
 ### PM2 Management Commands
 
-- Check status - pm2 status
-- View live console logs - pm2 logs skydash-app
-- Restart the service - pm2 restart skydash-app
-- Stop the service - pm2 stop skydash-app
+- Check status - **pm2 status**
+- View live console logs - **pm2 logs skydash-app**
+- Restart the service - **pm2 restart skydash-app**
+- Stop the service - **pm2 stop skydash-app**
 
 ---
 
