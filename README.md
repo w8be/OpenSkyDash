@@ -2,7 +2,7 @@
 
 **A real-time dashboard for amateur radio.**
 
-SkyDash brings local weather, lightning tracking, and solar indicies into a single browser-based interface. Run it locally on a Raspberry Pi.
+SkyDash brings local weather, lightning tracking, and solar indicies into a single browser-based interface. Run it locally on a Raspberry Pi or locally on a Windows (x64) device.
 
 **📝 License:** MIT — See [LICENSE](LICENSE)
 
