@@ -258,41 +258,9 @@ The Pi boots directly into a fullscreen Chromium browser showing SkyDash. The ki
 curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash -s --server
 ```
 
-Runs SkyDash as a web server only. Access it from any browser on your LAN.
-
-**Standard install (manual browser launch):**
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/accius/openhamclock/main/scripts/setup-pi.sh | bash
-```
-
-After installation, configure your station:
-
-```bash
-nano ~/openhamclock/.env              # Set CALLSIGN and LOCATOR
-sudo systemctl restart openhamclock   # Apply changes
-```
-
-The setup script creates `.env` automatically from the built-in template and enables server-side settings sync (`SETTINGS_SYNC=true`) for Pi installs. This means your `CALLSIGN` and `LOCATOR` values from `.env` appear on screen as soon as the service restarts — no manual UI configuration step required.
-
-The Pi setup script installs Node.js 22 LTS, clones the repository, builds the frontend, creates a systemd service (`openhamclock.service`) for automatic startup, and optionally configures Chromium in kiosk mode. It also installs `fonts-noto-color-emoji` so that all emoji icons display correctly in Chromium.
+- This will clone the SkyDash repository and run the install script for a headless server that can be accessed with a web browser.
 
 ## Updating
-
-### Git installations (local/Pi)
-
-```bash
-cd ~/openhamclock
-./scripts/update.sh
-```
-
-The update script: backs up your `.env` → pulls latest code → installs new dependencies → rebuilds the frontend → restores your `.env`. Then restart:
-
-```bash
-sudo systemctl restart openhamclock
-# or
-./restart.sh
-```
 
 ---
 
@@ -358,8 +326,6 @@ A: Yes. The web interface is stateless — each browser session gets its own fil
 
 **Q: Chromium shows a "keyring" unlock prompt on every boot in kiosk mode — how do I prevent it?**
 A: This happens when Chromium tries to use the system keyring (gnome-keyring / kwallet) to protect its internal credential store, but the desktop session manager hasn't unlocked it yet. The Pi setup script already passes `--password-store=basic` to Chromium, which tells it to use a plain local store instead and avoids the prompt entirely. If you installed SkyDash before this fix was included, update your `kiosk.sh` by re-running the setup script, or add `--password-store=basic` manually to the Chromium launch line in `~/openhamclock/kiosk.sh`.
-
----
 
 ---
 
