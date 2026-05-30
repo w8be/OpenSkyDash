@@ -290,7 +290,7 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 ### Build SkyDash for Production
 
-- In a DOS shell in the SkyDash directory, run: npm run build
+- In a DOS shell in the SkyDash directory, run:
 
 ```bash
  npm run build
@@ -298,15 +298,29 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 ### Configure Windows Startup Service
 
-- In a DOS shell in the SkyDash directory, run: **pm2-startup install** (Note: If prompted during this step to verify environment paths, simply follow the on-screen instructions to confirm).
+- In a DOS shell in the SkyDash directory, run:
+
+```bash
+pm2-startup install
+```
+
+(Note: If prompted during this step to verify environment paths, simply follow the on-screen instructions to confirm).
 
 ### Launch SkyDash
 
-- In the DOS shell in the SkyDash directory, run: **pm2 start serve --name"skydash-app" -- dist -s -p 5050**
+- In the DOS shell in the SkyDash directory, run:
+
+```bash
+pm2 start serve --name"skydash-app" -- dist -s -p 5050
+```
 
 ### Save the Service Configuration
 
-- In the DOS shell in the SkyDash directory, run : **pm2 save**
+- In the DOS shell in the SkyDash directory, run :
+
+```bash
+pm2 save
+```
 
 ### PM2 Management Commands
 
