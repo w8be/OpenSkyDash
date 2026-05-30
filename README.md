@@ -331,7 +331,7 @@ sudo systemctl restart openhamclock
 
 ### Save the Service Configuration
 
-- In the DOS shell in the SkyDash directory, run : ** pm2 save**
+- In the DOS shell in the SkyDash directory, run : **pm2 save**
 
 ### PM2 Management Commands
 
