@@ -32,6 +32,7 @@ SkyDash brings local weather, lightning tracking, and solar indicies into a sing
 
 - [Deployment](#deployment)
   - [Raspberry Pi](#raspberry-pi)
+  - [Windows](#windows)
 - [Dashboard Cards](#dashboard-cards)
 - [Header](#Header)
 - [Dashboard Card Icons](#Dashboard-Card-Icons)
@@ -296,6 +297,27 @@ sudo systemctl restart openhamclock
 ```
 
 ---
+
+## Windows
+
+### Install Node.js
+
+### Install PM2
+
+### Build SkyDash for Production
+
+### Configure Windows Startup Service
+
+### Launch SkyDash
+
+### Save the Service Configuration
+
+### PM2 Management Commands
+
+- Check status - pm2 status
+- View live console logs - pm2 logs skydash-app
+- Restart the service - pm2 restart skydash-app
+- Stop the service - pm2 stop skydash-app
 
 ## Frequently Asked Questions
 
