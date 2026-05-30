@@ -264,7 +264,7 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 ## Windows
 
-### Install Node.js - Skip this step if you have Node.js loaded. Verify that your version meets the #Prerequisites.
+### Install Node.js - Skip this step if you have Node.js loaded. Verify that your version meets the [Prerequisites](#Prerequisites).
 
 - For Windows x64 download the [msi_installer](https://nodejs.org/dist/v24.16.0/node-v24.16.0-x64.msi). This will install node.js and npm on your device. If you already have node.js loaded you can skip this step.
 
