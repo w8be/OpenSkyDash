@@ -277,8 +277,6 @@ The setup script creates `.env` automatically from the built-in template and ena
 
 The Pi setup script installs Node.js 22 LTS, clones the repository, builds the frontend, creates a systemd service (`openhamclock.service`) for automatic startup, and optionally configures Chromium in kiosk mode. It also installs `fonts-noto-color-emoji` so that all emoji icons display correctly in Chromium.
 
----
-
 ## Updating
 
 ### Git installations (local/Pi)
