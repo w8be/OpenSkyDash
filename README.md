@@ -273,6 +273,9 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 - Open a DOS shell run:
   ``bash
   npm install -g pm2 pm2-windows-startup serve
+  ```
+
+  ```
 
 ````
 
@@ -288,7 +291,7 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
   ```bash
   git clone https://github.com/w8be/SkyDash.git
-````
+  ```
 
 - CD to the SkyDash directory and verify that the repository has downloaded.
 
@@ -359,3 +362,4 @@ A: This happens when Chromium tries to use the system keyring (gnome-keyring / k
 MIT License — See [LICENSE](LICENSE) file.
 
 ---
+````
