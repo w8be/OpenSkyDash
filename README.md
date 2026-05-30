@@ -290,7 +290,11 @@ curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash
 
 ### Build SkyDash for Production
 
-- In a DOS shell in the SkyDash directory, run: **npm run build**
+- In a DOS shell in the SkyDash directory, run: npm run build
+
+```bash
+ npm run build
+```
 
 ### Configure Windows Startup Service
 
