@@ -319,6 +319,8 @@ sudo systemctl restart openhamclock
 - Restart the service - pm2 restart skydash-app
 - Stop the service - pm2 stop skydash-app
 
+---
+
 ## Frequently Asked Questions
 
 **Q: Do I need an amateur radio license to use SkyDash?**
