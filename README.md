@@ -360,7 +360,3 @@ A: This happens when Chromium tries to use the system keyring (gnome-keyring / k
 MIT License — See [LICENSE](LICENSE) file.
 
 ---
-
-```
-
-```
