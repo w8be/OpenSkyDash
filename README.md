@@ -246,7 +246,7 @@ One-line install for Raspberry Pi (3B, 3B+, 4, 5). Supports both graphical and h
 
 ```bash
 
-curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash -s --kiosk
+curl -sSL https://raw.githubusercontent.com/w8be/OpenSkyDash/main/setup-pi.sh | bash -s --kiosk
 ```
 
 The Pi boots directly into a fullscreen Chromium browser showing SkyDash. The kiosk launcher automatically detects Wayland (Trixie/labwc) or X11 (Bookworm/LXDE) and adjusts accordingly — no manual configuration needed. Only use this if you want a dedicated device for SkyDash.
@@ -255,7 +255,7 @@ The Pi boots directly into a fullscreen Chromium browser showing SkyDash. The ki
 
 ```bash
 
-curl -sSL https://raw.githubusercontent.com/w8be/SkyDash/main/setup-pi.sh | bash -s --server
+curl -sSL https://raw.githubusercontent.com/w8be/OPenSkyDash/main/setup-pi.sh | bash -s --server
 ```
 
 - This will clone the SkyDash repository and run the install script for a headless server that can be accessed with a web browser.
