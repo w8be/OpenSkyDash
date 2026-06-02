@@ -112,8 +112,8 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-INSTALL_DIR="$HOME/OpenOpenSkyDash"
-SERVICE_NAME="OpenOpenSkyDash"
+INSTALL_DIR="$HOME/OpenSkyDash"
+SERVICE_NAME="OpenSkyDash"
 NODE_VERSION="22"
 
 echo -e "${BLUE}"
