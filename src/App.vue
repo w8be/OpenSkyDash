@@ -67,22 +67,22 @@ export default {
   data() {
     const masterState = reactive(settings);
 
-    // Fallback structural safety nets
+    
     if (!masterState.weather) masterState.weather = {};
     if (!masterState.weather.current) masterState.weather.current = {};
 
     return {
       stg: masterState,
 
-      // Create a dynamic proxy wrapper for shared to handle the legacy card assignments
+      
       shared: new Proxy(masterState, {
         get(target, prop) {
-          // If the card asks for this.shared.weatherIcon, route it safely
+          
           if (prop === 'weatherIcon') return target.weather.current.weatherIcon;
           return target[prop];
         },
         set(target, prop, value) {
-          // When the card executes: this.shared.weatherIcon = o.icon
+          
           if (prop === 'weatherIcon') {
             target.weather.current.weatherIcon = value;
             return true;
@@ -102,7 +102,7 @@ export default {
       try {
         const parsed = JSON.parse(savedSettings);
 
-        // 🟢 Restores coordinates BEFORE child cards mount
+        
         if (parsed.lightning && parsed.lightning.homeLocation) {
           this.stg.lightning.homeLocation.lat = parseFloat(parsed.lightning.homeLocation.lat);
           this.stg.lightning.homeLocation.lon = parseFloat(parsed.lightning.homeLocation.lon);
@@ -123,7 +123,7 @@ export default {
     this.updateClock();
     setInterval(this.updateClock, 1000);
 
-    // Expose the reactive master state to the browser console for easy testing
+    
     window.G_STATE = this.stg;
 
     this.stg.ui.activeTab = 'weather';
@@ -131,25 +131,25 @@ export default {
 
   methods: {
     updateClock() {
-      // 1. Grab your settings
+      
       const currentLocale = this.stg.units.time?.toLowerCase();
-      const timeFormat = this.stg.units.timeFormat; // e.g., '12' or '24'
+      const timeFormat = this.stg.units.timeFormat; 
 
-      // 2. Convert '12' or '24' into a boolean for the hour12 option
-      // (Coercing to string handles cases where the setting might be saved as a number)
+      
+      
       const use12Hour = String(timeFormat) === '12';
 
       const now = new Date();
 
       if (currentLocale === 'locale') {
-        // Passing 'undefined' uses the user's default browser locale, 
-        // but overrides the hour format based on your setting.
+        
+        
         this.currentTime = now.toLocaleTimeString(undefined, {
           hour12: use12Hour
         });
 
       } else if (currentLocale === 'utc') {
-        // Notice 'hourCycle' is removed here, as 'hour12' handles it cleanly
+        
         this.currentTime = now.toLocaleString('en-US', {
           timeZone: 'UTC',
           year: '2-digit',
@@ -187,7 +187,7 @@ body {
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-/* Grid Layout: Adds breathing room compared to previous condensed version */
+
 .metrics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -199,7 +199,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  /* Increased padding for better legibility */
+  
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -220,7 +220,7 @@ body {
   font-weight: 600;
 }
 
-/* Forecast Scaling: Shrinks text to prevent the "bulky" look */
+
 .forecast-body :deep(.v-expansion-panel-text__wrapper) {
   padding: 8px 12px !important;
 }
@@ -232,7 +232,7 @@ body {
   padding: 6px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 0.75rem;
-  /* Reduced from default */
+  
 }
 
 .day-label {
@@ -257,9 +257,9 @@ body {
 
 .v-tab {
   min-width: 0;
-  /* Allows tab to shrink below 90px */
+  
   padding: 0 4px;
-  /* Reduces horizontal padding */
+  
 }
 
 .pulsing-icon {
@@ -289,7 +289,7 @@ body {
   }
 }
 
-/* 🟢 Move this completely outside of the keyframes block */
+
 html,
 body,
 #app,
