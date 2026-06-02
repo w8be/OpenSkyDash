@@ -131,8 +131,37 @@ export default {
 
   methods: {
     updateClock() {
-      this.currentTime = new Date().toLocaleTimeString();
-    },
+      // 1. Grab your settings
+      const currentLocale = this.stg.units.time?.toLowerCase();
+      const timeFormat = this.stg.units.timeFormat; // e.g., '12' or '24'
+
+      // 2. Convert '12' or '24' into a boolean for the hour12 option
+      // (Coercing to string handles cases where the setting might be saved as a number)
+      const use12Hour = String(timeFormat) === '12';
+
+      const now = new Date();
+
+      if (currentLocale === 'locale') {
+        // Passing 'undefined' uses the user's default browser locale, 
+        // but overrides the hour format based on your setting.
+        this.currentTime = now.toLocaleTimeString(undefined, {
+          hour12: use12Hour
+        });
+
+      } else if (currentLocale === 'utc') {
+        // Notice 'hourCycle' is removed here, as 'hour12' handles it cleanly
+        this.currentTime = now.toLocaleString('en-US', {
+          timeZone: 'UTC',
+          year: '2-digit',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: use12Hour
+        });
+      }
+    }
   }
 };
 </script>

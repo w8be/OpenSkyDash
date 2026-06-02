@@ -66,6 +66,32 @@
                         </v-col>
                     </v-row>
 
+                    <v-row align="center" no-gutters class="mb-6 px-2">
+                        <v-col cols="4">
+                            <span class="text-body-2 text-grey-lighten-1">Time</span>
+                        </v-col>
+                        <v-col cols="5" class="d-flex justify-end">
+                            <v-btn-toggle v-model="stg.units.time" mandatory color="blue-darken-2" density="compact"
+                                @update:model-value="updateLocation" class="unit-toggle-group">
+                                <v-btn value="utc" size="small" class="px-2">UTC</v-btn>
+                                <v-btn value="locale" size="small" class="px-4">Local</v-btn>
+                            </v-btn-toggle>
+                        </v-col>
+                    </v-row>
+
+                    <v-row align="center" no-gutters class="mb-6 px-2">
+                        <v-col cols="4">
+                            <span class="text-body-2 text-grey-lighten-1">Time Format</span>
+                        </v-col>
+                        <v-col cols="4" class="d-flex justify-end">
+                            <v-btn-toggle v-model="stg.units.timeFormat" mandatory color="blue-darken-2"
+                                density="compact" @update:model-value="updateLocation" class="unit-toggle-group">
+                                <v-btn value="12" size="small" class="px-2">12</v-btn>
+                                <v-btn value="24" size="small" class="px-4">24</v-btn>
+                            </v-btn-toggle>
+                        </v-col>
+                    </v-row>
+
                     <v-row density="comfortable">
                         <v-col class="text-info" cols="6">
                             <v-text-field v-model.number="stg.lightning.homeLocation.lat" label="Lat" density="compact"
@@ -79,7 +105,9 @@
                                 @change="updateLocation"></v-text-field>
                         </v-col>
                     </v-row>
+                </v-window-item>
 
+                <v-window-item class="pb-2 d-block" value="lightning" height="auto" overflow-y: auto;>
                     <div class="text-subtitle-2 mb-1 text-secondary">
                         <v-icon size="small" color="#b06e69">mdi-clock-outline</v-icon> Reset Time ({{
                             stg.lightning.resetTime }}m)
@@ -108,9 +136,7 @@
                                 variant="outlined"></v-text-field>
                         </v-col>
                     </v-row>
-                </v-window-item>
 
-                <v-window-item class="pb-2 d-block" value="lightning" style="max-height: 60vh; overflow-y: auto;">
                     <div class="text-overline text-orange mb-1">Calculation Method</div>
                     <v-select v-model="stg.lightning.selectedMethod" :items="stg.lightning.calculationMethods"
                         variant="outlined" density="compact"></v-select>
@@ -128,9 +154,7 @@
                     <div class="text-overline text-orange mt-2 mb-1">Sample Size</div>
                     <v-text-field v-model.number="stg.lightning.sampleSize" density="compact" variant="outlined"
                         hide-details></v-text-field>
-
                 </v-window-item>
-
             </v-window>
         </v-card-text>
 

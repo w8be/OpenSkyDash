@@ -8,6 +8,8 @@ const defaultSettings = reactive({
     temperature: 'f', // 'f' or 'c'
     pressure: 'inch', // 'inch' or 'mb'
     wind: 'mph', // 'mph', 'kt', or 'kph'
+    time: 'locale', // 'locale' or 'utc'
+    timeFormat: '12', // '12 or '24'
   },
 
   // LIGHTNING CONFIGURATION
