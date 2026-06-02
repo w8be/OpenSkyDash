@@ -1,26 +1,26 @@
 import { reactive } from 'vue'
 
 const defaultSettings = reactive({
-  // NEW: GLOBAL UNIT PREFERENCES
-  // This is the single source of truth for the entire app
+  
+  
   units: {
-    distance: 'mi', // 'mi' or 'km'
-    temperature: 'f', // 'f' or 'c'
-    pressure: 'inch', // 'inch' or 'mb'
-    wind: 'mph', // 'mph', 'kt', or 'kph'
-    time: 'locale', // 'locale' or 'utc'
-    timeFormat: '12', // '12 or '24'
+    distance: 'mi', 
+    temperature: 'f', 
+    pressure: 'inch', 
+    wind: 'mph', 
+    time: 'locale', 
+    timeFormat: '12', 
   },
 
-  // LIGHTNING CONFIGURATION
+  
   lightning: {
     shouldConnect: true,
     searchRadius: 50,
     alertThreshold: 25,
-    homeLocation: { lat: 34.05, lon: -118.24 }, // Shared by Solar/Weather
+    homeLocation: { lat: 34.05, lon: -118.24 }, 
 
-    // UI & Sync State
-    // isSnapped: false,
+    
+    
     isMuted: false,
     showModal: false,
     ui: {
@@ -28,8 +28,8 @@ const defaultSettings = reactive({
       expandedPanel: null,
     },
 
-    // chaseMode: false,
-    sampleSize: 20, // Modified logic from sensitivity
+    
+    sampleSize: 20, 
     resetTime: 5,
 
     currentStorm: { distance: 0, bearing: 0, trend: 'Stationary', frequency: 0 },
@@ -44,9 +44,9 @@ const defaultSettings = reactive({
     sensitivity: 5,
   },
 
-  // WEATHER CONFIGURATION
+  
   weather: {
-    updateInterval: 300, // 5 minutes in seconds
+    updateInterval: 300, 
     current: {
       temp: 0,
       feelsLike: 0,
@@ -88,19 +88,19 @@ const defaultSettings = reactive({
   ui: {
     showAttribution: true,
     activeTab: 'settings',
-    // panel: null, // Fixed auto-open bug by setting to null
+    
     appName: 'SkyDash',
   },
 })
 
-// 2. UPDATED HYDRATION
+
 const saved = localStorage.getItem('station_config_v1')
 let initialState = defaultSettings
 
 if (saved) {
   try {
     const parsed = JSON.parse(saved)
-    // Merge new global units and deep nested objects
+    
     initialState.units = { ...defaultSettings.units, ...parsed.units }
     initialState.lightning = { ...defaultSettings.lightning, ...parsed.lightning }
     initialState.weather = { ...defaultSettings.weather, ...parsed.weather }

@@ -121,7 +121,7 @@
 </template>
 
 <script>
-// import { settings } from './dashboardSettings.js';
+
 export default {
     name: 'WeatherCard',
     props: {
@@ -152,7 +152,7 @@ export default {
         if (saved && saved !== "undefined") {
             try {
                 const config = JSON.parse(saved);
-                // Apply your config logic here...
+                
             } catch (e) {
                 console.error("Weather Fetch failed:", error.message);
             }
@@ -195,19 +195,19 @@ export default {
             },
             deep: true
         },
-        // 🟢 Only refetch if temperature toggles (C <=> F)
+        
         'stg.units.temperature'() {
             console.log("WeatherCard: Temperature unit changed. Fetching fresh data...");
             this.fetchWeather();
         },
 
-        // 🟢 Only refetch if pressure toggles (in <=> hPa)
+        
         'stg.units.pressure'() {
             console.log("WeatherCard: Pressure unit changed. Fetching fresh data...");
             this.fetchWeather();
         },
 
-        // 🟢 Only refetch if distance/speed toggles (mi <=> km)
+        
         'stg.units.distance'() {
             console.log("WeatherCard: Distance/Wind unit changed. Fetching fresh data...");
             this.fetchWeather();

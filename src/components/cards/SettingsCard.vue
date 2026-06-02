@@ -173,7 +173,7 @@ export default {
     props: ['stg'],
     data() {
         return {
-            // Keep your WebSockets and Timers here local
+            
             shared: window.G_STATE,
             socket: null,
             timer: null,
@@ -184,18 +184,18 @@ export default {
         changeDistanceUnit(newUnit) {
             if (!newUnit) return;
 
-            // Normalize and assign directly to the global stg object path
+            
             const normalizedUnit = newUnit.toLowerCase();
             console.log("SettingsCard: Toggling unit safely to:", normalizedUnit);
 
             this.stg.units.distance = normalizedUnit;
 
-            // Save the updated object immediately to disk
+            
             localStorage.setItem('station_config_v1', JSON.stringify(this.stg));
         },
 
         updateLocation() {
-            // 1. Snag values straight from the form template's bound stg properties
+            
             const lat = parseFloat(this.stg.lightning.homeLocation.lat);
             const lon = parseFloat(this.stg.lightning.homeLocation.lon);
 
@@ -204,40 +204,40 @@ export default {
                 return;
             }
 
-            // 2. Ensure they are locked down as actual formatted numbers back in stg
+            
             this.stg.lightning.homeLocation.lat = lat;
             this.stg.lightning.homeLocation.lon = lon;
 
-            // 3. Commit the entire clean stg configuration to LocalStorage
+            
             localStorage.setItem('station_config_v1', JSON.stringify(this.stg));
 
             console.log("Station updated successfully:", lat, lon, this.stg?.units?.distance);
         },
 
-        // 1. Safe, live export logic
+        
         exportToDisk() {
             try {
-                // 🟢 Grab the LIVE state, not the static file import template
+                
                 const cleanData = JSON.parse(JSON.stringify(this.stg));
 
-                // Clean out volatile live tracking arrays so the configuration file stays small
+                
                 if (cleanData.weather) {
                     cleanData.weather.current = {};
                     cleanData.weather.forecast = [];
                 }
                 if (cleanData.lightning) {
                     cleanData.lightning.history = [];
-                    // 🟢 Target the corrected structure to prevent recursion crashes
+                    
                     delete cleanData.lightning.currentStorm;
                 }
                 if (cleanData.solar) {
                     cleanData.solar.current = {};
                 }
 
-                // Save the cleaned live profile back to local browser storage
+                
                 localStorage.setItem('station_config_v1', JSON.stringify(cleanData));
 
-                // Create and trigger the physical file download
+                
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cleanData, null, 2));
                 const downloadAnchorNode = document.createElement('a');
                 downloadAnchorNode.setAttribute("href", dataStr);
@@ -253,7 +253,7 @@ export default {
             }
         },
 
-        // 2. Safe, deep-merge import logic
+        
         importFromDisk(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -263,7 +263,7 @@ export default {
                 try {
                     const importedConfig = JSON.parse(e.target.result);
 
-                    // 🟢 Deep recursive merge function to update properties without breaking Vue Proxies
+                    
                     const deepMerge = (target, source) => {
                         for (const key in source) {
                             if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
@@ -275,10 +275,10 @@ export default {
                         }
                     };
 
-                    // Run the deep merge against your live state root
+                    
                     deepMerge(this.stg, importedConfig);
 
-                    // Save the newly imported configuration to disk immediately
+                    
                     localStorage.setItem('station_config_v1', JSON.stringify(JSON.parse(JSON.stringify(this.stg))));
 
                     alert("Settings imported successfully! Layout updated.");
@@ -292,7 +292,7 @@ export default {
     },
     computed: {
         displayPressure() {
-            const raw = this.weatherData.pressure; // assuming mb from API
+            const raw = this.weatherData.pressure; 
             if (this.stg.weather.unit === 'in') {
                 return (raw * 0.02953).toFixed(2);
             }
@@ -319,7 +319,7 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* Gives the toggle group a solid container look */
+
 .unit-toggle-group {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -327,12 +327,12 @@ body {
     overflow: hidden;
 }
 
-/* Ensures unselected text is visible but clearly "off" */
+
 .unit-toggle-group .v-btn {
     color: rgba(255, 255, 255, 0.5) !important;
 }
 
-/* High contrast for the active selection */
+
 .unit-toggle-group .v-btn--active {
     color: white !important;
 }

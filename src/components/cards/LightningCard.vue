@@ -211,7 +211,7 @@ export default {
     beforeUnmount() {
         if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
         if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
-        this.connection.onclose = null; // Prevent the 5s reconnection loop
+        this.connection.onclose = null; 
         if (this.connection) this.connection.close();
         if (this.trendTimer) {
             clearInterval(this.trendTimer);
@@ -222,24 +222,24 @@ export default {
         window.dashboard = this.stg;
         window.lightningCard = this;
 
-        // 1. Cleanup
+        
         if (this.freqTimer) clearInterval(this.freqTimer);
 
         const saved = localStorage.getItem('station_config_v1');
         if (saved && saved !== "undefined") {
             try {
                 const config = JSON.parse(saved);
-                // Apply your config logic here...
+                
             } catch (e) {
                 console.error("Config Sysgen Failure: Malformed JSON in localStorage", e);
-                // Optional: clear the bad data so it doesn't crash next time
-                // localStorage.removeItem('station_config_v1');
+                
+                
             }
         } else {
             console.log("No saved config found. Loading defaults.");
         }
 
-        // Init
+        
         this.connect();
         this.thunderPlayer = new Audio('/sounds/thunder.mp3');
         this.thunderPlayer.load();
@@ -248,25 +248,25 @@ export default {
             this.calculateTrend();
         }, 5000);
 
-        // this.startExpiryTimer();
+        
         console.log("LIGHTNING CARD MOUNTED - (Should only happen once!)");
         this.establishConnection();
 
-        // Schedule
+        
         this.freqTimer = setInterval(() => {
             this.updateFrequency();
         }, 10000);
     },
     unmounted() {
-        // if (this.expiryTimer) clearInterval(this.expiryTimer);
+        
         if (this.connection) this.connection.close();
     },
     watch: {
-        // This watches the setting in dashboardSettings.js
+        
         'stg.lightning.resetTime'(newVal) {
             console.log(`Setting changed to ${newVal}m. Sweeping history immediately.`);
 
-            // Manual trigger of the pruning logic
+            
             const cutoff = Date.now() - (newVal * 60 * 1000);
             this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
             this.stg.lightning.currentStorm.frequency = this.stg.lightning.history.length;
@@ -530,16 +530,16 @@ export default {
         },
 
         openSettings() {
-            // Sync the local modal state with the current global reactive state
+            
             this.lightning = JSON.parse(JSON.stringify(this.stg.lightning));
             this.showModal = true;
         },
 
         saveSettings() {
-            // 1. Update the global reactive state directly
+            
             Object.assign(this.stg.lightning, this.lightning);
 
-            // 2. Persist to localStorage so it survives a page refresh
+            
             localStorage.setItem('lightning_config', JSON.stringify(this.stg.lightning));
 
             this.showModal = false;
@@ -573,7 +573,7 @@ export default {
 
 
         calculateTrend() {
-            // 1. Guard against missing data
+            
             if (!this.stg || !this.stg.lightning || !Array.isArray(this.stg.lightning.history)) {
                 return;
             }
@@ -584,7 +584,7 @@ export default {
             const sampleSize = Number(lightning.sampleSize) || 20;
             const sensitivity = Number(lightning.sensitivity) || 5;
 
-            // Initialize an object to track trends and intensities for all 16 headings
+            
             const headings16 = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
             const directionalTrends = {};
 
@@ -592,19 +592,19 @@ export default {
                 directionalTrends[dir] = { trend: 'Stationary', activityCount: 0, diff: 0 };
             });
 
-            // 2. Group your historical data window by heading
+            
             h.forEach(strike => {
                 if (directionalTrends[strike.heading]) {
                     directionalTrends[strike.heading].activityCount++;
                 }
             });
 
-            // 3. Run the tracking math INDEPENDENTLY for each heading
+            
             headings16.forEach(dir => {
-                // Filter the history down to ONLY strikes in this specific direction
+                
                 const directionalWindow = h.filter(strike => strike.heading === dir).slice(-sampleSize);
 
-                // If a sector doesn't have enough data points, keep it Stationary
+                
                 if (directionalWindow.length < sampleSize) {
                     directionalTrends[dir].trend = 'Stationary';
                     return;
@@ -613,7 +613,7 @@ export default {
                 const mid = Math.floor(directionalWindow.length / 2);
                 let diff = 0;
 
-                // --- YOUR EXACT MATH RUNNING IN ISOLATION PER SECTOR ---
+                
                 if (config.algorithm === 'Percentile (Balanced)') {
                     const oldSorted = directionalWindow.slice(0, mid)
                         .map(strike => ({ ...strike }))
@@ -632,7 +632,7 @@ export default {
                 } else if (config.algorithm === 'Closest Strike (Fastest)') {
                     diff = directionalWindow[0].distance - directionalWindow[directionalWindow.length - 1].distance;
                 } else {
-                    // Average (Smoother)
+                    
                     const oldAvg = directionalWindow.slice(0, mid).reduce((a, b) => a + b.distance, 0) / mid;
                     const newAvg = directionalWindow.slice(-mid).reduce((a, b) => a + b.distance, 0) / mid;
                     diff = oldAvg - newAvg;
@@ -640,7 +640,7 @@ export default {
 
                 directionalTrends[dir].diff = diff;
 
-                // Evaluate the vector direction
+                
                 if (diff > sensitivity) {
                     directionalTrends[dir].trend = 'Approaching';
                 } else if (diff < -sensitivity) {
@@ -650,10 +650,10 @@ export default {
                 }
             });
 
-            // 4. Update state so your UI can bind to it
+            
             this.directionalTrends = directionalTrends;
 
-            // 5. Determine Global Threat (Zone-Aware Multi-Cell Evaluation)
+            
             let highestThreatSector = 'None';
             let recedingSector = 'None';
 
@@ -663,12 +663,12 @@ export default {
 
             headings16.forEach(dir => {
                 const sectorStrikes = h.filter(strike => strike.heading === dir);
-                if (sectorStrikes.length === 0) return; // Skip empty skies
+                if (sectorStrikes.length === 0) return; 
 
                 const closestSectorDist = Math.min(...sectorStrikes.map(s => s.distance));
                 const currentTrend = directionalTrends[dir].trend;
 
-                // Evaluate based on calculated presence rather than requiring high velocity diffs
+                
                 if (currentTrend === 'Approaching') {
                     if (closestSectorDist < closestApproachingDist) {
                         closestApproachingDist = closestSectorDist;
@@ -682,15 +682,15 @@ export default {
                 }
             });
 
-            // Update primary display fields dynamically using the new hierarchy
+            
             if (closestRecedingDist <= alertRadiusThreshold && closestRecedingDist < closestApproachingDist) {
-                // A cell is leaving, but it's inside our alert radius and closer than any incoming outer threats
+                
                 lightning.currentStorm.trend = `Receding ${recedingSector}`;
             } else if (highestThreatSector !== 'None') {
-                // Default macro behavior: focus on the incoming sector threat
+                
                 lightning.currentStorm.trend = `Approaching ${highestThreatSector}`;
             } else if (recedingSector !== 'None') {
-                // No approaching cells anywhere, track the departing outer cell
+                
                 lightning.currentStorm.trend = `Receding ${recedingSector}`;
             } else {
                 lightning.currentStorm.trend = 'Stationary';
@@ -707,15 +707,15 @@ export default {
             const now = Date.now();
             const radius = Number(this.stg.lightning?.searchRadius || 50);
 
-            // 1. DYNAMIC CLEANUP (Replaces startExpiryTimer)
-            // Uses your resetTime (minutes) or defaults to 10
+            
+            
             const resetMinutes = this.stg.lightning.resetTime || 10;
             const cutoff = now - (resetMinutes * 60 * 1000);
 
-            // Prune the history array immediately
+            
             this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
 
-            // 2. FREQUENCY CALCULATION
+            
             const oneMinuteAgo = now - 60000;
             const localStrikes = this.stg.lightning.history.filter(s => {
                 const isRecent = s.time > oneMinuteAgo;
@@ -727,11 +727,11 @@ export default {
 
 
 
-            // 3. UPDATE UI
+            
             const freq = localStrikes.length;
             this.stg.lightning.currentStorm.frequency = freq;
 
-            // Reset dashboard if no data remains in the reset window
+            
             if (this.stg.lightning.history.length === 0) {
                 this.stg.lightning.currentStorm = {
                     distance: 0,
@@ -743,7 +743,7 @@ export default {
         },
 
         playThunder() {
-            // Check the Gatekeeper
+            
             if (this.stg.lightning.isMuted) {
                 return;
             }
@@ -804,11 +804,11 @@ export default {
             };
             reader.readAsText(file);
         },
-        // Add this temporary method for testing
+        
         simulateStormCell(direction, startingDistance, simType = 'approaching') {
             console.log(`>>> Starting simulated ${simType} storm cell from the ${direction}...`);
 
-            // Mapping 16 headings back to approximate degree angles
+            
             const headingToDegrees = {
                 'N': 0, 'NNE': 22.5, 'NE': 45, 'ENE': 67.5,
                 'E': 90, 'ESE': 112.5, 'SE': 135, 'SSE': 157.5,
@@ -818,14 +818,14 @@ export default {
 
             const bearing = headingToDegrees[direction.toUpperCase()] || 0;
             const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
-            const R_EARTH = 3958.8; // Miles
+            const R_EARTH = 3958.8; 
 
             let currentDistance = startingDistance;
             let pulseCount = 0;
 
-            // Fire a strike every 2 seconds, marching closer each time
+            
             const interval = setInterval(() => {
-                if (pulseCount >= 25) { // Stop after 25 bursts (exceeds sampleSize)
+                if (pulseCount >= 25) { 
                     clearInterval(interval);
                     console.log(`>>> Simulation for ${direction} cell complete.`);
                     return;
@@ -839,11 +839,11 @@ export default {
                     if (currentDistance < 2) currentDistance = 2;
                 }
 
-                // Drop distance by 1.5 miles per strike to simulate an approaching front
-                // currentDistance -= 1.5;
-                // if (currentDistance < 2) currentDistance = 2; // Don't crash into ground zero
+                
+                
+                
 
-                // Reverse-engineer lat/lon coordinates from the home location based on bearing and distance
+                
                 const bearingRad = (bearing * Math.PI) / 180;
                 const centerLatRad = (home.lat * Math.PI) / 180;
                 const centerLonRad = (home.lon * Math.PI) / 180;
@@ -864,7 +864,7 @@ export default {
                     time: Date.now()
                 };
 
-                // Pass it straight to your live calculation engine
+                
                 this.processIncomingStrike(fakeStrike);
                 pulseCount++;
             }, 2000);
@@ -872,10 +872,10 @@ export default {
         simulateFullStormCycle(direction) {
             console.log(`>>> Kicking off realistic storm cycle from the ${direction}...`);
 
-            // Phase 1: March inward from 45 miles down to 5 miles
+            
             this.simulateStormCell(direction, 45, 'approaching');
 
-            // Phase 2: After 50 seconds (25 pulses * 2s), automatically shift to receding
+            
             setTimeout(() => {
                 console.log(`>>> Real-world transition: Front is stalling and beginning to recede...`);
                 this.simulateStormCell(direction, 5, 'receding');
@@ -883,12 +883,12 @@ export default {
         }
     },
     computed: {
-        // 1. Helper to make template code cleaner
+        
         lightning() {
             return this.stg?.lightning || {};
         },
 
-        // 2. The Time-Domain Sparkline logic
+        
         sparklineValues() {
             const resetMinutes = this.stg.lightning.resetTime || 10;
             const now = Date.now();
@@ -897,7 +897,7 @@ export default {
             const buckets = new Array(bucketCount).fill(0);
             const maxDist = this.stg.lightning.searchRadius || 100;
 
-            // Use stg.lightning.history directly to ensure we see everything in memory
+            
             if (this.stg.lightning.history && this.stg.lightning.history.length > 0) {
                 this.stg.lightning.history.forEach(strike => {
 
@@ -906,15 +906,15 @@ export default {
 
                     const ageMs = now - strikeTime;
 
-                    // Only filter by TIME (the "Janitor" logic)
+                    
                     if (ageMs <= windowMs && ageMs >= -5000) {
                         const bucketIndex = Math.floor(((windowMs - ageMs) / windowMs) * (bucketCount - 1));
 
                         if (bucketIndex >= 0 && bucketIndex < bucketCount) {
-                            // Calculate intensity: Closer = Higher
-                            // Formula: ((Max - Distance) / Max) * 100
+                            
+                            
                             let intensity = Math.max(5, ((maxDist - strike.distance) / maxDist) * 100);
-                            // let intensity = 20 + (((maxDist - strike.distance) / maxDist) * 80);
+                            
                             intensity = Math.max(5, intensity);
 
                             if (intensity > buckets[bucketIndex]) {
@@ -940,20 +940,20 @@ export default {
             return this.getTimeAgo(this.lightning.history[this.lightning.history.length - 1].time);
         },
 
-        // convertedDistance() {
-        //     const rawDistance = this.stg?.lightning?.currentStorm?.distance;
+        
+        
 
-        //     if (rawDistance === undefined || rawDistance === null) {
-        //         return '--';
-        //     }
+        
+        
+        
 
-        //     const unit = String(this.stg?.units?.distance || 'mi').trim().toLowerCase();
+        
 
-        //     // If the UI is set to km, dynamically multiply the base miles by 1.60934
-        //     return unit === 'km'
-        //         ? Math.round(rawDistance * 1.60934)
-        //         : Math.round(rawDistance);
-        // },
+        
+        
+        
+        
+        
 
         convertedDistance() {
             const rawDistance = this.stg?.lightning?.currentStorm?.distance;
@@ -981,7 +981,7 @@ export default {
                 prev.dist < curr.dist ? prev : curr
             );
         },
-    } // End of computed
+    } 
 };
 </script>
 
@@ -1095,21 +1095,21 @@ export default {
     font-size: 0.85rem;
 }
 
-/* Tighten the expansion panel title */
+
 :deep(.v-expansion-panel-title) {
     min-height: 32px !important;
-    /* Forces it to be slimmer */
+    
     padding: 0 8px !important;
-    /* Standardize horizontal padding */
+    
 }
 
-/* Adjust the icon (chevron) size if it feels too big now */
+
 :deep(.v-expansion-panel-title__icon) {
     margin-inline-start: 4px !important;
     user-select: none;
 }
 
-/* Remove extra padding from the content area to keep it compact */
+
 :deep(.v-expansion-panel-text__wrapper) {
     padding: 8px 12px 12px 12px !important;
 }
