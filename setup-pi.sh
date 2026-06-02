@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# SkyDash - Raspberry Pi Setup Script
+# OpenSkyDash - Raspberry Pi Setup Script
 #
 # ═══════════════════════════════════════════════════════════════════
 # SUPPORTED HARDWARE
@@ -65,10 +65,10 @@
 #   1. Updates system packages (apt-get update && upgrade)
 #   2. Installs Node.js 22 LTS via NodeSource
 #   3. Installs system dependencies (Chromium, fonts, display tools)
-#   4. Clones or updates the SkyDash repository
+#   4. Clones or updates the OpenSkyDash repository
 #   5. Runs npm install and npm run build
 #   6. Creates /home/<user>/.env from .env.example (if absent)
-#   7. Creates and enables a systemd service (openhamclock.service)
+#   7. Creates and enables a systemd service (OpenSkyDash.service)
 #   8. [--kiosk] Writes kiosk.sh that auto-detects Wayland vs X11
 #      and launches Chromium in fullscreen on login
 #
@@ -76,7 +76,7 @@
 # KIOSK MODE DETAILS
 # ═══════════════════════════════════════════════════════════════════
 #
-#   The kiosk launcher (~openhamclock/kiosk.sh) is placed in
+#   The kiosk launcher (~OpenSkyDash/kiosk.sh) is placed in
 #   ~/.config/autostart/ and runs on every desktop login.
 #
 #   At runtime kiosk.sh reads $XDG_SESSION_TYPE to choose the
@@ -89,7 +89,7 @@
 #                 from the autostart context), then xset disables the
 #                 screensaver and unclutter hides the cursor
 #
-#   If the SkyDash server does not respond within 60 seconds,
+#   If the OpenSkyDash server does not respond within 60 seconds,
 #   kiosk.sh exits with an error rather than looping forever.
 #
 # ═══════════════════════════════════════════════════════════════════
@@ -102,25 +102,20 @@
 #   ./setup-pi.sh --server      # headless server, no GUI packages
 #   ./setup-pi.sh --help        # show option summary
 #
-#   After installation, edit ~/openhamclock/.env to set your
-#   CALLSIGN and LOCATOR before (re)starting the service.
 #
 
 set -e
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration
-INSTALL_DIR="$HOME/Station-Dashboard"
-SERVICE_NAME="skydash"
+INSTALL_DIR="$HOME/OpenOpenSkyDash"
+SERVICE_NAME="OpenOpenSkyDash"
 NODE_VERSION="22"
 
-# Print banner
 echo -e "${BLUE}"
 echo "╔════════════════════════════════════════════════════════════╗";
 echo "║                                                            ║";
@@ -136,7 +131,6 @@ echo "║                                                            ║";
 echo "╚════════════════════════════════════════════════════════════╝";
 echo -e "${NC}"                                                         
 
-# Parse arguments
 SERVER_MODE=true
 KIOSK_MODE=false
 
@@ -158,7 +152,6 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-# Check if running on Raspberry Pi
 check_raspberry_pi() {
     if [ -f /proc/device-tree/model ]; then
         MODEL=$(cat /proc/device-tree/model)
@@ -173,24 +166,18 @@ check_raspberry_pi() {
     fi
 }
 
-# Update system
 update_system() {
     echo -e "${BLUE}>>> Updating system packages...${NC}"
     sudo apt-get update -qq
-    # DEBIAN_FRONTEND=noninteractive suppresses dpkg interactive prompts.
-    # --force-confold keeps existing config files when a package ships a new version
-    # (e.g. rpi-chromium-mods updating master_preferences).
-    # --force-confdef handles any remaining unset choices with the package default.
+
     sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq \
         -o Dpkg::Options::="--force-confold" \
         -o Dpkg::Options::="--force-confdef"
 }
 
-# Install Node.js
 install_nodejs() {
     echo -e "${BLUE}>>> Installing Node.js ${NODE_VERSION}...${NC}"
 
-    # Check if Node.js is already installed
     if command -v node &> /dev/null; then
         CURRENT_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
         if [ "$CURRENT_VERSION" -ge "$NODE_VERSION" ]; then
@@ -202,9 +189,7 @@ install_nodejs() {
     ARCH=$(dpkg --print-architecture 2>/dev/null || uname -m)
 
     if [ "$ARCH" = "armhf" ]; then
-        # NodeSource dropped 32-bit ARM (armhf) support from Node.js 20 onwards.
-        # The official nodejs.org project still publishes armv7l tarballs, so we
-        # download and install those directly instead.
+
         echo -e "${YELLOW}⚠ 32-bit ARM (armhf) detected — NodeSource does not support this architecture.${NC}"
         echo -e "${BLUE}  Downloading official Node.js ${NODE_VERSION} armv7l binary from nodejs.org...${NC}"
 
@@ -218,10 +203,6 @@ install_nodejs() {
             exit 1
         fi
 
-        # Download to a temp file with retry support.
-        # Piping curl directly into tar gives no retry opportunity on a
-        # dropped connection; saving to disk first lets curl resume/retry
-        # and keeps extraction separate so errors are easier to diagnose.
         echo -e "${BLUE}  Installing $NODE_TARBALL ...${NC}"
         NODE_TMPFILE=$(mktemp /tmp/nodejs-armv7l-XXXXXX.tar.gz)
         curl -fsSL \
@@ -239,7 +220,7 @@ install_nodejs() {
         }
         rm -f "$NODE_TMPFILE"
     else
-        # amd64 and arm64 are supported by NodeSource.
+
         curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash - || {
             echo -e "${RED}✗ NodeSource setup failed. Check your Debian version and internet connection.${NC}"
             exit 1
@@ -250,17 +231,12 @@ install_nodejs() {
     echo -e "${GREEN}✓ Node.js $(node -v) installed${NC}"
 }
 
-# Install dependencies
 install_dependencies() {
     echo -e "${BLUE}>>> Installing system dependencies...${NC}"
     
-    # fonts-noto-color-emoji: required for emoji icons to render in Chromium on Linux/Pi.
-    # Without this package, weather symbols, band indicators, and other emoji display as blank boxes.
     PACKAGES="git fonts-noto-color-emoji"
     
     if [ "$SERVER_MODE" = false ]; then
-        # Note: Package is 'chromium' on Raspberry Pi OS Bookworm+, 'chromium-browser' on older versions
-        # Try chromium first (newer), fall back to chromium-browser (older)
         PACKAGES="$PACKAGES unclutter x11-xserver-utils"
         if apt-cache show chromium &>/dev/null; then
             PACKAGES="$PACKAGES chromium"
@@ -273,9 +249,8 @@ install_dependencies() {
     echo -e "${GREEN}✓ Dependencies installed${NC}"
 }
 
-# Clone or update repository
 setup_repository() {    
-    echo -e "${BLUE}>>> Setting up SkyDash...${NC}"
+    echo -e "${BLUE}>>> Setting up OpenSkyDash...${NC}"
 
     if [ ! -f /swapfile ]; then
         echo -e "${BLUE}>>> Creating temporary swap for build...${NC}"
@@ -291,49 +266,31 @@ setup_repository() {
         git pull
     else
         echo "Cloning repository..."
-        git clone https:>@github.com/w8be/OpenSkyDash.git "$INSTALL_DIR"
+        git clone https://github.com/w8be/OpenSkyDash.git "$INSTALL_DIR"
         cd "$INSTALL_DIR"
     fi
     
-    # Prevent file permission changes from blocking future updates
     git config core.fileMode false 2>/dev/null
     
-    # Install npm dependencies.
-    # --ignore-scripts skips lifecycle hooks (postinstall, prepare, etc.) that are
-    # irrelevant or harmful on ARM Linux — most notably electron-winstaller's
-    # postinstall, which tries to copy vendor/7z-arm.exe and fails on a Pi because
-    # that Windows-only file is not shipped for Linux targets.
-    # Husky git-hooks (prepare) are also skipped, which is fine on a production Pi.
     ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --include=dev --ignore-scripts
 
-    # Download vendor assets (fonts, Leaflet) for self-hosting — no external CDN requests
     echo -e "${BLUE}>>> Downloading vendor assets for privacy...${NC}"
     bash scripts/vendor-download.sh || echo -e "${YELLOW}⚠ Vendor download failed — will fall back to CDN${NC}"
 
-    # Build process
     npm install
     npm run build
 
-    # Cleanup swap after build
     if [ -f /swapfile ]; then
         sudo swapoff /swapfile
         sudo rm /swapfile
     fi
 
-    # Create .env if missing
-    if [ ! -f .env ]; then
-        echo "PORT=5050" > .env
-    fi
-
-    echo -e "${GREEN}✓ SkyDash installed to $INSTALL_DIR${NC}"
+    echo -e "${GREEN}✓ OpenSkyDash installed to $INSTALL_DIR${NC}"
 }
 
-# Create systemd service
 create_service() {
     echo -e "${BLUE}>>> Creating systemd service...${NC}"
 
-    # Resolve the node binary path at install time so the service works regardless
-    # of whether Node was installed via NodeSource deb, nvm, or any other method.
     NODE_BIN=$(command -v node)
     if [ -z "$NODE_BIN" ]; then
         echo -e "${RED}✗ Cannot find node binary — Node.js installation may have failed.${NC}"
@@ -343,7 +300,7 @@ create_service() {
 
     sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << EOF
 [Unit]
-Description=SkyDash Server
+Description=OpenSkyDash Server
 After=network.target
 
 [Service]
@@ -370,20 +327,16 @@ EOF
     echo -e "${GREEN}✓ Service created and started${NC}"
 }
 
-#Setup kiosk mode
 setup_kiosk() {
     echo -e "${BLUE}>>> Configuring kiosk mode...${NC}"
     
-    # Disable screen blanking (0 = disable, 1 = enable — keep the screen on for kiosk)
     sudo raspi-config nonint do_blanking 0 2>/dev/null || true
     
-    # Create autostart directory
     mkdir -p "$HOME/.config/autostart"
-    
-    # Create kiosk launcher script
+
     cat > "$INSTALL_DIR/kiosk.sh" << 'EOF'
 #!/bin/bash
-# SkyDash Kiosk Launcher
+# OpenSkyDash Kiosk Launcher
 # Supports Raspberry Pi OS Bookworm (X11) and Trixie (Wayland/labwc)
 
 # Wait for the desktop environment to be ready
@@ -403,7 +356,7 @@ if [ -z "$SESSION_TYPE" ]; then
     SESSION_TYPE="x11"
 fi
 
-echo "SkyDash kiosk: detected session type = $SESSION_TYPE"
+echo "OpenSkyDash kiosk: detected session type = $SESSION_TYPE"
 
 if [ "$SESSION_TYPE" = "wayland" ]; then
     # ------------------------------------------------------------------
@@ -432,14 +385,14 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Wait for the SkyDash server to be ready (max 60 seconds)
+# Wait for the OpenSkyDash server to be ready (max 60 seconds)
 # ------------------------------------------------------------------
 MAX_WAIT=60
 WAITED=0
 until curl -s "$HEALTH_URL" > /dev/null 2>&1; do
     if [ "$WAITED" -ge "$MAX_WAIT" ]; then
-        echo "ERROR: SkyDash server did not respond within ${MAX_WAIT}s."
-        echo "Check the service: sudo systemctl status openhamclock"
+        echo "ERROR: OpenSkyDash server did not respond within ${MAX_WAIT}s."
+        echo "Check the service: sudo systemctl status OpenSkyDash"
         exit 1
     fi
     sleep 1
@@ -461,7 +414,7 @@ fi
 # Clear stale crash-recovery prompts from unclean shutdowns
 # Prevents the "Chromium didn't shut down correctly" bar in kiosk mode
 # ------------------------------------------------------------------
-KIOSK_PROFILE="$HOME/.config/openhamclock-kiosk"
+KIOSK_PROFILE="$HOME/.config/OpenSkyDash-kiosk"
 mkdir -p "$KIOSK_PROFILE"
 sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' "$KIOSK_PROFILE/Default/Preferences" 2>/dev/null || true
 sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' "$KIOSK_PROFILE/Default/Preferences" 2>/dev/null || true
@@ -484,13 +437,13 @@ $CHROME_CMD \
     --overscroll-history-navigation=0 \
     --disable-pinch \
     --password-store=basic \
-    --user-data-dir="$HOME/.config/openhamclock-kiosk" \
+    --user-data-dir="$HOME/.config/OpenSkyDash-kiosk" \
     $CHROMIUM_EXTRA_FLAGS \
     http://localhost:5050 &
 
 CHROME_PID=$!
 
-echo "SkyDash kiosk running (PID: $CHROME_PID)"
+echo "OpenSkyDash kiosk running (PID: $CHROME_PID)"
 echo "Exit methods:"
 echo "  - Alt+F4        (close Chromium)"
 echo "  - Ctrl+Alt+T    (open terminal, then: pkill -f kiosk)"
@@ -500,20 +453,17 @@ wait $CHROME_PID
 EOF
     
     chmod +x "$INSTALL_DIR/kiosk.sh"
-    
-    # Create autostart entry
-    cat > "$HOME/.config/autostart/openhamclock-kiosk.desktop" << EOF
+
+    cat > "$HOME/.config/autostart/OpenSkyDash-kiosk.desktop" << EOF
 [Desktop Entry]
 Type=Application
-Name=SkyDash Kiosk
+Name=OpenSkyDash Kiosk
 Exec=$INSTALL_DIR/kiosk.sh
 Hidden=false
 X-GNOME-Autostart-enabled=true
 EOF
     
-    # Configure boot for faster startup.
-    # Bookworm and later (including Trixie) moved the config to /boot/firmware/config.txt.
-    # Bullseye and older use /boot/config.txt.
+
     if [ -f /boot/firmware/config.txt ]; then
         BOOT_CONFIG=/boot/firmware/config.txt
     elif [ -f /boot/config.txt ]; then
@@ -523,12 +473,10 @@ EOF
     fi
 
     if [ -n "$BOOT_CONFIG" ]; then
-        # Disable splash screen for faster boot
         if ! grep -q "disable_splash=1" "$BOOT_CONFIG"; then
             echo "disable_splash=1" | sudo tee -a "$BOOT_CONFIG" > /dev/null
         fi
 
-        # Allocate more GPU memory for smooth rendering
         if ! grep -q "gpu_mem=" "$BOOT_CONFIG"; then
             echo "gpu_mem=128" | sudo tee -a "$BOOT_CONFIG" > /dev/null
         fi
@@ -539,11 +487,9 @@ EOF
     echo -e "${GREEN}✓ Kiosk mode configured${NC}"
 }
 
-# Create helper scripts
 create_scripts() {
     echo -e "${BLUE}>>> Creating helper scripts...${NC}"
     
-    # Start script
     cat > "$INSTALL_DIR/start.sh" << EOF
 #!/bin/bash
 cd "$INSTALL_DIR"
@@ -551,28 +497,25 @@ node server.js
 EOF
     chmod +x "$INSTALL_DIR/start.sh"
     
-    # Stop script
     cat > "$INSTALL_DIR/stop.sh" << EOF
 #!/bin/bash
 sudo systemctl stop ${SERVICE_NAME}
 pkill -f chromium 2>/dev/null || true
 pkill -f unclutter 2>/dev/null || true
-echo "SkyDash stopped"
+echo "OpenSkyDash stopped"
 EOF
     chmod +x "$INSTALL_DIR/stop.sh"
     
-    # Restart script
     cat > "$INSTALL_DIR/restart.sh" << EOF
 #!/bin/bash
 sudo systemctl restart ${SERVICE_NAME}
-echo "SkyDash restarted"
+echo "OpenSkyDash restarted"
 EOF
     chmod +x "$INSTALL_DIR/restart.sh"
     
-    # Status script
     cat > "$INSTALL_DIR/status.sh" << EOF
 #!/bin/bash
-echo "=== SkyDash Status ==="
+echo "=== OpenSkyDash Status ==="
 sudo systemctl status ${SERVICE_NAME} --no-pager
 echo ""
 EOF
@@ -581,13 +524,10 @@ EOF
     echo -e "${GREEN}✓ Helper scripts created${NC}"
 }
 
-# Build and Deploy the SkyDash
 deploy_dashboard() {
-    echo -e "${BLUE}>>> Deploying SkyDash Dashboard...${NC}"
-    
-    # Ensure we are in the project directory
-    # (Adjust path if your script clones it elsewhere)
-    cd /home/w8be/SkyDash || { echo -e "${RED}✗ Directory not found${NC}"; return; }
+    echo -e "${BLUE}>>> Deploying OpenSkyDash Dashboard...${NC}"
+
+    cd /home/w8be/OpenSkyDash || { echo -e "${RED}✗ Directory not found${NC}"; return; }
 
     echo -e "${BLUE}    Installing Node modules...${NC}"
     npm install --quiet
@@ -596,15 +536,14 @@ deploy_dashboard() {
     npm run build
 
     echo -e "${BLUE}    Setting up Systemd Service...${NC}"
-    # This ensures the service points to the correct capitalized path
+
     sudo systemctl daemon-reload
-    sudo systemctl enable SkyDash
-    sudo systemctl restart SkyDash
+    sudo systemctl enable OpenSkyDash
+    sudo systemctl restart OpenSkyDash
 
     echo -e "${GREEN}✓ Dashboard deployed and running on port 5050${NC}"
 }
 
-# Print summary
 print_summary() {
     echo ""
     echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
@@ -628,7 +567,7 @@ print_summary() {
     
     if [ "$KIOSK_MODE" = true ]; then
         echo -e "  ${GREEN}Kiosk Mode:${NC} Enabled"
-        echo "    SkyDash will auto-start on boot in fullscreen"
+        echo "    OpenSkyDash will auto-start on boot in fullscreen"
         echo ""
         echo -e "    ${YELLOW}Exit kiosk:${NC}"
         echo "      Alt+F4          Close Chromium"
@@ -636,11 +575,11 @@ print_summary() {
         echo "      SSH:            pkill -f kiosk.sh"
         echo ""
         echo -e "    ${YELLOW}Disable auto-start:${NC}"
-        echo "      rm ~/.config/autostart/openhamclock-kiosk.desktop"
+        echo "      rm ~/.config/autostart/OpenSkyDash-kiosk.desktop"
         echo ""
     fi
     
-    echo -e "  ${BLUE}73 de SkyDash!${NC}"
+    echo -e "  ${BLUE}73 de OpenSkyDash!${NC}"
     echo ""
     
     if [ "$KIOSK_MODE" = true ]; then
@@ -652,7 +591,6 @@ print_summary() {
     fi
 }
 
-# Main installation flow
 main() {
     check_raspberry_pi
     update_system
@@ -670,5 +608,4 @@ main() {
     print_summary
 }
 
-# Run main
 main
