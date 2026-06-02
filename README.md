@@ -85,15 +85,17 @@ Configurable data for SkyDash.
 - **Lat** - Latitude of your locale
 - **Lon** - Longitude of your local
 
+### Lightning_config
+
 - **Reset Time** - Lighting Strike Buffer reset Time. Default is 5 minutes. Longer reset time utilizes additional memory recources.
 
 - **Area Radius** - The radius where strikes within will display along with a warning banner. The default is 50.
 - **Alert Radius** - The radius where strikes within will display aloing with the Danger banner. The default is 25.
 
-### Lightning_config
-
 - **Calculation** - Method used to trend the strike path. Options are Closest, Average, or Percentile algorithms.
+
 - **Sensitivity** - Value used to determine strike distance sensitivity. Higher values reduce trend flip-floping.
+
 - **Sample Size** - Value used to determine the amount of strikes that are used in the trend calculations.
 
 ### Backup/Restore
