@@ -99,7 +99,8 @@
                 <div class="pa-2 bg-grey-darken-4">
                     <div v-for="day in stg.weather.forecast" :key="day.name"
                         class="forecast-row d-flex align-center justify-space-between">
-                        <span class="day-label text-caption" style="width: 50px">{{ day.name }}</span>
+                        <span class="day-label text-caption" style="min-width: 55px; white-space: nowrap;">{{ day.name
+                        }}</span>
                         <v-icon
                             :icon="(day.icon === 'mdi-weather-snowy' && day.high > 40) ? 'mdi-weather-pour' : day.icon"
                             size="small" color="blue-lighten-4">
@@ -152,7 +153,7 @@ export default {
         if (saved && saved !== "undefined") {
             try {
                 const config = JSON.parse(saved);
-                
+
             } catch (e) {
                 console.error("Weather Fetch failed:", error.message);
             }
@@ -195,19 +196,19 @@ export default {
             },
             deep: true
         },
-        
+
         'stg.units.temperature'() {
             console.log("WeatherCard: Temperature unit changed. Fetching fresh data...");
             this.fetchWeather();
         },
 
-        
+
         'stg.units.pressure'() {
             console.log("WeatherCard: Pressure unit changed. Fetching fresh data...");
             this.fetchWeather();
         },
 
-        
+
         'stg.units.distance'() {
             console.log("WeatherCard: Distance/Wind unit changed. Fetching fresh data...");
             this.fetchWeather();
