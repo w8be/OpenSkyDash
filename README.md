@@ -1,4 +1,4 @@
-# SkyDash
+# OpenSkyDash
 
 **A real-time dashboard for amateur radio.**
 
@@ -246,7 +246,7 @@ One-line install for Raspberry Pi (3B, 3B+, 4, 5). Supports both graphical and h
 
 ```bash
 
-curl -sSL https://raw.githubusercontent.com/w8be/OpenSkyDash/main/setup-pi.sh | bash -s --kiosk
+ curl -sSL https://raw.githubusercontent.com/w8be/OpenSkyDash/refs/heads/main/setup-pi.sh | bash -s -- --kiosk
 ```
 
 The Pi boots directly into a fullscreen Chromium browser showing SkyDash. The kiosk launcher automatically detects Wayland (Trixie/labwc) or X11 (Bookworm/LXDE) and adjusts accordingly — no manual configuration needed. Only use this if you want a dedicated device for SkyDash.
@@ -255,7 +255,7 @@ The Pi boots directly into a fullscreen Chromium browser showing SkyDash. The ki
 
 ```bash
 
-curl -sSL https://raw.githubusercontent.com/w8be/OPenSkyDash/main/setup-pi.sh | bash -s --server
+ curl -sSL https://raw.githubusercontent.com/w8be/OpenSkyDash/refs/heads/main/setup-pi.sh | bash -s -- --server
 ```
 
 - This will clone the SkyDash repository and run the install script for a headless server that can be accessed with a web browser.
@@ -337,9 +337,6 @@ pm2 save
 ---
 
 ## Frequently Asked Questions
-
-**Q: Do I need an amateur radio license to use SkyDash?**
-A: No. SkyDash is a receive-only dashboard. Anyone can view DX spots, space weather, and POTA/WWFF activations. However, a callsign is needed for PSKReporter data (which tracks your transmitted signals) and for DX cluster login.
 
 **Q: How much bandwidth does SkyDash use?**
 A: Very little. All external API calls are cached server-side, and the backend serves compressed (gzip) responses. Typical usage is under 1 MB/minute. Most data sources update every 5–30 minutes.
