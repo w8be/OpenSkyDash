@@ -141,7 +141,7 @@
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ formatDistance(strike.distance) }}<span class="text-caption ml-1">{{
                                             stg.units.distance
-                                        }}</span>
+                                            }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -159,14 +159,14 @@
 
         <div class="px-5 py-1 footer-bg border-top-dim rounded-b-lg">
             <div class="d-flex justify-space-between align-center text-caption font-weight-bold">
-                <span class="text-orange" style="font-size: 0.7rem;">Area: {{ stg?.lightning.searchRadius }}{{
+                <span class="text-orange" style="font-size: 0.7rem;">Area: {{ stg?.lightning.searchRadius }} {{
                     stg.units.distance }}</span>
                 <div :class="[(stg?.lightning.history.length > 0) ? 'text-green-accent-2' : 'text-grey-darken-1',
                     'd-flex align-center align-center justify-center mr-3']" style="font-size: 0.65rem;">
                     <v-icon icon="mdi-pulse" size="10" class="pulse-icon"></v-icon>
                     {{ lastUpdated }}
                 </div>
-                <span class="text-orange" style="font-size: 0.7rem;">Alert: {{ stg?.lightning.alertThreshold }}{{
+                <span class="text-orange" style="font-size: 0.7rem;">Alert: {{ stg?.lightning.alertThreshold }} {{
                     stg.units.distance }}</span>
             </div>
         </div>
@@ -211,7 +211,7 @@ export default {
     beforeUnmount() {
         if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
         if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
-        this.connection.onclose = null; 
+        this.connection.onclose = null;
         if (this.connection) this.connection.close();
         if (this.trendTimer) {
             clearInterval(this.trendTimer);
@@ -222,24 +222,24 @@ export default {
         window.dashboard = this.stg;
         window.lightningCard = this;
 
-        
+
         if (this.freqTimer) clearInterval(this.freqTimer);
 
         const saved = localStorage.getItem('station_config_v1');
         if (saved && saved !== "undefined") {
             try {
                 const config = JSON.parse(saved);
-                
+
             } catch (e) {
                 console.error("Config Sysgen Failure: Malformed JSON in localStorage", e);
-                
-                
+
+
             }
         } else {
             console.log("No saved config found. Loading defaults.");
         }
 
-        
+
         this.connect();
         this.thunderPlayer = new Audio('/sounds/thunder.mp3');
         this.thunderPlayer.load();
@@ -248,25 +248,25 @@ export default {
             this.calculateTrend();
         }, 5000);
 
-        
+
         console.log("LIGHTNING CARD MOUNTED - (Should only happen once!)");
         this.establishConnection();
 
-        
+
         this.freqTimer = setInterval(() => {
             this.updateFrequency();
         }, 10000);
     },
     unmounted() {
-        
+
         if (this.connection) this.connection.close();
     },
     watch: {
-        
+
         'stg.lightning.resetTime'(newVal) {
             console.log(`Setting changed to ${newVal}m. Sweeping history immediately.`);
 
-            
+
             const cutoff = Date.now() - (newVal * 60 * 1000);
             this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
             this.stg.lightning.currentStorm.frequency = this.stg.lightning.history.length;
@@ -530,16 +530,16 @@ export default {
         },
 
         openSettings() {
-            
+
             this.lightning = JSON.parse(JSON.stringify(this.stg.lightning));
             this.showModal = true;
         },
 
         saveSettings() {
-            
+
             Object.assign(this.stg.lightning, this.lightning);
 
-            
+
             localStorage.setItem('lightning_config', JSON.stringify(this.stg.lightning));
 
             this.showModal = false;
@@ -573,7 +573,7 @@ export default {
 
 
         calculateTrend() {
-            
+
             if (!this.stg || !this.stg.lightning || !Array.isArray(this.stg.lightning.history)) {
                 return;
             }
@@ -584,7 +584,7 @@ export default {
             const sampleSize = Number(lightning.sampleSize) || 20;
             const sensitivity = Number(lightning.sensitivity) || 5;
 
-            
+
             const headings16 = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
             const directionalTrends = {};
 
@@ -592,19 +592,19 @@ export default {
                 directionalTrends[dir] = { trend: 'Stationary', activityCount: 0, diff: 0 };
             });
 
-            
+
             h.forEach(strike => {
                 if (directionalTrends[strike.heading]) {
                     directionalTrends[strike.heading].activityCount++;
                 }
             });
 
-            
+
             headings16.forEach(dir => {
-                
+
                 const directionalWindow = h.filter(strike => strike.heading === dir).slice(-sampleSize);
 
-                
+
                 if (directionalWindow.length < sampleSize) {
                     directionalTrends[dir].trend = 'Stationary';
                     return;
@@ -613,7 +613,7 @@ export default {
                 const mid = Math.floor(directionalWindow.length / 2);
                 let diff = 0;
 
-                
+
                 if (config.algorithm === 'Percentile (Balanced)') {
                     const oldSorted = directionalWindow.slice(0, mid)
                         .map(strike => ({ ...strike }))
@@ -632,7 +632,7 @@ export default {
                 } else if (config.algorithm === 'Closest Strike (Fastest)') {
                     diff = directionalWindow[0].distance - directionalWindow[directionalWindow.length - 1].distance;
                 } else {
-                    
+
                     const oldAvg = directionalWindow.slice(0, mid).reduce((a, b) => a + b.distance, 0) / mid;
                     const newAvg = directionalWindow.slice(-mid).reduce((a, b) => a + b.distance, 0) / mid;
                     diff = oldAvg - newAvg;
@@ -640,7 +640,7 @@ export default {
 
                 directionalTrends[dir].diff = diff;
 
-                
+
                 if (diff > sensitivity) {
                     directionalTrends[dir].trend = 'Approaching';
                 } else if (diff < -sensitivity) {
@@ -650,10 +650,10 @@ export default {
                 }
             });
 
-            
+
             this.directionalTrends = directionalTrends;
 
-            
+
             let highestThreatSector = 'None';
             let recedingSector = 'None';
 
@@ -663,12 +663,12 @@ export default {
 
             headings16.forEach(dir => {
                 const sectorStrikes = h.filter(strike => strike.heading === dir);
-                if (sectorStrikes.length === 0) return; 
+                if (sectorStrikes.length === 0) return;
 
                 const closestSectorDist = Math.min(...sectorStrikes.map(s => s.distance));
                 const currentTrend = directionalTrends[dir].trend;
 
-                
+
                 if (currentTrend === 'Approaching') {
                     if (closestSectorDist < closestApproachingDist) {
                         closestApproachingDist = closestSectorDist;
@@ -682,15 +682,15 @@ export default {
                 }
             });
 
-            
+
             if (closestRecedingDist <= alertRadiusThreshold && closestRecedingDist < closestApproachingDist) {
-                
+
                 lightning.currentStorm.trend = `Receding ${recedingSector}`;
             } else if (highestThreatSector !== 'None') {
-                
+
                 lightning.currentStorm.trend = `Approaching ${highestThreatSector}`;
             } else if (recedingSector !== 'None') {
-                
+
                 lightning.currentStorm.trend = `Receding ${recedingSector}`;
             } else {
                 lightning.currentStorm.trend = 'Stationary';
@@ -707,15 +707,15 @@ export default {
             const now = Date.now();
             const radius = Number(this.stg.lightning?.searchRadius || 50);
 
-            
-            
+
+
             const resetMinutes = this.stg.lightning.resetTime || 10;
             const cutoff = now - (resetMinutes * 60 * 1000);
 
-            
+
             this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
 
-            
+
             const oneMinuteAgo = now - 60000;
             const localStrikes = this.stg.lightning.history.filter(s => {
                 const isRecent = s.time > oneMinuteAgo;
@@ -727,11 +727,11 @@ export default {
 
 
 
-            
+
             const freq = localStrikes.length;
             this.stg.lightning.currentStorm.frequency = freq;
 
-            
+
             if (this.stg.lightning.history.length === 0) {
                 this.stg.lightning.currentStorm = {
                     distance: 0,
@@ -743,7 +743,7 @@ export default {
         },
 
         playThunder() {
-            
+
             if (this.stg.lightning.isMuted) {
                 return;
             }
@@ -804,11 +804,11 @@ export default {
             };
             reader.readAsText(file);
         },
-        
+
         simulateStormCell(direction, startingDistance, simType = 'approaching') {
             console.log(`>>> Starting simulated ${simType} storm cell from the ${direction}...`);
 
-            
+
             const headingToDegrees = {
                 'N': 0, 'NNE': 22.5, 'NE': 45, 'ENE': 67.5,
                 'E': 90, 'ESE': 112.5, 'SE': 135, 'SSE': 157.5,
@@ -818,14 +818,14 @@ export default {
 
             const bearing = headingToDegrees[direction.toUpperCase()] || 0;
             const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
-            const R_EARTH = 3958.8; 
+            const R_EARTH = 3958.8;
 
             let currentDistance = startingDistance;
             let pulseCount = 0;
 
-            
+
             const interval = setInterval(() => {
-                if (pulseCount >= 25) { 
+                if (pulseCount >= 25) {
                     clearInterval(interval);
                     console.log(`>>> Simulation for ${direction} cell complete.`);
                     return;
@@ -839,11 +839,11 @@ export default {
                     if (currentDistance < 2) currentDistance = 2;
                 }
 
-                
-                
-                
 
-                
+
+
+
+
                 const bearingRad = (bearing * Math.PI) / 180;
                 const centerLatRad = (home.lat * Math.PI) / 180;
                 const centerLonRad = (home.lon * Math.PI) / 180;
@@ -864,7 +864,7 @@ export default {
                     time: Date.now()
                 };
 
-                
+
                 this.processIncomingStrike(fakeStrike);
                 pulseCount++;
             }, 2000);
@@ -872,10 +872,10 @@ export default {
         simulateFullStormCycle(direction) {
             console.log(`>>> Kicking off realistic storm cycle from the ${direction}...`);
 
-            
+
             this.simulateStormCell(direction, 45, 'approaching');
 
-            
+
             setTimeout(() => {
                 console.log(`>>> Real-world transition: Front is stalling and beginning to recede...`);
                 this.simulateStormCell(direction, 5, 'receding');
@@ -883,12 +883,12 @@ export default {
         }
     },
     computed: {
-        
+
         lightning() {
             return this.stg?.lightning || {};
         },
 
-        
+
         sparklineValues() {
             const resetMinutes = this.stg.lightning.resetTime || 10;
             const now = Date.now();
@@ -897,7 +897,7 @@ export default {
             const buckets = new Array(bucketCount).fill(0);
             const maxDist = this.stg.lightning.searchRadius || 100;
 
-            
+
             if (this.stg.lightning.history && this.stg.lightning.history.length > 0) {
                 this.stg.lightning.history.forEach(strike => {
 
@@ -906,15 +906,15 @@ export default {
 
                     const ageMs = now - strikeTime;
 
-                    
+
                     if (ageMs <= windowMs && ageMs >= -5000) {
                         const bucketIndex = Math.floor(((windowMs - ageMs) / windowMs) * (bucketCount - 1));
 
                         if (bucketIndex >= 0 && bucketIndex < bucketCount) {
-                            
-                            
+
+
                             let intensity = Math.max(5, ((maxDist - strike.distance) / maxDist) * 100);
-                            
+
                             intensity = Math.max(5, intensity);
 
                             if (intensity > buckets[bucketIndex]) {
@@ -940,20 +940,20 @@ export default {
             return this.getTimeAgo(this.lightning.history[this.lightning.history.length - 1].time);
         },
 
-        
-        
 
-        
-        
-        
 
-        
 
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
+
+
+
+
 
         convertedDistance() {
             const rawDistance = this.stg?.lightning?.currentStorm?.distance;
@@ -981,7 +981,7 @@ export default {
                 prev.dist < curr.dist ? prev : curr
             );
         },
-    } 
+    }
 };
 </script>
 
@@ -1098,9 +1098,9 @@ export default {
 
 :deep(.v-expansion-panel-title) {
     min-height: 32px !important;
-    
+
     padding: 0 8px !important;
-    
+
 }
 
 
