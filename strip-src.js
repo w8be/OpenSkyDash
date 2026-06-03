@@ -27,7 +27,7 @@ function processDirectory(dir) {
       // 2. Strip out HTML comments specifically for Vue template blocks
       if (file.endsWith('.vue')) {
         // This RegEx safely removes including multi-line ones
-        cleanContent = cleanContent.replace(//g, '')
+        cleanContent = cleanContent.replace(g, '')
       }
 
       fs.writeFileSync(fullPath, cleanContent, 'utf8')
@@ -39,11 +39,11 @@ function processDirectory(dir) {
 const targetDirectories = [
   './src',
   './public',
-  './components' // Add or remove your specific directories here
+  './components', // Add or remove your specific directories here
 ]
 
 // Loop through your targets and process each one
-targetDirectories.forEach(dir => {
+targetDirectories.forEach((dir) => {
   console.log(`Scanning directory: ${dir}...`)
   processDirectory(dir)
 })
