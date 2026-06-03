@@ -67,22 +67,22 @@ export default {
   data() {
     const masterState = reactive(settings);
 
-    
+
     if (!masterState.weather) masterState.weather = {};
     if (!masterState.weather.current) masterState.weather.current = {};
 
     return {
       stg: masterState,
 
-      
+
       shared: new Proxy(masterState, {
         get(target, prop) {
-          
+
           if (prop === 'weatherIcon') return target.weather.current.weatherIcon;
           return target[prop];
         },
         set(target, prop, value) {
-          
+
           if (prop === 'weatherIcon') {
             target.weather.current.weatherIcon = value;
             return true;
@@ -102,17 +102,33 @@ export default {
       try {
         const parsed = JSON.parse(savedSettings);
 
-        
-        if (parsed.lightning && parsed.lightning.homeLocation) {
-          this.stg.lightning.homeLocation.lat = parseFloat(parsed.lightning.homeLocation.lat);
-          this.stg.lightning.homeLocation.lon = parseFloat(parsed.lightning.homeLocation.lon);
+        // 1. Deep merge or selectively copy the primary modules
+        if (parsed.lightning) {
+          // Merge lightning settings, but explicitly clean up coords if needed
+          Object.assign(this.stg.lightning, parsed.lightning);
+          if (parsed.lightning.homeLocation) {
+            this.stg.lightning.homeLocation.lat = parseFloat(parsed.lightning.homeLocation.lat);
+            this.stg.lightning.homeLocation.lon = parseFloat(parsed.lightning.homeLocation.lon);
+          }
         }
 
-        if (parsed.ui && parsed.ui.appName) {
-          this.stg.ui.appName = parsed.ui.appName;
+        if (parsed.units) {
+          Object.assign(this.stg.units, parsed.units);
         }
 
-        console.log("App.vue (created): Pre-loaded coordinates:", this.stg.lightning.homeLocation);
+        if (parsed.ui) {
+          Object.assign(this.stg.ui, parsed.ui);
+        }
+
+        if (parsed.solar) {
+          Object.assign(this.stg.solar, parsed.solar);
+        }
+
+        if (parsed.weather) {
+          Object.assign(this.stg.weather, parsed.weather);
+        }
+
+        console.log("App.vue (created): All configurations successfully restored from storage.");
       } catch (e) {
         console.error("App.vue: Error pre-parsing saved settings", e);
       }
@@ -123,7 +139,7 @@ export default {
     this.updateClock();
     setInterval(this.updateClock, 1000);
 
-    
+
     window.G_STATE = this.stg;
 
     this.stg.ui.activeTab = 'weather';
@@ -131,25 +147,25 @@ export default {
 
   methods: {
     updateClock() {
-      
-      const currentLocale = this.stg.units.time?.toLowerCase();
-      const timeFormat = this.stg.units.timeFormat; 
 
-      
-      
+      const currentLocale = this.stg.units.time?.toLowerCase();
+      const timeFormat = this.stg.units.timeFormat;
+
+
+
       const use12Hour = String(timeFormat) === '12';
 
       const now = new Date();
 
       if (currentLocale === 'locale') {
-        
-        
+
+
         this.currentTime = now.toLocaleTimeString(undefined, {
           hour12: use12Hour
         });
 
       } else if (currentLocale === 'utc') {
-        
+
         this.currentTime = now.toLocaleString('en-US', {
           timeZone: 'UTC',
           year: '2-digit',
@@ -199,7 +215,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -232,7 +248,7 @@ body {
   padding: 6px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 0.75rem;
-  
+
 }
 
 .day-label {
@@ -257,9 +273,9 @@ body {
 
 .v-tab {
   min-width: 0;
-  
+
   padding: 0 4px;
-  
+
 }
 
 .pulsing-icon {
