@@ -75,7 +75,8 @@
                     <div class="d-flex flex-column align-center">
 
                         <div class="d-flex align-baseline">
-                            <div class="display-value text-brown-lighten-4">{{ convertedDistance }}</div>
+                            <div class="display-value text-brown-lighten-4">{{
+                                convertedDistance(this.stg?.lightning?.currentStorm?.distance) }}</div>
                             <div class="unit-text ml-1">{{ stg.units.distance }}</div>
                         </div>
 
