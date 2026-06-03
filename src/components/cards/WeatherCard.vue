@@ -113,7 +113,7 @@
                         </div>
 
                         <div class="d-flex align-center justify-center mt-0.5 text-grey-lighten-1"
-                            style="font-size: 0.65rem; line-height: 1;">
+                            style="font-size: 0.9rem; line-height: 1;">
                             <v-icon size="10" color="blue-lighten-4" class="mr-0.5">mdi-water</v-icon>
                             {{ day.precip }}%
                         </div>
