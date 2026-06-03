@@ -85,7 +85,7 @@
                     <span class="label"><v-icon icon="mdi-eye" v-tooltip:top="'Current Visibility'"
                             color="brown-lighten-2" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.visibility }} {{ stg.units.distance
-                            }}</strong></span>
+                    }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" v-tooltip:top="'Current UV Exposure'"
@@ -94,25 +94,32 @@
                 </div>
             </div>
 
-            <div v-if="stg.weather.forecast.length > 0"
-                class="forecast-container ml-2 mr-2 mt-2 border-t-sm border-grey-darken-3">
-                <div class="pa-2 bg-grey-darken-4">
-                    <div v-for="day in stg.weather.forecast" :key="day.name"
-                        class="forecast-row d-flex align-center justify-space-between">
-                        <span class="day-label text-caption" style="min-width: 55px; white-space: nowrap;">{{ day.name
-                        }}</span>
+            <v-row v-if="stg.weather.forecast && stg.weather.forecast.length > 0"
+                class="mt-3 pt-2 pb-3 mx-0 border-t-sm border-grey-darken-3" no-gutters>
+                <v-col v-for="day in stg.weather.forecast" :key="day.name" cols="4" class="text-center">
+                    <div class="d-flex flex-column align-center px-1">
+                        <span class="text-caption font-weight-medium text-grey-lighten-1 mb-1">
+                            {{ day.name }}
+                        </span>
+
                         <v-icon
                             :icon="(day.icon === 'mdi-weather-snowy' && day.high > 40) ? 'mdi-weather-pour' : day.icon"
-                            size="small" color="blue-lighten-4">
+                            size="small" color="blue-lighten-4" class="ma-0">
                         </v-icon>
-                        <span class="temp-range text-caption ml-4">{{ Math.round(day.high) }}°/{{ Math.round(day.low)
-                            }}°</span>
-                        <span class="precip text-caption text-blue-lighten-4" style="width: 80px; text-align: right;">
-                            💧{{ day.precip }}%
-                        </span>
+
+                        <div class="text-caption font-weight-bold text-brown-lighten-4 mt-1 mb-0.5">
+                            {{ Math.round(day.high) }}°<span class="text-grey-darken-1 font-weight-regular">/{{
+                                Math.round(day.low) }}°</span>
+                        </div>
+
+                        <div class="d-flex align-center justify-center mt-0.5 text-grey-lighten-1"
+                            style="font-size: 0.65rem; line-height: 1;">
+                            <v-icon size="10" color="blue-lighten-4" class="mr-0.5">mdi-water</v-icon>
+                            {{ day.precip }}%
+                        </div>
                     </div>
-                </div>
-            </div>
+                </v-col>
+            </v-row>
         </div>
 
         <v-container v-else class="d-flex justify-center align-center" style="height: 400px;">
