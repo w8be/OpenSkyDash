@@ -4,6 +4,12 @@ import path from 'path'
 import strip from 'strip-comments'
 
 function processDirectory(dir) {
+  // Failsafe in case a directory doesn't exist
+  if (!fs.existsSync(dir)) {
+    console.warn(`Directory not found, skipping: ${dir}`)
+    return
+  }
+
   const files = fs.readdirSync(dir)
 
   files.forEach((file) => {
@@ -15,14 +21,31 @@ function processDirectory(dir) {
     } else if (file.endsWith('.js') || file.endsWith('.vue')) {
       const content = fs.readFileSync(fullPath, 'utf8')
 
-      // Strip out comments but preserve code whitespace structure
-      const cleanContent = strip(content, { preserveNewlines: true })
+      // 1. Strip out standard JS/CSS comments
+      let cleanContent = strip(content, { preserveNewlines: true })
+
+      // 2. Strip out HTML comments specifically for Vue template blocks
+      if (file.endsWith('.vue')) {
+        // This RegEx safely removes including multi-line ones
+        cleanContent = cleanContent.replace(//g, '')
+      }
 
       fs.writeFileSync(fullPath, cleanContent, 'utf8')
     }
   })
 }
 
-// Target your source directory
-processDirectory('./src')
-console.log('Successfully stripped all comments from src/ directory.')
+// Target multiple directories using an array
+const targetDirectories = [
+  './src',
+  './public',
+  './components' // Add or remove your specific directories here
+]
+
+// Loop through your targets and process each one
+targetDirectories.forEach(dir => {
+  console.log(`Scanning directory: ${dir}...`)
+  processDirectory(dir)
+})
+
+console.log('Successfully stripped all comments from target directories.')
