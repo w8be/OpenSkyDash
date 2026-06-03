@@ -107,7 +107,7 @@
                     </v-row>
                 </v-window-item>
 
-                <v-window-item class="pb-2 d-block" value="lightning" height="auto" overflow-y: auto;>
+                <v-window-item class="pb-2 d-block" value="lightning" height="auto" style="overflow-y: auto;">
                     <div class="text-subtitle-2 mb-1 text-secondary">
                         <v-icon size="small" color="#b06e69">mdi-clock-outline</v-icon> Reset Time ({{
                             stg.lightning.resetTime }}m)
@@ -173,7 +173,7 @@ export default {
     props: ['stg'],
     data() {
         return {
-            
+
             shared: window.G_STATE,
             socket: null,
             timer: null,
@@ -184,18 +184,18 @@ export default {
         changeDistanceUnit(newUnit) {
             if (!newUnit) return;
 
-            
+
             const normalizedUnit = newUnit.toLowerCase();
             console.log("SettingsCard: Toggling unit safely to:", normalizedUnit);
 
             this.stg.units.distance = normalizedUnit;
 
-            
+
             localStorage.setItem('station_config_v1', JSON.stringify(this.stg));
         },
 
         updateLocation() {
-            
+
             const lat = parseFloat(this.stg.lightning.homeLocation.lat);
             const lon = parseFloat(this.stg.lightning.homeLocation.lon);
 
@@ -204,40 +204,40 @@ export default {
                 return;
             }
 
-            
+
             this.stg.lightning.homeLocation.lat = lat;
             this.stg.lightning.homeLocation.lon = lon;
 
-            
+
             localStorage.setItem('station_config_v1', JSON.stringify(this.stg));
 
             console.log("Station updated successfully:", lat, lon, this.stg?.units?.distance);
         },
 
-        
+
         exportToDisk() {
             try {
-                
+
                 const cleanData = JSON.parse(JSON.stringify(this.stg));
 
-                
+
                 if (cleanData.weather) {
                     cleanData.weather.current = {};
                     cleanData.weather.forecast = [];
                 }
                 if (cleanData.lightning) {
                     cleanData.lightning.history = [];
-                    
+
                     delete cleanData.lightning.currentStorm;
                 }
                 if (cleanData.solar) {
                     cleanData.solar.current = {};
                 }
 
-                
+
                 localStorage.setItem('station_config_v1', JSON.stringify(cleanData));
 
-                
+
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cleanData, null, 2));
                 const downloadAnchorNode = document.createElement('a');
                 downloadAnchorNode.setAttribute("href", dataStr);
@@ -253,7 +253,7 @@ export default {
             }
         },
 
-        
+
         importFromDisk(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -263,7 +263,7 @@ export default {
                 try {
                     const importedConfig = JSON.parse(e.target.result);
 
-                    
+
                     const deepMerge = (target, source) => {
                         for (const key in source) {
                             if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
@@ -275,10 +275,10 @@ export default {
                         }
                     };
 
-                    
+
                     deepMerge(this.stg, importedConfig);
 
-                    
+
                     localStorage.setItem('station_config_v1', JSON.stringify(JSON.parse(JSON.stringify(this.stg))));
 
                     alert("Settings imported successfully! Layout updated.");
@@ -292,7 +292,7 @@ export default {
     },
     computed: {
         displayPressure() {
-            const raw = this.weatherData.pressure; 
+            const raw = this.weatherData.pressure;
             if (this.stg.weather.unit === 'in') {
                 return (raw * 0.02953).toFixed(2);
             }
