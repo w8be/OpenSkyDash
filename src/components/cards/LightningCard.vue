@@ -141,7 +141,7 @@
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ formatDistance(strike.distance) }}<span class="text-caption ml-1">{{
                                             stg.units.distance
-                                            }}</span>
+                                        }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -159,15 +159,19 @@
 
         <div class="px-5 py-1 footer-bg border-top-dim rounded-b-lg">
             <div class="d-flex justify-space-between align-center text-caption font-weight-bold">
-                <span class="text-orange" style="font-size: 0.7rem;">Area: {{ stg?.lightning.searchRadius }} {{
-                    stg.units.distance }}</span>
+                <span class="text-orange" style="font-size: 0.7rem;">Area: {{
+                    convertedDistance(stg?.lightning.searchRadius) }}
+                    {{
+                        stg.units.distance }}</span>
                 <div :class="[(stg?.lightning.history.length > 0) ? 'text-green-accent-2' : 'text-grey-darken-1',
                     'd-flex align-center align-center justify-center mr-3']" style="font-size: 0.65rem;">
                     <v-icon icon="mdi-pulse" size="10" class="pulse-icon"></v-icon>
                     {{ lastUpdated }}
                 </div>
-                <span class="text-orange" style="font-size: 0.7rem;">Alert: {{ stg?.lightning.alertThreshold }} {{
-                    stg.units.distance }}</span>
+                <span class="text-orange" style="font-size: 0.7rem;">Alert: {{
+                    convertedDistance(stg?.lightning.alertThreshold)
+                    }} {{
+                        stg.units.distance }}</span>
             </div>
         </div>
 
@@ -956,8 +960,9 @@ export default {
 
 
         convertedDistance() {
-            const rawDistance = this.stg?.lightning?.currentStorm?.distance;
-            return this.formatDistance(rawDistance);
+            return (rawDistance) => {
+                return this.formatDistance(rawDistance);
+            };
         },
 
         trendColor() {
