@@ -1,7 +1,6 @@
 <template>
 
     <v-sheet class="mx-auto lightning-card bg-grey-darken-4" style="max-width: 300px; min-width:300px">
-        <!-- <pre>freq: {{ stg.lightning.currentStorm.frequency }} radius: {{ stg.lightning.searchRadius }}</pre> -->
         <div class="d-flex justify-space-between align-center header-bg px-3 py-2"
             style="position: relative; z-index: 10; ">
             <div class="d-flex align-center">
