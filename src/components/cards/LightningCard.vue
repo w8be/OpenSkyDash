@@ -142,7 +142,7 @@
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ formatDistance(strike.distance) }}<span class="text-caption ml-1">{{
                                             stg.units.distance
-                                        }}</span>
+                                            }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -171,7 +171,7 @@
                 </div>
                 <span class="text-orange" style="font-size: 0.7rem;">Alert: {{
                     convertedDistance(stg?.lightning.alertThreshold)
-                    }} {{
+                }} {{
                         stg.units.distance }}</span>
             </div>
         </div>
@@ -530,8 +530,6 @@ export default {
                 ...this.stg.lightning,
                 isMuted: newValue
             };
-
-            localStorage.setItem('lightning_config', JSON.stringify(this.stg.config));
         },
 
         openSettings() {
@@ -539,18 +537,6 @@ export default {
             this.lightning = JSON.parse(JSON.stringify(this.stg.lightning));
             this.showModal = true;
         },
-
-        saveSettings() {
-
-            Object.assign(this.stg.lightning, this.lightning);
-
-
-            localStorage.setItem('lightning_config', JSON.stringify(this.stg.lightning));
-
-            this.showModal = false;
-            console.log("Settings saved and persisted.");
-        },
-
 
         formatTime(ts) {
             if (!ts) return "--:--:--";
@@ -799,7 +785,7 @@ export default {
 
                     this.localConfig = JSON.parse(JSON.stringify(this.stg.lightning));
 
-                    localStorage.setItem('lightning_config', JSON.stringify(this.stg.lightning));
+                    localStorage.setItem('lightning_config_v1', JSON.stringify(this.stg.lightning));
 
                     alert("Settings Restored Successfully!");
                 } catch (err) {
