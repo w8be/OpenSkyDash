@@ -181,7 +181,8 @@ export default {
           hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
-          hour12: use12Hour
+          hour12: use12Hour,
+          timeZoneName: 'short'
         });
       }
     }
