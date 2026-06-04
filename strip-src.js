@@ -19,17 +19,21 @@ function processDirectory(dir) {
     if (stat.isDirectory()) {
       processDirectory(fullPath) // Recursive scan for subdirectories
     } else if (file.endsWith('.js') || file.endsWith('.vue')) {
-      const content = fs.readFileSync(fullPath, 'utf8')
+  let cleanContent = fs.readFileSync(fullPath, 'utf8')
 
-      // 1. Strip out standard JS/CSS comments
-      let cleanContent = strip(content, { preserveNewlines: true })
+  // 1. Strip out HTML comments first: if (file.endsWith('.vue')) {
+    cleanContent = cleanContent.replace(//g, '')
+  }
 
-      // 2. Strip out HTML comments specifically for Vue template blocks
-      if (file.endsWith('.vue')) {
-        // This RegEx targets cleanContent = cleanContent.replace(//g, '')
-      }
+  // 2. Strip out multi-line JavaScript comments: /* comment */
+  cleanContent = cleanContent.replace(/\/\*[\s\S]*?\*\//g, '')
 
-      fs.writeFileSync(fullPath, cleanContent, 'utf8')
+  // 3. Strip out single-line JavaScript comments: // comment
+  // This regex matches // but makes sure it isn't part of a URL (like http://)
+  cleanContent = cleanContent.replace(/(^|[^\/])\/\/.*$/gm, '$1')
+
+  fs.writeFileSync(fullPath, cleanContent, 'utf8')
+}
     }
   })
 }
