@@ -26,8 +26,7 @@ function processDirectory(dir) {
 
       // 2. Strip out HTML comments specifically for Vue template blocks
       if (file.endsWith('.vue')) {
-        // This RegEx safely removes including multi-line ones
-        cleanContent = cleanContent.replace(new RegExp('', 'g'), '')
+        // This RegEx targets cleanContent = cleanContent.replace(//g, '')
       }
 
       fs.writeFileSync(fullPath, cleanContent, 'utf8')
