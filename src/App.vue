@@ -185,7 +185,16 @@ export default {
         });
       }
     }
-  }
+  },
+  watch: {
+    stg: {
+      handler(newSettings) {
+        // Every single time any setting changes, overwrite the old local storage string!
+        localStorage.setItem('station_config_v1', JSON.stringify(newSettings));
+      },
+      deep: true // This is crucial for nested properties!
+    }
+  },
 };
 </script>
 
