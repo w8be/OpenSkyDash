@@ -165,7 +165,7 @@ export default {
                 console.error("Weather Fetch failed:", error.message);
             }
         } else {
-            console.log("No saved config found. Loading defaults.");
+
         }
 
         this.fetchWeather();
@@ -178,7 +178,6 @@ export default {
             this.fetchWeather();
 
             this.stg.weather.updateInterval = setInterval(() => {
-                console.log("Heartbeat: Refreshing weather data...");
                 this.fetchWeather();
             }, 300000);
         }, initialDelay);
@@ -205,19 +204,16 @@ export default {
         },
 
         'stg.units.temperature'() {
-            console.log("WeatherCard: Temperature unit changed. Fetching fresh data...");
             this.fetchWeather();
         },
 
 
         'stg.units.pressure'() {
-            console.log("WeatherCard: Pressure unit changed. Fetching fresh data...");
             this.fetchWeather();
         },
 
 
         'stg.units.distance'() {
-            console.log("WeatherCard: Distance/Wind unit changed. Fetching fresh data...");
             this.fetchWeather();
         }
     },

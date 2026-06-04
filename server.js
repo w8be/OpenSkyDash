@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url'
 import fs from 'fs'
 import p_json from './package.json' with { type: 'json' }
 
-// Setup for ES Modules __dirname
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -15,30 +14,24 @@ const port = process.env.PORT || 5050
 app.use(cors())
 
 app.get('/blitz-js', async (req, res) => {
-  // console.log('>>> Request received for /blitz-js') // Log to Pi terminal
   try {
     const response = await fetch('https://www.blitzortung.org/en/JS/live_lightning_maps.js')
 
     if (!response.ok) {
-      // console.error(`!!! Blitzortung returned status: ${response.status}`)
       return res.status(response.status).send('Blitzortung site is down or blocking the Pi.')
     }
 
     const data = await response.text()
-    // console.log('>>> Successfully fetched script. Length:', data.length)
 
     res.set('Content-Type', 'application/javascript')
     res.send(data)
   } catch (error) {
-    // console.error('!!! Proxy Error:', error)
     res.status(500).send('Proxy failed to reach Blitzortung')
   }
 })
 
-// 1. Serve static files from the 'dist' folder
 app.use(express.static(path.join(__dirname, 'dist')))
 
-// 2. Health Check API (Always put specific API routes BEFORE the wildcard)
 function getUptime() {
   const seconds = process.uptime()
   const d = Math.floor(seconds / (3600 * 24))
@@ -58,13 +51,10 @@ app.get('/api/health', (req, res) => {
   })
 })
 
-// Proxy for KC2G Solar Data
 app.get('/api-kc2g/api/point_prediction.json', async (req, res) => {
   const { grid } = req.query
   // Note the "prop." added to the URL below
   const targetUrl = `https://prop.kc2g.com/api/point_prediction.json?grid=${grid}`
-
-  // console.log(`>>> Solar Proxy: Fetching from ${targetUrl}`)
 
   try {
     const response = await fetch(targetUrl, {
@@ -78,13 +68,10 @@ app.get('/api-kc2g/api/point_prediction.json', async (req, res) => {
     const data = await response.json()
     res.json(data)
   } catch (error) {
-    // console.error('!!! Solar Proxy Error:', error.message)
     res.status(500).json({ error: 'Failed to fetch solar data' })
   }
 })
 
-// 3. The Wildcard Catch-All (Satisfies Node v24/Express 5 strictness)
-// Using (.*) is a foolproof way to catch every other path for the SPA
 app.get(/^(?!\/(api|blitz-js|api-kc2g)).+/, (req, res) => {
   const indexPath = path.join(__dirname, 'dist', 'index.html')
 

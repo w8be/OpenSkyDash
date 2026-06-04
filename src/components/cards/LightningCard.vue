@@ -40,7 +40,6 @@
             </div>
         </div>
 
-        <!-- SECTION 1: STATUS BANNERS -->
         <template v-if="stg?.lightning">
             <div v-if="stg.lightning.currentStorm?.distance > 0 && stg.lightning.currentStorm?.distance <= stg.lightning.alertThreshold"
                 class="text-center py-1 font-weight-bold text-white bg-red-darken-4">
@@ -57,7 +56,6 @@
                 STATUS: Clear / Monitoring
             </div>
         </template>
-        <!-- SECTION 2: MAIN CONTENT AREA -->
         <v-card-text class="pa-4">
             <div v-if="stg.lightning.history.length > 0">
             </div>
@@ -95,7 +93,6 @@
                 </div>
             </div>
 
-            <!-- 2. Sparkline (Always visible if history exists) -->
             <div v-if="stg.lightning.history.length > 0" class="sparkline-container mt-2" style="position: relative;">
                 <v-sparkline :model-value="sparklineValues" :gradient="['#4caf50', '#ffeb3b', '#f44336']" smooth="100"
                     line-width=" 2" height="100" fill padding="3" :min="0"></v-sparkline>
@@ -141,7 +138,7 @@
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ formatDistance(strike.distance) }}<span class="text-caption ml-1">{{
                                             stg.units.distance
-                                        }}</span>
+                                            }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -170,7 +167,7 @@
                 </div>
                 <span class="text-orange" style="font-size: 0.7rem;">Alert: {{
                     convertedDistance(stg?.lightning.alertThreshold)
-                    }} {{
+                }} {{
                         stg.units.distance }}</span>
             </div>
         </div>
@@ -204,9 +201,8 @@ export default {
     },
     created() {
         this.instanceId = Math.floor(Math.random() * 1000);
-        // console.log(`Component Created! ID: ${this.instanceId}`);
+
         if (this.stg.lightning.heartbeat) {
-            // console.log("Found an orphaned heartbeat in global state. Killing it now.");
             clearInterval(this.stg.lightning.heartbeat);
             this.stg.lightning.heartbeat = null;
         }
@@ -240,7 +236,7 @@ export default {
 
             }
         } else {
-            // console.log("No saved config found. Loading defaults.");
+
         }
 
 
@@ -253,7 +249,6 @@ export default {
         }, 5000);
 
 
-        // console.log("LIGHTNING CARD MOUNTED - (Should only happen once!)");
         this.establishConnection();
 
 
@@ -268,8 +263,6 @@ export default {
     watch: {
 
         'stg.lightning.resetTime'(newVal) {
-            // console.log(`Setting changed to ${newVal}m. Sweeping history immediately.`);
-
 
             const cutoff = Date.now() - (newVal * 60 * 1000);
             this.stg.lightning.history = this.stg.lightning.history.filter(s => s.time > cutoff);
@@ -298,7 +291,6 @@ export default {
                 code++;
                 oldPhrase = phrase;
             }
-            // console.log("LZW decoding a string of length:", s.length);
             return out.join("");
         },
 
@@ -321,7 +313,6 @@ export default {
                 }
 
                 this.authKey = Number(keyMatch[1]);
-                // console.log("Found Blitzortung Key:", this.authKey);
 
                 this.establishConnection();
             } catch (err) {
@@ -335,7 +326,7 @@ export default {
             if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
 
             if (this.connection) {
-                this.connection.onclose = null; // Prevent recursion
+                this.connection.onclose = null;
                 this.connection.close();
             }
             const { lightning } = this.stg;
@@ -344,11 +335,9 @@ export default {
             const serverNum = lightning.wssServers[this.stg.lightning.currentServerIndex];
             const wssUrl = `wss://ws${serverNum}.blitzortung.org`;
 
-            // console.log(`Connecting to: ${wssUrl}`);
             this.connection = new WebSocket(wssUrl);
 
             this.connection.onopen = () => {
-                // console.log(`WebSocket connected to Server ${serverNum}`);
 
                 setTimeout(() => {
                     if (this.connection.readyState === WebSocket.OPEN) {
@@ -361,7 +350,6 @@ export default {
                     if (this.connection && this.connection.readyState === 1) {
                         const payload = JSON.stringify({ a: this.authKey });
                         this.connection.send(payload);
-                        // console.log(`Blitzortung Wss Heartbeat SENT at ${new Date().toLocaleTimeString()}: ${payload}`);
                     }
                 }, 30000);
             };
@@ -374,39 +362,31 @@ export default {
                     const strike = {
                         lat: raw[1] || raw.la || raw.lat,
                         lon: raw[2] || raw.lo || raw.lon,
-                        // Standardizing to ms for consistent math
+
                         time: Date.now()
                     };
 
                     if (strike.lat !== undefined && strike.lon !== undefined) {
-                        // PASS TO THE GATEKEEPER
-                        //   console.log(strike);
                         this.processIncomingStrike(strike);
                     }
                 } catch (e) {
-                    // Quietly catch parsing errors
+
                 }
             };
 
-            this.connection.onclose = (event) => { // Added 'event' here
+            this.connection.onclose = (event) => {
                 if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
 
-                // 1. Fix: event was undefined
-                // console.log(`WebSocket Closed: Code ${event.code}, Reason: ${event.reason}`);
-
-                // 2. Fix: Use the full path to your reactive state
                 const { lightning } = this.stg;
                 this.stg.lightning.currentServerIndex = (this.stg.lightning.currentServerIndex + 1) % lightning.wssServers.length;
 
-                // 3. Fix: serverNum was local to establishConnection, pull it from state instead
                 const currentServer = lightning.wssServers[this.stg.lightning.currentServerIndex];
-                // console.log(`Connection lost. Rotating to next server (Index: ${this.stg.lightning.currentServerIndex}) in 5s...`);
 
                 setTimeout(() => this.establishConnection(), 5000);
             };
 
             this.connection.onerror = (err) => {
-                // This looks good, but close() will trigger the onclose above
+
                 console.error("WebSocket Error detected. Closing for rotation.");
                 this.connection.close();
             };
@@ -423,28 +403,24 @@ export default {
 
         processIncomingStrike(data) {
             if (!data || data.lat === undefined || data.lon === undefined) return;
-            // console.log("ACTUAL INCOMING STRIKE DATA:", data);
+
             const now = Date.now();
             const home = this.stg.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
-            // console.log(home);
+
             const toRad = (v) => (v * Math.PI) / 180;
             const isMi = this.stg.units.distance.toLowerCase() === 'mi';
-            // const R = isMi ? 3958.8 : 6371;
+
             const R = 3958.8;
 
-            // 1. Calculate Distance
             const dLat = toRad(data.lat - home.lat);
             const dLon = toRad(data.lon - home.lon);
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            // console.log("Strike Decoded:", data.lat, data.lon);
+
             const dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-            //  console.log(dist);
-            // 2. THE GATEKEEPER
-            // Only strikes within the Area (50Mi in your screenshot) get recorded
+
             if (dist <= this.stg.lightning.searchRadius) {
 
-                // Calculate Bearing
                 const y = Math.sin(toRad(data.lon - home.lon)) * Math.cos(toRad(data.lat));
                 const x = Math.cos(toRad(home.lat)) * Math.sin(toRad(data.lat)) -
                     Math.sin(toRad(home.lat)) * Math.cos(toRad(data.lat)) * Math.cos(toRad(data.lon - home.lon));
@@ -455,17 +431,14 @@ export default {
                 if (history.length > 0) {
                     const currentStrikeTime = Number(data.time) || now;
 
-                    // Scan history backward to find any matches within a 3-second window
                     const isDuplicate = history.slice(-5).some(pastStrike => {
                         const timeDelta = Math.abs(currentStrikeTime - pastStrike.time);
 
-                        // Only evaluate strikes that happened within 3 seconds of this one
                         if (timeDelta < 3000) {
                             const distDelta = Math.abs(dist - pastStrike.distance);
                             const bearingDelta = Math.abs(bearing - pastStrike.bearing);
                             const trueBearingDelta = bearingDelta > 180 ? 360 - bearingDelta : bearingDelta;
 
-                            // If it's within 25 miles or 15 degrees inside that 3-second window, it's a duplicate
                             if (distDelta <= 25 && trueBearingDelta <= 15) {
                                 return true;
                             }
@@ -474,11 +447,10 @@ export default {
                     });
 
                     if (isDuplicate) {
-                        // console.warn(`[DEDUPE] Window blocked a duplicate cluster strike at ${dist}mi`);
-                        return; // Drop the duplicate packet completely!
+
+                        return;
                     }
                 }
-                // Record the strike
                 this.stg.lightning.history.push({
                     time: data.time || now,
                     distance: dist,
@@ -486,11 +458,9 @@ export default {
                     heading: heading
                 });
 
-                // 3. Update UI State
                 this.stg.lightning.currentStorm.distance = dist;
                 this.stg.lightning.currentStorm.bearing = bearing;
 
-                // The frequency now accurately reflects history.length
                 this.updateFrequency();
                 this.playThunder();
                 this.calculateTrend();
@@ -501,23 +471,21 @@ export default {
         startExpiryTimer() {
             if (this.expiryTimer) clearInterval(this.expiryTimer);
 
-            // Run a cleanup check every 10 seconds
             this.expiryTimer = setInterval(() => {
                 const history = this.stg.lightning.history;
                 if (!history.length) return;
 
                 const now = Date.now();
-                // Convert minutes (e.g., 5) to milliseconds
+
                 const windowMs = (this.stg.lightning.resetTime || 30) * 60 * 1000;
                 const cutoff = now - windowMs;
 
-                // One line to filter
+
                 this.stg.lightning.history = history.filter(s => s.time > cutoff);
 
-                // If everything was just wiped out, reset the "Current Storm" display
                 if (this.stg.lightning.history.length === 0) {
                     this.stg.lightning.currentStorm = { distance: 0, bearing: 0, trend: 'Stationary', frequency: 0 };
-                    // console.log("Cleanup: History expired. Dashboard reset.");
+
                 }
             }, 10000);
         },
@@ -769,7 +737,7 @@ export default {
             link.click();
 
             URL.revokeObjectURL(url);
-            // console.log("Configuration backed up to physical disk.");
+
         },
         importFromDisk(event) {
             const file = event.target.files[0];
@@ -796,8 +764,6 @@ export default {
         },
 
         simulateStormCell(direction, startingDistance, simType = 'approaching') {
-            // console.log(`>>> Starting simulated ${simType} storm cell from the ${direction}...`);
-
 
             const headingToDegrees = {
                 'N': 0, 'NNE': 22.5, 'NE': 45, 'ENE': 67.5,
@@ -817,7 +783,6 @@ export default {
             const interval = setInterval(() => {
                 if (pulseCount >= 25) {
                     clearInterval(interval);
-                    // console.log(`>>> Simulation for ${direction} cell complete.`);
                     return;
                 }
 
@@ -860,14 +825,11 @@ export default {
             }, 2000);
         },
         simulateFullStormCycle(direction) {
-            // console.log(`>>> Kicking off realistic storm cycle from the ${direction}...`);
-
 
             this.simulateStormCell(direction, 45, 'approaching');
 
 
             setTimeout(() => {
-                // console.log(`>>> Real-world transition: Front is stalling and beginning to recede...`);
                 this.simulateStormCell(direction, 5, 'receding');
             }, 51000);
         }
@@ -929,21 +891,6 @@ export default {
             if (!this.lightning.history.length) return 'No Data';
             return this.getTimeAgo(this.lightning.history[this.lightning.history.length - 1].time);
         },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         convertedDistance() {
             return (rawDistance) => {
