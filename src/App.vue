@@ -104,11 +104,18 @@ export default {
 
         // 1. Deep merge or selectively copy the primary modules
         if (parsed.lightning) {
-          // Merge lightning settings, but explicitly clean up coords if needed
+          // 1. Uniformly assign all top-level properties and nested objects
           Object.assign(this.stg.lightning, parsed.lightning);
+
+          // 2. Explicitly handle the nested UI block if it was restored
+          if (parsed.lightning.ui) {
+            Object.assign(this.stg.lightning.ui, parsed.lightning.ui);
+          }
+
+          // 3. Keep your float parsing guard safe
           if (parsed.lightning.homeLocation) {
-            this.stg.lightning.homeLocation.lat = parseFloat(parsed.lightning.homeLocation.lat);
-            this.stg.lightning.homeLocation.lon = parseFloat(parsed.lightning.homeLocation.lon);
+            this.stg.lightning.homeLocation.lat = parseFloat(parsed.lightning.homeLocation.lat) || 34.05;
+            this.stg.lightning.homeLocation.lon = parseFloat(parsed.lightning.homeLocation.lon) || -118.24;
           }
         }
 
