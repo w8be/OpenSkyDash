@@ -36,11 +36,7 @@ function processDirectory(dir) {
 }
 
 // Target multiple directories using an array
-const targetDirectories = [
-  './src',
-  './public',
-  './components', // Add or remove your specific directories here
-]
+const targetDirectories = ['./src', './public']
 
 // Loop through your targets and process each one
 targetDirectories.forEach((dir) => {
