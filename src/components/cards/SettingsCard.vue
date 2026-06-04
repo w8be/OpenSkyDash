@@ -18,7 +18,7 @@
 
                 <v-window-item value="innerTab" style="overflow-y: auto;">
                     <div class="text-brown-lighten-4 d-flex align-center mt-2">
-                        <v-text-field v-model="stg.ui.appName" label="App Name" density="compact" variant="outlined"
+                        <v-text-field v-model="stg.ui.appName" label="Profile" density="compact" variant="outlined"
                             @keydown.enter.prevent="updateLocation" @change="updateLocation"></v-text-field>
                     </div>
 
