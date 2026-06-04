@@ -141,7 +141,7 @@
                                     <v-col cols="4" class="text-center font-weight-bold text-orange-darken-1">
                                         {{ formatDistance(strike.distance) }}<span class="text-caption ml-1">{{
                                             stg.units.distance
-                                            }}</span>
+                                        }}</span>
                                     </v-col>
                                     <v-col cols="4" class="text-right font-weight-bold text-white">
                                         {{ getDir(strike.bearing) }}
@@ -170,7 +170,7 @@
                 </div>
                 <span class="text-orange" style="font-size: 0.7rem;">Alert: {{
                     convertedDistance(stg?.lightning.alertThreshold)
-                }} {{
+                    }} {{
                         stg.units.distance }}</span>
             </div>
         </div>
@@ -204,9 +204,9 @@ export default {
     },
     created() {
         this.instanceId = Math.floor(Math.random() * 1000);
-        console.log(`Component Created! ID: ${this.instanceId}`);
+        // console.log(`Component Created! ID: ${this.instanceId}`);
         if (this.stg.lightning.heartbeat) {
-            console.log("Found an orphaned heartbeat in global state. Killing it now.");
+            // console.log("Found an orphaned heartbeat in global state. Killing it now.");
             clearInterval(this.stg.lightning.heartbeat);
             this.stg.lightning.heartbeat = null;
         }
@@ -240,7 +240,7 @@ export default {
 
             }
         } else {
-            console.log("No saved config found. Loading defaults.");
+            // console.log("No saved config found. Loading defaults.");
         }
 
 
@@ -253,7 +253,7 @@ export default {
         }, 5000);
 
 
-        console.log("LIGHTNING CARD MOUNTED - (Should only happen once!)");
+        // console.log("LIGHTNING CARD MOUNTED - (Should only happen once!)");
         this.establishConnection();
 
 
@@ -268,7 +268,7 @@ export default {
     watch: {
 
         'stg.lightning.resetTime'(newVal) {
-            console.log(`Setting changed to ${newVal}m. Sweeping history immediately.`);
+            // console.log(`Setting changed to ${newVal}m. Sweeping history immediately.`);
 
 
             const cutoff = Date.now() - (newVal * 60 * 1000);
@@ -321,7 +321,7 @@ export default {
                 }
 
                 this.authKey = Number(keyMatch[1]);
-                console.log("Found Blitzortung Key:", this.authKey);
+                // console.log("Found Blitzortung Key:", this.authKey);
 
                 this.establishConnection();
             } catch (err) {
@@ -344,11 +344,11 @@ export default {
             const serverNum = lightning.wssServers[this.stg.lightning.currentServerIndex];
             const wssUrl = `wss://ws${serverNum}.blitzortung.org`;
 
-            console.log(`Connecting to: ${wssUrl}`);
+            // console.log(`Connecting to: ${wssUrl}`);
             this.connection = new WebSocket(wssUrl);
 
             this.connection.onopen = () => {
-                console.log(`WebSocket connected to Server ${serverNum}`);
+                // console.log(`WebSocket connected to Server ${serverNum}`);
 
                 setTimeout(() => {
                     if (this.connection.readyState === WebSocket.OPEN) {
@@ -361,7 +361,7 @@ export default {
                     if (this.connection && this.connection.readyState === 1) {
                         const payload = JSON.stringify({ a: this.authKey });
                         this.connection.send(payload);
-                        console.log(`Blitzortung Wss Heartbeat SENT at ${new Date().toLocaleTimeString()}: ${payload}`);
+                        // console.log(`Blitzortung Wss Heartbeat SENT at ${new Date().toLocaleTimeString()}: ${payload}`);
                     }
                 }, 30000);
             };
@@ -392,7 +392,7 @@ export default {
                 if (this.stg.lightning.heartbeat) clearInterval(this.stg.lightning.heartbeat);
 
                 // 1. Fix: event was undefined
-                console.log(`WebSocket Closed: Code ${event.code}, Reason: ${event.reason}`);
+                // console.log(`WebSocket Closed: Code ${event.code}, Reason: ${event.reason}`);
 
                 // 2. Fix: Use the full path to your reactive state
                 const { lightning } = this.stg;
@@ -400,7 +400,7 @@ export default {
 
                 // 3. Fix: serverNum was local to establishConnection, pull it from state instead
                 const currentServer = lightning.wssServers[this.stg.lightning.currentServerIndex];
-                console.log(`Connection lost. Rotating to next server (Index: ${this.stg.lightning.currentServerIndex}) in 5s...`);
+                // console.log(`Connection lost. Rotating to next server (Index: ${this.stg.lightning.currentServerIndex}) in 5s...`);
 
                 setTimeout(() => this.establishConnection(), 5000);
             };
@@ -517,7 +517,7 @@ export default {
                 // If everything was just wiped out, reset the "Current Storm" display
                 if (this.stg.lightning.history.length === 0) {
                     this.stg.lightning.currentStorm = { distance: 0, bearing: 0, trend: 'Stationary', frequency: 0 };
-                    console.log("Cleanup: History expired. Dashboard reset.");
+                    // console.log("Cleanup: History expired. Dashboard reset.");
                 }
             }, 10000);
         },
@@ -769,7 +769,7 @@ export default {
             link.click();
 
             URL.revokeObjectURL(url);
-            console.log("Configuration backed up to physical disk.");
+            // console.log("Configuration backed up to physical disk.");
         },
         importFromDisk(event) {
             const file = event.target.files[0];
@@ -796,7 +796,7 @@ export default {
         },
 
         simulateStormCell(direction, startingDistance, simType = 'approaching') {
-            console.log(`>>> Starting simulated ${simType} storm cell from the ${direction}...`);
+            // console.log(`>>> Starting simulated ${simType} storm cell from the ${direction}...`);
 
 
             const headingToDegrees = {
@@ -817,7 +817,7 @@ export default {
             const interval = setInterval(() => {
                 if (pulseCount >= 25) {
                     clearInterval(interval);
-                    console.log(`>>> Simulation for ${direction} cell complete.`);
+                    // console.log(`>>> Simulation for ${direction} cell complete.`);
                     return;
                 }
 
@@ -860,14 +860,14 @@ export default {
             }, 2000);
         },
         simulateFullStormCycle(direction) {
-            console.log(`>>> Kicking off realistic storm cycle from the ${direction}...`);
+            // console.log(`>>> Kicking off realistic storm cycle from the ${direction}...`);
 
 
             this.simulateStormCell(direction, 45, 'approaching');
 
 
             setTimeout(() => {
-                console.log(`>>> Real-world transition: Front is stalling and beginning to recede...`);
+                // console.log(`>>> Real-world transition: Front is stalling and beginning to recede...`);
                 this.simulateStormCell(direction, 5, 'receding');
             }, 51000);
         }

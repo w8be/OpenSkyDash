@@ -1,8 +1,8 @@
 <!-- This icon is from <https:
 <template>
   <svg
-    xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns="http:
+    xmlns:xlink="http:
     aria-hidden="true"
     role="img"
     class="iconify iconify--mdi"

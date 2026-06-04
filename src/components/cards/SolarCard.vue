@@ -292,10 +292,10 @@ export default {
 
             
             const urls = {
-                fof2: `https://prop.kc2g.com/api/point_prediction.json?grid=${home.lat},${home.lon}`,
-                flux: "https://services.swpc.noaa.gov/json/f107_cm_flux.json",
-                scales: "https://services.swpc.noaa.gov/products/noaa-scales.json",
-                indices: "https://services.swpc.noaa.gov/text/daily-geomagnetic-indices.txt"
+                fof2: `https:
+                flux: "https:
+                scales: "https:
+                indices: "https:
             };
 
             try {
@@ -305,7 +305,7 @@ export default {
         },
 
         async fetchGeomagneticIndices() {
-            const url = "https://services.swpc.noaa.gov/text/daily-geomagnetic-indices.txt";
+            const url = "https:
 
             try {
                 const response = await fetch(url);
@@ -345,7 +345,7 @@ export default {
         },
 
         async fetchSolarFlux() {
-            const url = "https://services.swpc.noaa.gov/json/f107_cm_flux.json";
+            const url = "https:
 
             try {
                 const response = await fetch(url);
@@ -408,7 +408,7 @@ export default {
         },
 
         async fetchScales() {
-            const url = "https://services.swpc.noaa.gov/products/noaa-scales.json";
+            const url = "https:
             try {
                 const response = await fetch(url);
                 const data = await response.json();

@@ -102,17 +102,17 @@ export default {
       try {
         const parsed = JSON.parse(savedSettings);
 
-        // 1. Deep merge or selectively copy the primary modules
+
         if (parsed.lightning) {
-          // 1. Uniformly assign all top-level properties and nested objects
+
           Object.assign(this.stg.lightning, parsed.lightning);
 
-          // 2. Explicitly handle the nested UI block if it was restored
+
           if (parsed.lightning.ui) {
             Object.assign(this.stg.lightning.ui, parsed.lightning.ui);
           }
 
-          // 3. Keep your float parsing guard safe
+
           if (parsed.lightning.homeLocation) {
             this.stg.lightning.homeLocation.lat = parseFloat(parsed.lightning.homeLocation.lat) || 34.05;
             this.stg.lightning.homeLocation.lon = parseFloat(parsed.lightning.homeLocation.lon) || -118.24;
@@ -135,7 +135,7 @@ export default {
           Object.assign(this.stg.weather, parsed.weather);
         }
 
-        console.log("App.vue (created): All configurations successfully restored from storage.");
+        // console.log("App.vue (created): All configurations successfully restored from storage.");
       } catch (e) {
         console.error("App.vue: Error pre-parsing saved settings", e);
       }
@@ -190,10 +190,10 @@ export default {
   watch: {
     stg: {
       handler(newSettings) {
-        // Every single time any setting changes, overwrite the old local storage string!
+
         localStorage.setItem('station_config_v1', JSON.stringify(newSettings));
       },
-      deep: true // This is crucial for nested properties!
+      deep: true
     }
   },
 };

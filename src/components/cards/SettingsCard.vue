@@ -186,7 +186,7 @@ export default {
 
 
             const normalizedUnit = newUnit.toLowerCase();
-            console.log("SettingsCard: Toggling unit safely to:", normalizedUnit);
+            // console.log("SettingsCard: Toggling unit safely to:", normalizedUnit);
 
             this.stg.units.distance = normalizedUnit;
 
@@ -211,7 +211,7 @@ export default {
 
             localStorage.setItem('station_config_v1', JSON.stringify(this.stg));
 
-            console.log("Station updated successfully:", lat, lon, this.stg?.units?.distance);
+            // console.log("Station updated successfully:", lat, lon, this.stg?.units?.distance);
         },
 
 
@@ -247,7 +247,7 @@ export default {
                 downloadAnchorNode.click();
                 downloadAnchorNode.remove();
 
-                console.log("Live configuration successfully exported to disk.");
+                // console.log("Live configuration successfully exported to disk.");
             } catch (e) {
                 console.error("Export failed:", e);
             }

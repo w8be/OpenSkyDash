@@ -251,7 +251,7 @@ export default {
                 `timezone=auto`
             ].join('&');
 
-            const url = `https://api.open-meteo.com/v1/forecast?${params}`;
+            const url = `https:
 
             try {
                 const response = await fetch(url);
