@@ -172,7 +172,7 @@ export default {
             reconnectTimer: null,
             heartbeat: null,
             panel: null,
-            displayTime: '--:--', 
+            displayTime: '--:--',
             solarData: {}
         };
     },
@@ -183,7 +183,7 @@ export default {
     },
     mounted() {
 
-        
+
 
         if (this.solarTimer) clearInterval(this.solarTimer);
 
@@ -191,7 +191,7 @@ export default {
         if (saved && saved !== "undefined") {
             try {
                 const config = JSON.parse(saved);
-                
+
             } catch (e) {
             }
         } else {
@@ -226,14 +226,14 @@ export default {
 
     computed: {
         convertedHmf2() {
-            
+
             const solar = this.stg?.solar;
             const iono = solar?.current?.ionosphere;
             const raw = iono?.hmf2;
 
             if (raw === undefined || raw === null) return '--';
 
-            
+
             const unit = String(this.stg?.units?.distance || 'Mi').trim().toLowerCase();
             const isMi = unit === 'mi';
 
@@ -248,27 +248,27 @@ export default {
         },
 
         currentDistanceUnit() {
-            
+
             return this.stg?.units?.distance?.toLowerCase() || 'mi';
         },
 
         lastUpdate() {
             const raw = this.stg?.solar?.current?.ionosphere?.ts;
 
-            
+
             console.log("Computed saw raw value:", raw);
 
-            
+
             if (!raw || raw === 0) {
                 return 'Waiting for Data...';
             }
 
-            
+
             if (typeof raw === 'string' && raw.includes(':')) {
                 return raw;
             }
 
-            
+
             try {
                 if (!isNaN(Number(raw))) {
                     const dateObj = new Date(Number(raw) * 1000);
@@ -290,12 +290,12 @@ export default {
         async fetchSolarData() {
             const home = this.stg?.lightning?.homeLocation || { lat: 34.05, lon: -118.24 };
 
-            
+
             const urls = {
-                fof2: `https:
-                flux: "https:
-                scales: "https:
-                indices: "https:
+                fof2: `https://prop.kc2g.com/api/point_prediction.json?grid=${home.lat},${home.lon}`,
+                flux: `https://services.swpc.noaa.gov/json/f107_cm_flux.json`,
+                scales: `https://services.swpc.noaa.gov/products/noaa-scales.json`,
+                indices: `https://services.swpc.noaa.gov/text/daily-geomagnetic-indices.txt`
             };
 
             try {
@@ -305,11 +305,11 @@ export default {
         },
 
         async fetchGeomagneticIndices() {
-            const url = "https:
+            const url = "https://services.swpc.noaa.gov/text/daily-geomagnetic-indices.txt";
 
             try {
                 const response = await fetch(url);
-                const payload = await response.text(); 
+                const payload = await response.text();
 
                 let aIndex = -1;
                 let kIndex = -1;
@@ -317,16 +317,16 @@ export default {
                 const lines = payload.split('\n');
                 let i = 0;
 
-                
+
                 for (i = lines.length - 1; i >= 0; i--) {
-                    
+
                     if (lines[i].startsWith(':') || lines[i].startsWith('#') || !lines[i].trim()) continue;
 
                     aIndex = parseInt(lines[i].substring(59).trim().split(/\s+/)[0]);
                     if (aIndex >= 0) break;
                 }
 
-                
+
                 if (i >= 0) {
                     let values = lines[i].substring(65).trim().split(/\s+/);
                     for (let j = values.length - 1; j >= 0; j--) {
@@ -345,18 +345,18 @@ export default {
         },
 
         async fetchSolarFlux() {
-            const url = "https:
+            const url = "https://services.swpc.noaa.gov/json/f107_cm_flux.json";
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
 
 
-                
+
                 if (data && data.length > 0) {
                     const currentFlux = parseFloat(data[0].flux);
 
-                    
+
                     if (this.stg && this.stg.solar && this.stg.solar.current && this.stg.solar.current.geoMagnetic) {
                         this.stg.solar.current.geoMagnetic.flux = currentFlux;
                     }
@@ -384,11 +384,11 @@ export default {
                 const response = await fetch(url);
                 const data = await response.json();
 
-                
+
                 const { fof2, hmf2, mufd, ts } = data;
 
-                
-                const date = new Date(); 
+
+                const date = new Date();
                 const formattedTime = date.toLocaleString('en-US', {
                     hour12: true,
                     hour: 'numeric',
@@ -408,15 +408,14 @@ export default {
         },
 
         async fetchScales() {
-            const url = "https:
+            const url = "https://services.swpc.noaa.gov/products/noaa-scales.json";
             try {
                 const response = await fetch(url);
                 const data = await response.json();
 
-                
                 const observed = data["0"];
 
-                
+
                 const forecast = data["1"];
 
                 if (this.stg && this.stg.solar && this.stg.solar.current.scales) {
@@ -463,7 +462,7 @@ export default {
         getScaleColor(value, isLabel = false) {
             const val = parseInt(value);
 
-            
+
             let color = '#92d050';
 
             if (val === 5) color = '#C80000';
@@ -472,7 +471,7 @@ export default {
             else if (val === 2) color = '#FFC800';
             else if (val === 1) color = '#F6EB14';
 
-            
+
             return color;
         },
         getScaleCondition(value, isLabel = false) {

@@ -85,7 +85,7 @@
                     <span class="label"><v-icon icon="mdi-eye" v-tooltip:top="'Current Visibility'"
                             color="brown-lighten-2" size="large"></v-icon></span>
                     <span class="val"><strong>{{ stg.weather.current.visibility }} {{ stg.units.distance
-                    }}</strong></span>
+                            }}</strong></span>
                 </div>
                 <div class="metric-cell border-t border-white-op">
                     <span class="label"><v-icon icon="mdi-sun-wireless" v-tooltip:top="'Current UV Exposure'"
@@ -251,7 +251,7 @@ export default {
                 `timezone=auto`
             ].join('&');
 
-            const url = `https:
+            const url = `https://api.open-meteo.com/v1/forecast?${params}`;
 
             try {
                 const response = await fetch(url);
