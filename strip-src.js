@@ -1,7 +1,5 @@
-// strip-src.js
 import fs from 'fs'
 import path from 'path'
-import strip from 'strip-comments'
 
 function processDirectory(dir) {
   // Failsafe in case a directory doesn't exist
@@ -19,21 +17,20 @@ function processDirectory(dir) {
     if (stat.isDirectory()) {
       processDirectory(fullPath) // Recursive scan for subdirectories
     } else if (file.endsWith('.js') || file.endsWith('.vue')) {
-  let cleanContent = fs.readFileSync(fullPath, 'utf8')
+      let cleanContent = fs.readFileSync(fullPath, 'utf8')
 
-  // 1. Strip out HTML comments first: if (file.endsWith('.vue')) {
-    cleanContent = cleanContent.replace(//g, '')
-  }
+      // 1. Strip out HTML comments first
+      if (file.endsWith('.vue')) {
+        cleanContent = cleanContent.replace(new RegExp('', 'g'), '')
+      }
 
-  // 2. Strip out multi-line JavaScript comments: /* comment */
-  cleanContent = cleanContent.replace(/\/\*[\s\S]*?\*\//g, '')
+      // 2. Strip out multi-line JavaScript comments: /* comment */
+      cleanContent = cleanContent.replace(/\/\*[\s\S]*?\*\//g, '')
 
-  // 3. Strip out single-line JavaScript comments: // comment
-  // This regex matches // but makes sure it isn't part of a URL (like http://)
-  cleanContent = cleanContent.replace(/(^|[^\/])\/\/.*$/gm, '$1')
+      // 3. Strip out single-line JavaScript comments: // comment
+      cleanContent = cleanContent.replace(/(^|[^\/])\/\/.*$/gm, '$1')
 
-  fs.writeFileSync(fullPath, cleanContent, 'utf8')
-}
+      fs.writeFileSync(fullPath, cleanContent, 'utf8')
     }
   })
 }
