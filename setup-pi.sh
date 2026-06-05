@@ -154,7 +154,7 @@ done
 
 check_raspberry_pi() {
     if [ -f /proc/device-tree/model ]; then
-        MODEL=$(cat /proc/device-tree/model)
+        MODEL=$(cat /proc/device-tree/model | tr -d '\0')
         echo -e "${GREEN}✓ Detected: $MODEL${NC}"
     else
         echo -e "${YELLOW}⚠ Warning: This doesn't appear to be a Raspberry Pi${NC}"
@@ -287,7 +287,7 @@ setup_repository() {
         git config core.fileMode false 2>/dev/null
 
         # Unified npm install (removed the redundant second run)
-        ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --include=dev --ignore-scripts --loglevel=error
+        ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm_config_loglevel=error npm install --include=dev --ignore-scripts
 
         echo -e "${BLUE}>>> Downloading vendor assets for privacy...${NC}"
         # bash scripts/vendor-download.sh || echo -e "${YELLOW}⚠️ Vendor download failed – will fall back to CDN${NC}"
