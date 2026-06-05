@@ -249,43 +249,61 @@ install_dependencies() {
     echo -e "${GREEN}✓ Dependencies installed${NC}"
 }
 
-setup_repository() {    
+setup_repository() {
     echo -e "${BLUE}>>> Setting up OpenSkyDash...${NC}"
 
-    if [ ! -f /swapfile ]; then
-        echo -e "${BLUE}>>> Creating temporary swap for build...${NC}"
-        sudo fallocate -l 1G /swapfile
-        sudo chmod 600 /swapfile
-        sudo mkswap /swapfile
-        sudo swapon /swapfile
-    fi
-    
+    # 1. Handle Git Pull or Clone
+    local updated=false
     if [ -d "$INSTALL_DIR" ]; then
         echo "Updating existing installation..."
         cd "$INSTALL_DIR"
-        git pull
+        
+        # Capture git output to see if anything actually changed
+        local git_output
+        git_output=$(git pull)
+        echo "$git_output"
+        
+        if [[ "$git_output" != *"Already up to date."* ]]; then
+            updated=true
+        fi
     else
         echo "Cloning repository..."
         git clone https://github.com/w8be/OpenSkyDash.git "$INSTALL_DIR"
         cd "$INSTALL_DIR"
-    fi
-    
-    git config core.fileMode false 2>/dev/null
-    
-    ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --include=dev --ignore-scripts
-
-    echo -e "${BLUE}>>> Downloading vendor assets for privacy...${NC}"
-    bash scripts/vendor-download.sh || echo -e "${YELLOW}⚠ Vendor download failed — will fall back to CDN${NC}"
-
-    npm install
-    npm run build
-
-    if [ -f /swapfile ]; then
-        sudo swapoff /swapfile
-        sudo rm /swapfile
+        updated=true
     fi
 
-    echo -e "${GREEN}✓ OpenSkyDash installed to $INSTALL_DIR${NC}"
+    # 2. Only build if it's a fresh install OR if new code was actually pulled
+    if [ "$updated" = true ]; then
+        # Setup swap if needed for resource-constrained Pis
+        if [ ! -f /swapfile ]; then
+            echo -e "${BLUE}>>> Creating temporary swap for build...${NC}"
+            sudo fallocate -l 1G /swapfile
+            sudo chmod 600 /swapfile
+            sudo mkswap /swapfile
+            sudo swapon /swapfile
+        fi
+
+        git config core.fileMode false 2>/dev/null
+
+        # Unified npm install (removed the redundant second run)
+        ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --include=dev --ignore-scripts --loglevel=error
+
+        echo -e "${BLUE}>>> Downloading vendor assets for privacy...${NC}"
+        # bash scripts/vendor-download.sh || echo -e "${YELLOW}⚠️ Vendor download failed – will fall back to CDN${NC}"
+
+        npm run build
+
+        # Clean up swap
+        if [ -f /swapfile ]; then
+            sudo swapoff /swapfile
+            sudo rm /swapfile
+        fi
+    else
+        echo -e "${GREEN}>>> No source changes detected. Skipping build step.${NC}"
+    fi
+
+    echo -e "${GREEN}✓ OpenSkyDash installed/updated to $INSTALL_DIR${NC}"
 }
 
 create_service() {
