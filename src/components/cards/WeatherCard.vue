@@ -308,7 +308,7 @@ export default {
                 const forecastBuffer = data.daily.time.slice(0, 3).map((date, i) => {
                     const dayCond = this.interpretWMO(data.daily.weather_code[i]);
                     return {
-                        name: i === 0 ? 'Today' : new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' }),
+                        name: i === 0 ? 'Today' : new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' }),
                         high: Math.round(data.daily.temperature_2m_max[i]),
                         low: Math.round(data.daily.temperature_2m_min[i]),
                         precip: data.daily.precipitation_probability_max[i],
