@@ -545,7 +545,7 @@ EOF
 deploy_dashboard() {
     echo -e "${BLUE}>>> Deploying OpenSkyDash Dashboard...${NC}"
 
-    cd /home/w8be/OpenSkyDash || { echo -e "${RED}✗ Directory not found${NC}"; return; }
+    cd $INSTALL_DIR || { echo -e "${RED}✗ Directory not found${NC}"; return; }
 
     echo -e "${BLUE}    Installing Node modules...${NC}"
     npm install --quiet
