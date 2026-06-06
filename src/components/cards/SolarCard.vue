@@ -13,26 +13,27 @@
                 </div>
             </div>
         </div>
-        <div>
+
+        <div v-if="stg?.solar?.current">
             <v-row justify="space-around" class="mt-1">
                 <!-- SFI Gauge: Max 300 -->
                 <v-col cols="4" class="text-center">
-                    <v-progress-circular :model-value="Number(stg?.solar?.current?.geoMagnetic?.flux / 300) * 100"
-                        :max="300" :size="60" :width="8" :color="getSFIColor(stg?.solar?.current?.geoMagnetic?.flux)"
+                    <v-progress-circular :model-value="Number(stg.solar.current.geoMagnetic.flux / 300) * 100"
+                        :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic?.flux)"
                         bg-color="grey-darken-3" rotate="220">
-                        <span class="text-h6 font-weight-bold">{{ stg?.solar?.current?.geoMagnetic?.flux
-                        }}</span>
+                        <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.flux
+                            }}</span>
                     </v-progress-circular>
                     <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
                 </v-col>
 
                 <!-- A-Index Gauge: Max 100 -->
                 <v-col cols="4" class="text-center">
-                    <v-progress-circular :model-value="Number(stg?.solar?.current?.geoMagnetic?.aIndex || 0)" :max="100"
-                        :size="60" :width="8" :color="getAIndexColor(stg?.solar?.current?.geoMagnetic?.aIndex)"
+                    <v-progress-circular :model-value="Number(stg.solar.current.geoMagnetic.aIndex || 0)" :max="100"
+                        :size="60" :width="8" :color="getAIndexColor(stg.solar.current.geoMagnetic.aIndex)"
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">
-                            {{ stg?.solar?.current?.geoMagnetic?.aIndex ?? '--' }}
+                            {{ stg.solar.current.geoMagnetic.aIndex ?? '--' }}
                         </span>
                     </v-progress-circular>
                     <div class="text-subtitle-2 mt-1 stat-value" v-tooltip:bottom="'Planetary Ap'">A</div>
@@ -40,11 +41,10 @@
 
                 <!-- K-Index Gauge: Max 9 -->
                 <v-col cols="4" class="text-center">
-                    <v-progress-circular
-                        :model-value="Number((stg?.solar?.current?.geoMagnetic?.kIndex ?? 0) / 9) * 100" :max="9"
-                        :size="60" :width="8" :color="getKIndexColor(stg?.solar?.current?.geoMagnetic?.kIndex)"
+                    <v-progress-circular :model-value="Number((stg.solar.current.geoMagnetic?.kIndex ?? 0) / 9) * 100"
+                        :max="9" :size="60" :width="8" :color="getKIndexColor(stg.solar.current.geoMagnetic.kIndex)"
                         bg-color="grey-darken-3" rotate="220">
-                        <span class="text-h6 font-weight-bold">{{ stg?.solar?.current?.geoMagnetic?.kIndex }}</span>
+                        <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.kIndex }}</span>
                     </v-progress-circular>
                     <div class="text-subtitle-2 mt-1 stat-value" v-tooltip:bottom="'Planetary Kp'">K</div>
                 </v-col>
@@ -58,7 +58,7 @@
                 <v-icon icon="mdi-wave" v-tooltip:top="'F2 Critical Freq'" color="cyan-lighten-3" size="small"
                     class="mb-1"></v-icon>
                 <div class="text-body-2 font-weight-bold  stat-value" style="line-height: 1;">
-                    {{ stg?.solar?.current?.ionosphere?.fof2 }}
+                    {{ stg.solar.current.ionosphere.fof2 }}
                 </div>
                 <div class="text-grey-darken-1 mt-1"
                     style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -71,7 +71,7 @@
                 <v-icon icon="mdi-radio-tower" v-tooltip:top="'Max Usable Freq'" color="green-lighten-3" size="small"
                     class="mb-1"></v-icon>
                 <div class="text-body-2 font-weight-bold  stat-value" style="line-height: 1;">
-                    {{ stg?.solar?.current?.ionosphere?.mufd }}
+                    {{ stg.solar.current.ionosphere.mufd }}
                 </div>
                 <div class="text-grey-darken-1 mt-1"
                     style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -94,7 +94,7 @@
         </v-row>
 
         <div><v-row no-gutters justify="center" class="mt-2 mb-2">
-                <v-col v-for="(val, key) in stg?.solar?.current?.scales?.current" :key="key" cols="3" class="mx-1">
+                <v-col v-for="(val, key) in stg.solar.current.scales.current" :key="key" cols="3" class="mx-1">
                     <v-card flat border class="text-center rounded-sm" :color="getScaleColor(val, true)">
                         <!-- The Big Letter -->
                         <div class="text-h4 font-weight-black pt-1" style="line-height: 1;"
@@ -122,28 +122,28 @@
                         <!-- R1-R2 Probability -->
                         <div class="d-flex align-center mb-2">
                             <span class="mr-2 prob-label">R1-R2</span>
-                            <v-progress-linear :model-value="stg?.solar?.current?.scales?.probabilities?.rMinor"
+                            <v-progress-linear :model-value="stg.solar.current.scales.probabilities.rMinor"
                                 color="yellow-darken-2" height="8" rounded></v-progress-linear>
                             <span class="text-caption ml-2 prob-percent">{{
-                                stg?.solar?.current?.scales?.probabilities?.rMinor }}%</span>
+                                stg.solar.current.scales.probabilities.rMinor }}%</span>
                         </div>
 
                         <!-- R3-R5 Probability -->
                         <div class="d-flex align-center mb-2">
                             <span class=" mr-2 prob-label">R3-R5</span>
-                            <v-progress-linear :model-value="stg?.solar?.current?.scales?.probabilities?.rMajor"
+                            <v-progress-linear :model-value="stg.solar.current.scales.probabilities.rMajor"
                                 color="orange-darken-2" height="8" rounded></v-progress-linear>
                             <span class="text-caption ml-2 prob-percent">{{
-                                stg?.solar?.current?.scales?.probabilities?.rMajor }}%</span>
+                                stg.solar.current.scales.probabilities.rMajor }}%</span>
                         </div>
 
                         <!-- S1+ Probability -->
                         <div class="d-flex align-center mb-1">
                             <span class="mr-2 prob-label">S1+</span>
-                            <v-progress-linear :model-value="stg?.solar?.current?.scales?.probabilities?.sStorm"
+                            <v-progress-linear :model-value="stg.solar.current.scales.probabilities.sStorm"
                                 color="red-darken-2" height="8" rounded></v-progress-linear>
                             <span class="text-caption ml-2 prob-percent">{{
-                                stg?.solar?.current?.scales?.probabilities?.sStorm }}%</span>
+                                stg.solar.current.scales.probabilities.sStorm }}%</span>
                         </div>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
