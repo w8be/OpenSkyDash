@@ -547,12 +547,6 @@ deploy_dashboard() {
 
     cd $INSTALL_DIR || { echo -e "${RED}✗ Directory not found${NC}"; return; }
 
-    # echo -e "${BLUE}    Installing Node modules...${NC}"
-    # npm_config_loglevel=error npm install --quiet
-
-    # echo -e "${BLUE}    Building production assets (Vite)...${NC}"
-    # npm run build
-
     echo -e "${BLUE}    Setting up Systemd Service...${NC}"
 
     sudo systemctl daemon-reload
