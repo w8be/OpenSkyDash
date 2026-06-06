@@ -8,13 +8,14 @@
                 <div class="d-flex flex-column align-start ml-2">
                     <span class="text-subtitle-1 font-weight-bold stat-value"
                         style="line-height: 1.0rem; font-size: 1.2rem;">Solar</span>
-                    <span class="text-grey-darken-1" style="font-size: 0.55rem;">NOAA.org / KC2G.com {{
-                        lastUpdate }}</span>
+                    <span :key="stg?.solar?.current?.ionosphere?.ts" class="text-grey-darken-1"
+                        style="font-size: 0.55rem;">NOAA.org / KC2G.com {{
+                            stg?.solar?.current?.ionosphere?.ts }}</span>
                 </div>
             </div>
         </div>
 
-        <div v-if="stg?.solar?.current">
+        <div v-if="stg?.solar?.current?.geoMagnetic && stg?.solar?.current?.ionosphere">
             <v-row justify="space-around" class="mt-1">
                 <!-- SFI Gauge: Max 300 -->
                 <v-col cols="4" class="text-center">
@@ -22,7 +23,7 @@
                         :max="300" :size="60" :width="8" :color="getSFIColor(stg.solar.current.geoMagnetic?.flux)"
                         bg-color="grey-darken-3" rotate="220">
                         <span class="text-h6 font-weight-bold">{{ stg.solar.current.geoMagnetic.flux
-                            }}</span>
+                        }}</span>
                     </v-progress-circular>
                     <div v-tooltip:bottom="'10.7cm'" class="text-subtitle-2 mt-1  stat-value">SFI</div>
                 </v-col>
@@ -252,35 +253,6 @@ export default {
             return this.stg?.units?.distance?.toLowerCase() || 'mi';
         },
 
-        lastUpdate() {
-            const raw = this.stg?.solar?.current?.ionosphere?.ts;
-
-
-            if (!raw || raw === 0) {
-                return 'Waiting for Data...';
-            }
-
-
-            if (typeof raw === 'string' && raw.includes(':')) {
-                return raw;
-            }
-
-
-            try {
-                if (!isNaN(Number(raw))) {
-                    const dateObj = new Date(Number(raw) * 1000);
-                    return dateObj.toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: 'numeric',
-                        hour12: true
-                    });
-                }
-            } catch (e) {
-                return 'Error parsing date';
-            }
-
-            return 'Waiting for Data...';
-        }
     },
 
     methods: {
