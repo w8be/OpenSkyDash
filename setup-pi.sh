@@ -258,7 +258,6 @@ setup_repository() {
         echo "Updating existing installation..."
         cd "$INSTALL_DIR"
         
-        # Capture git output to see if anything actually changed
         local git_output
         git_output=$(git pull)
         echo "$git_output"
@@ -273,9 +272,8 @@ setup_repository() {
         updated=true
     fi
 
-    # 2. Only build if it's a fresh install OR if new code was actually pulled
     if [ "$updated" = true ]; then
-        # Setup swap if needed for resource-constrained Pis
+
         if [ ! -f /swapfile ]; then
             echo -e "${BLUE}>>> Creating temporary swap for build...${NC}"
             sudo fallocate -l 1G /swapfile
@@ -286,15 +284,10 @@ setup_repository() {
 
         git config core.fileMode false 2>/dev/null
 
-        # Unified npm install (removed the redundant second run)
         ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm_config_loglevel=error npm install --include=dev --ignore-scripts
-
-        echo -e "${BLUE}>>> Downloading vendor assets for privacy...${NC}"
-        # bash scripts/vendor-download.sh || echo -e "${YELLOW}⚠️ Vendor download failed – will fall back to CDN${NC}"
 
         npm run build
 
-        # Clean up swap
         if [ -f /swapfile ]; then
             sudo swapoff /swapfile
             sudo rm /swapfile
